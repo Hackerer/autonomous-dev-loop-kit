@@ -103,7 +103,7 @@ def main() -> int:
 
     generated_project_data = ROOT / ".agent-loop/data/project-data.generated.json"
     collector = subprocess.run(
-        ["python3", ".agent-loop/scripts/collect-project-data.py", "--output", str(generated_project_data)],
+        ["python3", ".agent-loop/scripts/collect-project-data.py", "--output", str(generated_project_data), "--no-state"],
         cwd=str(ROOT),
         text=True,
         capture_output=True,
@@ -122,6 +122,7 @@ def main() -> int:
             str(generated_project_data),
             "--output",
             str(generated_quality),
+            "--no-state",
         ],
         cwd=str(ROOT),
         text=True,

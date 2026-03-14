@@ -1,0 +1,70 @@
+{
+  "snapshot_version": 1,
+  "collected_at": "2026-03-14T10:37:49Z",
+  "repo": {
+    "root": "/Users/zhujian112/Documents/Vibe Coding/autonomous-dev-loop-kit",
+    "name": "autonomous-dev-loop-kit",
+    "current_branch": "main",
+    "worktree_clean": false,
+    "remotes": [
+      {
+        "name": "origin",
+        "url": "https://github.com/Hackerer/autonomous-dev-loop-kit.git",
+        "scope": "fetch"
+      }
+    ]
+  },
+  "project": {
+    "languages": [
+      "python"
+    ],
+    "framework_signals": [],
+    "package_managers": [],
+    "runtime_files": [],
+    "key_paths": [
+      ".agent-loop",
+      ".agents",
+      ".claude",
+      "docs"
+    ]
+  },
+  "validation": {
+    "configured_commands": [
+      {
+        "name": "validate-kit",
+        "command": "python3 .agent-loop/scripts/validate-kit.py",
+        "required": true
+      }
+    ],
+    "blocking_gates": [
+      "validate-kit"
+    ],
+    "confidence": "direct"
+  },
+  "product_context": {
+    "target_outcome": "Turn `autonomous-dev-loop-kit` into a stronger cross-CLI kit that gathers high-quality project data and context before acting. Make high-quality data acquisition a first-class part of the loop, not an implicit side effect. Keep the kit usable from minimal prompts such as `\u5faa\u73af10`, while preserving strict validation, reporting, and Git publication rules.",
+    "constraints": [
+      "Keep the core protocol shared across Codex CLI and Claude Code CLI.",
+      "Use ReAct in the Shunyu Yao paper sense: reason, act, observe, update.",
+      "Do not require verbose chain-of-thought in user-visible chat.",
+      "Every published version must pass real validation, write a report, and publish to this repo's own GitHub remote.",
+      "Favor deterministic scripts and durable repo state over purely prompt-based behavior."
+    ],
+    "open_risks": []
+  },
+  "evidence": {
+    "sources": [
+      "PLANS.md",
+      ".agent-loop/config.json",
+      ".agent-loop/state.json",
+      "git status",
+      "git remote -v"
+    ],
+    "freshness": "direct",
+    "confidence": "direct",
+    "gaps": []
+  },
+  "notes": [
+    "This snapshot is a first-pass repo scan and should be refreshed after major structural changes."
+  ]
+}

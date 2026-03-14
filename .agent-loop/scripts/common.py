@@ -64,6 +64,13 @@ def default_state() -> dict[str, Any]:
             "started_at": None,
             "ended_at": None,
         },
+        "project_data": {
+            "snapshot_path": None,
+            "quality_path": None,
+            "last_collected_at": None,
+            "last_quality_score": None,
+            "last_quality_status": None,
+        },
         "current_goal": None,
         "draft_iteration": None,
         "draft_report": None,
@@ -90,6 +97,14 @@ def load_state(root: Path) -> dict[str, Any]:
     normalized_session = dict(default_session)
     normalized_session.update(session)
     merged["session"] = normalized_session
+
+    project_data = merged.get("project_data")
+    if not isinstance(project_data, dict):
+        project_data = {}
+    default_project_data = default_state()["project_data"]
+    normalized_project_data = dict(default_project_data)
+    normalized_project_data.update(project_data)
+    merged["project_data"] = normalized_project_data
 
     last_validation = merged.get("last_validation")
     if not isinstance(last_validation, dict):

@@ -70,7 +70,7 @@
     "id": "iteration-07-state-integration",
     "title": "Integrate data snapshot and quality state into the loop's durable state model",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "State or related artifacts can record where the latest data snapshot lives",
       "The protocol explains when to refresh data before acting"

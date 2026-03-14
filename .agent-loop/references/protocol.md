@@ -14,6 +14,8 @@ This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason 
 - `.agent-loop/backlog.json`
 - `.agent-loop/references/data-quality-acquisition.md`
 - `.agent-loop/templates/project-data-template.json`
+- `.agent-loop/data/project-data.json` when collected
+- `.agent-loop/data/data-quality.json` when scored
 - `docs/reports/`
 
 Do not rely on the conversation as the only source of truth.
@@ -41,6 +43,7 @@ Every version follows the same state machine:
    - Reconcile what exists now against the target outcome in `PLANS.md`.
    - Do a silent deep-thinking pass before acting: identify assumptions, unknowns, risks, and the smallest next high-signal action.
    - If data quality is unclear, consult `.agent-loop/references/data-quality-acquisition.md` and gather missing signals before editing.
+   - Prefer using `.agent-loop/state.json` to locate the latest project-data snapshot and quality assessment instead of reconstructing that state from chat memory.
 2. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.

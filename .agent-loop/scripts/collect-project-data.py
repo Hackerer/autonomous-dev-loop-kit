@@ -5,7 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
-from common import find_repo_root, git, load_config, load_json, load_state, save_json, current_branch
+from common import find_repo_root, git, load_config, load_json, load_state, save_json, save_state, current_branch, relpath
 
 
 def read_text(path: Path) -> str:
@@ -150,6 +150,7 @@ def git_remotes(root: Path) -> list[dict[str, str]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Collect first-pass project data into a structured snapshot.")
     parser.add_argument("--output", help="Output path for the generated project data JSON.")
+    parser.add_argument("--no-state", action="store_true", help="Do not persist snapshot metadata into .agent-loop/state.json.")
     args = parser.parse_args()
 
     root = find_repo_root()
@@ -202,6 +203,10 @@ def main() -> int:
     output = Path(args.output) if args.output else root / ".agent-loop/data/project-data.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     save_json(output, snapshot)
+    if not args.no_state:
+        state["project_data"]["snapshot_path"] = relpath(output, root)
+        state["project_data"]["last_collected_at"] = snapshot["collected_at"]
+        save_state(root, state)
     print(output)
     return 0
 

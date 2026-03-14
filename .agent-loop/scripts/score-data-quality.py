@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from common import find_repo_root, load_json, save_json
+from common import find_repo_root, load_json, save_json, load_state, save_state, relpath
 
 
 def add_gap(gaps: list[str], condition: bool, message: str, score: int) -> int:
@@ -18,6 +18,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Score whether collected project data is good enough to act on.")
     parser.add_argument("--input", help="Input project data JSON path.")
     parser.add_argument("--output", help="Output data quality JSON path.")
+    parser.add_argument("--no-state", action="store_true", help="Do not persist quality metadata into .agent-loop/state.json.")
     args = parser.parse_args()
 
     root = find_repo_root()
@@ -25,6 +26,7 @@ def main() -> int:
     output_path = Path(args.output) if args.output else root / ".agent-loop/data/data-quality.json"
 
     snapshot = load_json(input_path)
+    state = load_state(root)
     gaps: list[str] = []
     score = 0
 
@@ -64,6 +66,11 @@ def main() -> int:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     save_json(output_path, quality)
+    if not args.no_state:
+        state["project_data"]["quality_path"] = relpath(output_path, root)
+        state["project_data"]["last_quality_score"] = score
+        state["project_data"]["last_quality_status"] = status
+        save_state(root, state)
     print(output_path)
     return 0
 
