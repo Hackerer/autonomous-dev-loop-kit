@@ -2,7 +2,7 @@
   "version": 1,
   "mode": "autonomous-dev-loop",
   "git": {
-    "strategy": "push-branch",
+    "strategy": "direct-push",
     "remote": "origin",
     "base_branch": "main",
     "branch_prefix": "auto-loop/v",
@@ -14,8 +14,8 @@
     "stop_on_first_failure": false,
     "commands": [
       {
-        "name": "configure-validation",
-        "command": "python3 -c \"import sys; sys.stderr.write('Replace validation.commands in .agent-loop/config.json with this repository\\'s real lint, typecheck, test, build, and e2e commands.\\\\n'); sys.exit(1)\"",
+        "name": "validate-kit",
+        "command": "python3 .agent-loop/scripts/validate-kit.py",
         "required": true
       }
     ]
@@ -26,7 +26,7 @@
   },
   "planning": {
     "require_explicit_target_iterations": true,
-    "max_iterations_per_session": 3,
+    "max_iterations_per_session": 10,
     "max_consecutive_failures": 2,
     "goal_selection_policy": "highest-priority-pending"
   },
