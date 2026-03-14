@@ -92,7 +92,7 @@
     "id": "iteration-09-goal-selection-from-data",
     "title": "Improve next-goal selection using data quality gaps and evidence gaps",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Goal selection can favor tasks that close the biggest data or evidence gaps",
       "The logic stays deterministic and understandable"

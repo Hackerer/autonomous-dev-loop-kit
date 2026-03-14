@@ -114,3 +114,8 @@ At minimum, the quality assessment should answer:
 - Is the snapshot sufficient to act on?
 - Which blocking gaps remain?
 - Which signals should be refreshed first?
+
+Quality gaps should influence planning:
+
+- if the quality report is not `ready`, prefer goals that close the biggest evidence or tooling gaps
+- do not treat backlog order as more important than known missing context when the next action depends on that context
