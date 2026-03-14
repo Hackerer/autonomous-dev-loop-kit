@@ -1,0 +1,143 @@
+# Autonomous Dev Loop Protocol
+
+## Purpose
+
+Use this protocol when the user wants repeated, self-directed software delivery instead of a single edit. The protocol is designed to maximize delivery quality by separating durable state from the chat and by making every version pass explicit gates.
+
+This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason + Act`, not the frontend framework `React`.
+
+## Required Artifacts
+
+- `PLANS.md`
+- `.agent-loop/config.json`
+- `.agent-loop/state.json`
+- `.agent-loop/backlog.json`
+- `docs/reports/`
+
+Do not rely on the conversation as the only source of truth.
+
+Run `.agent-loop/scripts/*.py` sequentially. They share `.agent-loop/state.json` and should not be launched in parallel.
+
+## Entry Conditions
+
+Before the first autonomous iteration in a repo, confirm:
+
+1. `PLANS.md` explains the target outcome, constraints, and open risks.
+2. `.agent-loop/config.json` contains the real validation commands for this repo.
+3. The loop session has a persisted iteration limit. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
+4. The Git strategy is explicit: `push-branch`, `direct-push`, or `commit-only`.
+5. The next version goal is small enough to implement and validate in one iteration.
+
+If any condition is missing, create or update the artifacts before attempting autonomous delivery.
+
+## State Machine
+
+Every version follows the same state machine:
+
+1. `analyze`
+   - Review current repo state, recent reports, current branch, open risks, and remaining backlog.
+   - Reconcile what exists now against the target outcome in `PLANS.md`.
+   - Do a silent deep-thinking pass before acting: identify assumptions, unknowns, risks, and the smallest next high-signal action.
+2. `select`
+   - Choose exactly one scoped goal.
+   - Favor the smallest task that materially advances the target while remaining fully testable.
+   - Refuse to start a new version if the configured session limit has already been reached.
+3. `implement`
+   - Use short ReAct cycles inside implementation:
+     - reason from the current evidence
+     - take one concrete action
+     - observe the result
+     - update the next action
+   - Make the minimum coherent code change.
+   - Update or add tests for the real behavior.
+4. `validate`
+   - Run the full configured validation suite.
+   - No publish step is allowed if validation is red.
+5. `report`
+   - Write a version report in `docs/reports/`.
+   - Record the goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
+6. `publish`
+   - Commit the complete version.
+   - Push or otherwise publish according to config.
+7. `reflect`
+   - Update `PLANS.md` and `.agent-loop/backlog.json`.
+   - Decide whether the next version should start or whether the loop should stop.
+
+## Version Gate
+
+A version is publishable only if all of these are true:
+
+- The scoped goal is completed or explicitly narrowed and explained in the report.
+- The configured full-validation suite passes.
+- A report file exists in `docs/reports/`.
+- The worktree state being published is intentional and understood.
+
+## Report Requirements
+
+Every report must include:
+
+- Iteration number
+- Date
+- Current state analysis
+- Version goal
+- Key observations from execution
+- Delivered behavior
+- Full validation evidence
+- Reflection on requirements and architecture
+- Proposed next goal
+
+Keep the report factual. Do not hide regressions or open risks. Store concise conclusions and observations, not verbose hidden reasoning traces.
+
+## Git Policy
+
+Treat Git as the durable release log for completed versions.
+
+- `push-branch`
+  - Create or reuse a branch with the configured prefix.
+  - Push the branch after the version commit succeeds.
+- `direct-push`
+  - Push the current branch only when the user has explicitly accepted that workflow.
+- `commit-only`
+  - Create the version commit locally and stop before network publication.
+
+Git publication must always target the current project's own GitHub repository, using the remote configured in that project.
+
+- Do not reuse a remote from another project.
+- Do not infer a publication target from memory of prior repos.
+- If the current project's remote is missing, non-GitHub, or otherwise unclear, stop and ask the user before publishing.
+
+Never publish an unvalidated version.
+
+## Stop Conditions
+
+Stop and report instead of continuing when any of the following is true:
+
+- Requirements conflict or materially changed mid-iteration
+- Credentials, secrets, or external access are missing
+- The next action is destructive or high-risk
+- Validation has failed repeatedly and the root cause is not yet understood
+- The configured session iteration limit has been reached
+- The current project's GitHub publication target is unclear
+- No remaining task has a clear, high-value, testable scope
+
+## Scope Discipline
+
+Autonomous loops degrade when scope expands inside the same version.
+
+- Finish one version before selecting another.
+- Do not mix refactors, feature growth, and infra churn unless the repo genuinely requires all of them for the same acceptance gate.
+- Prefer incremental, auditable progress over ambitious rewrites.
+
+## ReAct Execution Rules
+
+- Think deeply before high-cost actions, but keep that reasoning concise in external artifacts.
+- If evidence is missing, inspect or test before editing.
+- After each meaningful command, test, or code change, observe the result and update the plan.
+- If observations contradict the prior plan, revise the plan before taking the next action.
+- Prefer many small evidence-backed actions over one large speculative rewrite.
+
+## Cross-CLI Notes
+
+- Codex performs best with short, hard constraints and repo-based state.
+- Claude performs best when the same protocol is presented with explicit structure.
+- Keep the core protocol the same across CLIs. Change wrapper style, not release criteria.

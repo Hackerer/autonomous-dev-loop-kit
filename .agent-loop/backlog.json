@@ -1,0 +1,37 @@
+[
+  {
+    "id": "repo-acceptance-gates",
+    "title": "Replace placeholder validation commands with the repository's real acceptance gates",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "Configure lint, typecheck, test, build, and other blocking checks in .agent-loop/config.json",
+      "Document why each command is required for a publishable version"
+    ],
+    "notes": "This must be completed before the first real autonomous iteration."
+  },
+  {
+    "id": "repo-goal-and-constraints",
+    "title": "Fill PLANS.md with the product outcome, constraints, and current repo state",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "PLANS.md states the current target and non-negotiable constraints",
+      "PLANS.md lists current risks and decision log entries"
+    ],
+    "notes": "Autonomous loops drift quickly without a durable top-level plan."
+  },
+  {
+    "id": "first-scoped-version",
+    "title": "Ship the first small, validated version using the autonomous loop",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "One scoped goal is completed",
+      "Full validation passes",
+      "A report is written to docs/reports/",
+      "The iteration is committed and published according to config"
+    ],
+    "notes": "Keep the first version deliberately small so the loop calibrates safely."
+  }
+]

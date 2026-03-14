@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "mode": "autonomous-dev-loop",
+  "git": {
+    "strategy": "push-branch",
+    "remote": "origin",
+    "base_branch": "main",
+    "branch_prefix": "auto-loop/v",
+    "require_remote": true,
+    "require_github_remote": true,
+    "ask_user_if_remote_unclear": true
+  },
+  "validation": {
+    "stop_on_first_failure": false,
+    "commands": [
+      {
+        "name": "configure-validation",
+        "command": "python3 -c \"import sys; sys.stderr.write('Replace validation.commands in .agent-loop/config.json with this repository\\'s real lint, typecheck, test, build, and e2e commands.\\\\n'); sys.exit(1)\"",
+        "required": true
+      }
+    ]
+  },
+  "reporting": {
+    "directory": "docs/reports",
+    "filename_pattern": "v{iteration}.md"
+  },
+  "planning": {
+    "require_explicit_target_iterations": true,
+    "max_iterations_per_session": 3,
+    "max_consecutive_failures": 2,
+    "goal_selection_policy": "highest-priority-pending"
+  },
+  "stop_conditions": [
+    "requirements-conflict",
+    "shared-system-risk",
+    "missing-credentials",
+    "unclear-git-publication-target",
+    "consecutive-validation-failures",
+    "no-high-value-task-left"
+  ]
+}

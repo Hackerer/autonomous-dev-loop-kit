@@ -1,0 +1,23 @@
+{
+  "iteration": 0,
+  "status": "idle",
+  "session": {
+    "status": "not_configured",
+    "target_iterations": null,
+    "completed_iterations": 0,
+    "started_at": null,
+    "ended_at": null
+  },
+  "current_goal": null,
+  "draft_iteration": null,
+  "draft_report": null,
+  "draft_goal": null,
+  "last_report": null,
+  "last_validation": {
+    "status": "not_run",
+    "ran_at": null,
+    "results": []
+  },
+  "consecutive_failures": 0,
+  "history": []
+}
