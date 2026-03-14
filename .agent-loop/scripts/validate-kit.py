@@ -113,6 +113,25 @@ def main() -> int:
     if collector.returncode == 0:
         validate_json(generated_project_data, failures)
 
+    generated_quality = ROOT / ".agent-loop/data/data-quality.generated.json"
+    scorer = subprocess.run(
+        [
+            "python3",
+            ".agent-loop/scripts/score-data-quality.py",
+            "--input",
+            str(generated_project_data),
+            "--output",
+            str(generated_quality),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    check(scorer.returncode == 0, "score-data-quality.py runs successfully", failures)
+    if scorer.returncode == 0:
+        validate_json(generated_quality, failures)
+
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)
         return 1

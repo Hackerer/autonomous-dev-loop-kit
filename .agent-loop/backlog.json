@@ -59,7 +59,7 @@
     "id": "iteration-06-score-data-quality",
     "title": "Add a script that scores whether the collected project data is good enough to act on",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo contains a scoring or checklist script for snapshot quality",
       "The scoring output highlights missing signals or stale data"

@@ -104,3 +104,13 @@ Before publishing, the loop must have direct evidence for:
 - the report file being published
 
 If any of these are unclear, stop and ask or inspect further.
+
+## Scoring
+
+The loop should convert raw project data into an explicit quality assessment before relying on it for broad edits.
+
+At minimum, the quality assessment should answer:
+
+- Is the snapshot sufficient to act on?
+- Which blocking gaps remain?
+- Which signals should be refreshed first?
