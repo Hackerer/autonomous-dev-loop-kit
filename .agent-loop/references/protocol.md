@@ -12,6 +12,7 @@ This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason 
 - `.agent-loop/config.json`
 - `.agent-loop/state.json`
 - `.agent-loop/backlog.json`
+- `.agent-loop/references/data-quality-acquisition.md`
 - `docs/reports/`
 
 Do not rely on the conversation as the only source of truth.
@@ -38,6 +39,7 @@ Every version follows the same state machine:
    - Review current repo state, recent reports, current branch, open risks, and remaining backlog.
    - Reconcile what exists now against the target outcome in `PLANS.md`.
    - Do a silent deep-thinking pass before acting: identify assumptions, unknowns, risks, and the smallest next high-signal action.
+   - If data quality is unclear, consult `.agent-loop/references/data-quality-acquisition.md` and gather missing signals before editing.
 2. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
@@ -135,6 +137,7 @@ Autonomous loops degrade when scope expands inside the same version.
 - After each meaningful command, test, or code change, observe the result and update the plan.
 - If observations contradict the prior plan, revise the plan before taking the next action.
 - Prefer many small evidence-backed actions over one large speculative rewrite.
+- Use the evidence hierarchy and freshness rules in `.agent-loop/references/data-quality-acquisition.md` when deciding whether current project data is good enough.
 
 ## Cross-CLI Notes
 

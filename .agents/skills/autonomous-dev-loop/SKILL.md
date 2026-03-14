@@ -36,6 +36,7 @@ Read these files before the first iteration of a session:
 5. `../../../.agent-loop/references/protocol.md`
 6. `../../../.agent-loop/references/prompting-guidelines.md`
 7. `../../../.agent-loop/references/react-reasoning-acting.md`
+8. `../../../.agent-loop/references/data-quality-acquisition.md`
 
 If any file is missing, initialize it from this kit before starting autonomous work.
 
@@ -95,6 +96,7 @@ For each iteration, follow this exact order:
 - Protocol: `../../../.agent-loop/references/protocol.md`
 - Prompting guidance: `../../../.agent-loop/references/prompting-guidelines.md`
 - ReAct guide: `../../../.agent-loop/references/react-reasoning-acting.md`
+- Data quality guide: `../../../.agent-loop/references/data-quality-acquisition.md`
 - Report template: `../../../.agent-loop/templates/report-template.md`
 
 ## Typical Trigger Phrases

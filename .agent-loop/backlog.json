@@ -26,7 +26,7 @@
     "id": "iteration-03-data-quality-reference",
     "title": "Add a reference that defines what high-quality project data means for the loop",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "A new reference file defines required data sources, freshness, confidence, and evidence hierarchy",
       "The protocol points to that reference when data quality matters"

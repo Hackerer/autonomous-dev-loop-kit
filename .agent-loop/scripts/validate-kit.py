@@ -66,6 +66,7 @@ def main() -> int:
         ROOT / ".agent-loop/references/protocol.md",
         ROOT / ".agent-loop/references/prompting-guidelines.md",
         ROOT / ".agent-loop/references/react-reasoning-acting.md",
+        ROOT / ".agent-loop/references/data-quality-acquisition.md",
         ROOT / ".agent-loop/templates/report-template.md",
     ]
     for path in required_files:

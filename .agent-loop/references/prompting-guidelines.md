@@ -25,6 +25,7 @@ If the user launches with only a count, such as `循环3次`, treat that as a fu
 - Small backlog items in `.agent-loop/backlog.json`
 - Report-driven reflection after each version
 - ReAct-style evidence gathering before code edits
+- A clear definition of what counts as high-quality project data
 
 ## What Lowers Quality
 
