@@ -20,6 +20,14 @@ Date: {date}
 
 - What did the agent observe that materially changed or confirmed the plan?
 
+## Evidence Sources
+
+- Which repo files, commands, or generated data artifacts were used?
+
+## Data Quality
+
+- What was the latest project-data quality status or score?
+
 ## Delivered
 
 - Change 1

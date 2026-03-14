@@ -81,7 +81,7 @@
     "id": "iteration-08-reporting-evidence",
     "title": "Extend reports to include evidence sources and data quality observations",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The report template captures data sources and evidence quality",
       "Write-report workflow can record these observations cleanly"

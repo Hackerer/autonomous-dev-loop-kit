@@ -87,6 +87,8 @@ Every report must include:
 - Current state analysis
 - Version goal
 - Key observations from execution
+- Evidence sources
+- Data quality status
 - Delivered behavior
 - Full validation evidence
 - Reflection on requirements and architecture

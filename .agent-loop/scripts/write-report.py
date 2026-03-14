@@ -10,6 +10,7 @@ from common import (
     find_repo_root,
     goal_title,
     load_config,
+    load_json,
     load_state,
     relpath,
     reporting_path,
@@ -30,6 +31,8 @@ def main() -> int:
     parser.add_argument("--analysis", action="append", default=[], help="Current-state analysis bullet.")
     parser.add_argument("--acceptance", action="append", default=[], help="Acceptance bullet for this version.")
     parser.add_argument("--observation", action="append", default=[], help="Key observation bullet from the ReAct cycle.")
+    parser.add_argument("--source", action="append", default=[], help="Evidence source bullet for this version.")
+    parser.add_argument("--quality-note", action="append", default=[], help="Data-quality bullet for this version.")
     parser.add_argument("--delivered", action="append", default=[], help="Delivered change bullet.")
     parser.add_argument("--reflection", action="append", default=[], help="Reflection bullet.")
     parser.add_argument("--next-goal", action="append", default=[], help="Next-goal proposal bullet.")
@@ -48,6 +51,7 @@ def main() -> int:
     goal = state.get("current_goal")
     goal_label = goal_title(goal)
     today = datetime.now().date().isoformat()
+    project_data = state.get("project_data", {})
 
     validation_lines = []
     for result in validation.get("results", []):
@@ -55,6 +59,24 @@ def main() -> int:
         validation_lines.append(f"- `{result.get('command')}` -> {status} (exit {result.get('exit_code')})")
     if not validation_lines:
         validation_lines = ["- No validation results were recorded."]
+
+    evidence_sources = list(args.source)
+    snapshot_path = project_data.get("snapshot_path")
+    quality_path = project_data.get("quality_path")
+    if snapshot_path:
+        evidence_sources.append(f"Project data snapshot: `{snapshot_path}`")
+    if quality_path:
+        evidence_sources.append(f"Project data quality: `{quality_path}`")
+
+    quality_lines = list(args.quality_note)
+    if quality_path:
+        quality_report = load_json(root / quality_path)
+        quality_lines.append(
+            f"Latest quality status: `{quality_report.get('status')}`, score `{quality_report.get('overall_score')}`"
+        )
+        gaps = quality_report.get("blocking_gaps", [])
+        if gaps:
+            quality_lines.append(f"Blocking gaps: {', '.join(gaps)}")
 
     content = [
         f"# v{iteration} Report",
@@ -77,6 +99,12 @@ def main() -> int:
         "",
         "## Key Observations",
         *bullet_lines(args.observation, "Capture the evidence or observation that most influenced this version."),
+        "",
+        "## Evidence Sources",
+        *bullet_lines(evidence_sources, "List the repo files, commands, or generated artifacts used for this version."),
+        "",
+        "## Data Quality",
+        *bullet_lines(quality_lines, "Record the latest project-data quality status or score."),
         "",
         "## Delivered",
         *bullet_lines(args.delivered, "List the concrete changes delivered in this version."),
