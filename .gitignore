@@ -1,3 +1,5 @@
 .agent-loop/last-validation.json
 __pycache__/
 *.pyc
+.agent-loop/data/project-data.generated.json
+.agent-loop/data/data-quality.generated.json

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import py_compile
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -99,6 +100,18 @@ def main() -> int:
         "Planning max_iterations_per_session is set to 10",
         failures,
     )
+
+    generated_project_data = ROOT / ".agent-loop/data/project-data.generated.json"
+    collector = subprocess.run(
+        ["python3", ".agent-loop/scripts/collect-project-data.py", "--output", str(generated_project_data)],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    check(collector.returncode == 0, "collect-project-data.py runs successfully", failures)
+    if collector.returncode == 0:
+        validate_json(generated_project_data, failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)

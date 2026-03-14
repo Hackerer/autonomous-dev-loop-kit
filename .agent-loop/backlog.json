@@ -48,7 +48,7 @@
     "id": "iteration-05-collect-project-data",
     "title": "Add a script that collects first-pass project data into a snapshot file",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "A script can collect basic repo and git signals into a machine-readable artifact",
       "The artifact is suitable for later scoring and reporting"
