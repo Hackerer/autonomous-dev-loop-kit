@@ -44,6 +44,9 @@ Every version follows the same state machine:
    - Do a silent deep-thinking pass before acting: identify assumptions, unknowns, risks, and the smallest next high-signal action.
    - If data quality is unclear, consult `.agent-loop/references/data-quality-acquisition.md` and gather missing signals before editing.
    - Prefer using `.agent-loop/state.json` to locate the latest project-data snapshot and quality assessment instead of reconstructing that state from chat memory.
+   - If project data is missing, stale, or low-confidence, run:
+     - `python3 .agent-loop/scripts/collect-project-data.py`
+     - `python3 .agent-loop/scripts/score-data-quality.py`
 2. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
@@ -150,3 +153,7 @@ Autonomous loops degrade when scope expands inside the same version.
 - Codex performs best with short, hard constraints and repo-based state.
 - Claude performs best when the same protocol is presented with explicit structure.
 - Keep the core protocol the same across CLIs. Change wrapper style, not release criteria.
+
+## Example Workflow
+
+See `.agent-loop/references/example-data-acquisition-workflow.md` for a concrete sequence that starts from a count-only launch.

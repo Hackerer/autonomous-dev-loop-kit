@@ -11,8 +11,10 @@
   "project": {
     "languages": [],
     "framework_signals": [],
+    "tooling_signals": [],
     "package_managers": [],
     "runtime_files": [],
+    "repo_archetype": "",
     "key_paths": []
   },
   "validation": {

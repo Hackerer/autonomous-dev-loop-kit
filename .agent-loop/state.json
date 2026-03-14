@@ -1,33 +1,33 @@
 {
-  "iteration": 9,
-  "status": "published",
+  "iteration": 10,
+  "status": "session_completed",
   "session": {
-    "status": "active",
+    "status": "completed",
     "target_iterations": 10,
-    "completed_iterations": 9,
+    "completed_iterations": 10,
     "started_at": "2026-03-14T10:29:46Z",
-    "ended_at": null
+    "ended_at": "2026-03-14T10:47:16Z"
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-14T10:39:36Z",
-    "last_quality_score": 90,
-    "last_quality_status": "usable-with-gaps"
+    "last_collected_at": "2026-03-14T10:46:19Z",
+    "last_quality_score": 100,
+    "last_quality_status": "ready"
   },
   "current_goal": null,
   "draft_iteration": null,
   "draft_report": null,
   "draft_goal": null,
-  "last_report": "docs/reports/v9.md",
+  "last_report": "docs/reports/v10.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-14T10:39:36Z",
+    "ran_at": "2026-03-14T10:46:14Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is set to 10\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is set to 10\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -108,6 +108,14 @@
       "branch": "main",
       "published_at": "2026-03-14T10:39:36Z",
       "session_progress": "9/10"
+    },
+    {
+      "iteration": 10,
+      "goal": "Align wrappers, protocol, README, and examples around high-quality project data acquisition",
+      "report": "docs/reports/v10.md",
+      "branch": "main",
+      "published_at": "2026-03-14T10:47:16Z",
+      "session_progress": "10/10"
     }
   ]
 }

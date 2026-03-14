@@ -1,12 +1,11 @@
 {
   "snapshot_path": "/Users/zhujian112/Documents/Vibe Coding/autonomous-dev-loop-kit/.agent-loop/data/project-data.json",
-  "overall_score": 90,
-  "status": "usable-with-gaps",
-  "blocking_gaps": [
-    "missing tooling signals"
-  ],
+  "overall_score": 100,
+  "status": "ready",
+  "blocking_gaps": [],
   "recommendations": [
     "Refresh missing repo or git signals before high-risk edits.",
-    "Refresh validation and remote signals before publishing."
+    "Refresh validation and remote signals before publishing.",
+    "Refresh collection and quality artifacts after material repo changes."
   ]
 }

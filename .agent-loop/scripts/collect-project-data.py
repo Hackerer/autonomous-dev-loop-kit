@@ -5,7 +5,18 @@ import argparse
 import json
 from pathlib import Path
 
-from common import find_repo_root, git, load_config, load_json, load_state, save_json, save_state, current_branch, relpath
+from common import (
+    current_branch,
+    find_repo_root,
+    git,
+    load_config,
+    load_json,
+    load_state,
+    relpath,
+    save_json,
+    save_state,
+    utc_now,
+)
 
 
 def read_text(path: Path) -> str:
@@ -68,6 +79,22 @@ def detect_runtime_files(root: Path) -> list[str]:
     return [name for name in candidates if (root / name).exists()]
 
 
+def detect_tooling_signals(root: Path, languages: list[str], key_paths: list[str]) -> list[str]:
+    signals: list[str] = []
+    scripts_dir = root / ".agent-loop/scripts"
+
+    if scripts_dir.is_dir() and list(scripts_dir.glob("*.py")):
+        signals.append("python-cli-scripts")
+    if ".agent-loop" in key_paths:
+        signals.append("autonomous-loop-config")
+    if ".agents" in key_paths or ".claude" in key_paths:
+        signals.append("agent-skills")
+    if "python" in languages and not signals and list(root.rglob("*.py")):
+        signals.append("python-sources")
+
+    return signals
+
+
 def detect_key_paths(root: Path) -> list[str]:
     candidates = [
         ".agent-loop",
@@ -79,6 +106,14 @@ def detect_key_paths(root: Path) -> list[str]:
         "packages",
     ]
     return [name for name in candidates if (root / name).exists()]
+
+
+def detect_repo_archetype(key_paths: list[str]) -> str:
+    if ".agent-loop" in key_paths and (".agents" in key_paths or ".claude" in key_paths):
+        return "agent-skill-kit"
+    if ".agent-loop" in key_paths:
+        return "autonomous-loop-repo"
+    return "general-repo"
 
 
 def parse_target_outcome(root: Path) -> str:
@@ -159,7 +194,9 @@ def main() -> int:
     state = load_state(root)
 
     snapshot = json.loads(json.dumps(template))
-    snapshot["collected_at"] = state["last_validation"]["ran_at"]
+    languages = detect_languages(root)
+    key_paths = detect_key_paths(root)
+    snapshot["collected_at"] = utc_now()
     snapshot["repo"] = {
         "root": str(root),
         "name": root.name,
@@ -168,11 +205,13 @@ def main() -> int:
         "remotes": git_remotes(root),
     }
     snapshot["project"] = {
-        "languages": detect_languages(root),
+        "languages": languages,
         "framework_signals": detect_framework_signals(root),
+        "tooling_signals": detect_tooling_signals(root, languages, key_paths),
         "package_managers": detect_package_managers(root),
         "runtime_files": detect_runtime_files(root),
-        "key_paths": detect_key_paths(root),
+        "repo_archetype": detect_repo_archetype(key_paths),
+        "key_paths": key_paths,
     }
     snapshot["validation"] = {
         "configured_commands": config.get("validation", {}).get("commands", []),

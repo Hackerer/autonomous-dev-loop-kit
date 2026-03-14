@@ -32,6 +32,7 @@ Read these files before starting or resuming a loop:
 6. ../../../.agent-loop/references/prompting-guidelines.md
 7. ../../../.agent-loop/references/react-reasoning-acting.md
 8. ../../../.agent-loop/references/data-quality-acquisition.md
+9. ../../../.agent-loop/references/example-data-acquisition-workflow.md
 </load_order>
 
 Run `.agent-loop` state scripts sequentially. Do not parallelize goal selection, validation, report writing, or publishing.
@@ -49,15 +50,16 @@ Do not start implementation until all of these are true:
 Run this order exactly:
 1. Analyze current state, target, recent reports, and backlog. Think deeply before acting.
 2. If the user provided or implied a loop count and the session is not configured yet, run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
-3. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
-4. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
-5. Implement the smallest coherent change set.
-6. Add or update tests for the real behavior.
-7. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
-8. If validation fails, do not commit or push.
-9. Write the report with `python3 .agent-loop/scripts/write-report.py`, including key observations.
-10. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
-11. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
+3. If project data is missing, stale, or low-quality, run `python3 .agent-loop/scripts/collect-project-data.py` and `python3 .agent-loop/scripts/score-data-quality.py`.
+4. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
+5. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
+6. Implement the smallest coherent change set.
+7. Add or update tests for the real behavior.
+8. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
+9. If validation fails, do not commit or push.
+10. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including key observations.
+11. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
+12. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
 </iteration_loop>
 
 <non_negotiable_rules>
@@ -86,6 +88,7 @@ Run this order exactly:
 - Prompting guidance: ../../../.agent-loop/references/prompting-guidelines.md
 - ReAct guide: ../../../.agent-loop/references/react-reasoning-acting.md
 - Data quality guide: ../../../.agent-loop/references/data-quality-acquisition.md
+- Example workflow: ../../../.agent-loop/references/example-data-acquisition-workflow.md
 - Project data template: ../../../.agent-loop/templates/project-data-template.json
 - Report template: ../../../.agent-loop/templates/report-template.md
 </references>

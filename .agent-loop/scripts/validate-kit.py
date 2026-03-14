@@ -68,6 +68,7 @@ def main() -> int:
         ROOT / ".agent-loop/references/prompting-guidelines.md",
         ROOT / ".agent-loop/references/react-reasoning-acting.md",
         ROOT / ".agent-loop/references/data-quality-acquisition.md",
+        ROOT / ".agent-loop/references/example-data-acquisition-workflow.md",
         ROOT / ".agent-loop/templates/project-data-template.json",
         ROOT / ".agent-loop/templates/report-template.md",
     ]

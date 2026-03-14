@@ -6,12 +6,24 @@ from pathlib import Path
 
 from common import find_repo_root, load_json, save_json, load_state, save_state, relpath
 
+MAX_RAW_SCORE = 110
+
 
 def add_gap(gaps: list[str], condition: bool, message: str, score: int) -> int:
     if condition:
         return score
     gaps.append(message)
     return 0
+
+
+def has_tooling_signals(project: dict) -> bool:
+    return bool(
+        project.get("package_managers")
+        or project.get("runtime_files")
+        or project.get("framework_signals")
+        or project.get("tooling_signals")
+        or project.get("repo_archetype")
+    )
 
 
 def main() -> int:
@@ -36,31 +48,35 @@ def main() -> int:
     product_context = snapshot.get("product_context", {})
     evidence = snapshot.get("evidence", {})
 
+    score += add_gap(gaps, bool(snapshot.get("collected_at")), "missing collection timestamp", 10)
     score += add_gap(gaps, bool(repo.get("root")), "missing repo root", 10)
     score += add_gap(gaps, bool(repo.get("current_branch")), "missing current branch", 10)
     score += add_gap(gaps, bool(repo.get("remotes")), "missing git remotes", 10)
     score += add_gap(gaps, repo.get("worktree_clean") is not None, "missing worktree cleanliness signal", 10)
     score += add_gap(gaps, bool(project.get("languages")), "missing language detection", 10)
-    score += add_gap(gaps, bool(project.get("package_managers") or project.get("runtime_files")), "missing tooling signals", 10)
+    score += add_gap(gaps, has_tooling_signals(project), "missing tooling or automation signals", 10)
     score += add_gap(gaps, bool(validation.get("configured_commands")), "missing validation commands", 10)
     score += add_gap(gaps, bool(product_context.get("target_outcome")), "missing target outcome", 10)
     score += add_gap(gaps, bool(product_context.get("constraints")), "missing constraints", 10)
     score += add_gap(gaps, evidence.get("confidence") in {"direct", "derived"}, "low confidence evidence", 10)
 
+    overall_score = round((score / MAX_RAW_SCORE) * 100)
+
     status = "ready"
-    if score < 70:
+    if overall_score < 70:
         status = "insufficient"
     elif gaps:
         status = "usable-with-gaps"
 
     quality = {
         "snapshot_path": str(input_path),
-        "overall_score": score,
+        "overall_score": overall_score,
         "status": status,
         "blocking_gaps": gaps,
         "recommendations": [
             "Refresh missing repo or git signals before high-risk edits.",
-            "Refresh validation and remote signals before publishing."
+            "Refresh validation and remote signals before publishing.",
+            "Refresh collection and quality artifacts after material repo changes."
         ],
     }
 
@@ -68,7 +84,7 @@ def main() -> int:
     save_json(output_path, quality)
     if not args.no_state:
         state["project_data"]["quality_path"] = relpath(output_path, root)
-        state["project_data"]["last_quality_score"] = score
+        state["project_data"]["last_quality_score"] = overall_score
         state["project_data"]["last_quality_status"] = status
         save_state(root, state)
     print(output_path)

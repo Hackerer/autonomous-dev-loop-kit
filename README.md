@@ -91,6 +91,30 @@ The wrappers interpret that as:
 - publish every version to the current project's own GitHub repo
 - stop after the third published version or earlier on stop conditions
 
+## Data-First Workflow
+
+This kit now assumes a data-first loop:
+
+1. collect project data
+2. score project-data quality
+3. select the next scoped goal
+4. implement and validate
+5. refresh data if the repo changed materially
+6. report and publish
+
+High-quality data does not require a package manager. Script-first repos can also reach `ready` if the snapshot captures direct automation signals such as `.agent-loop/scripts`, agent-skill directories, and the repo archetype.
+
+Core commands:
+
+```text
+python3 .agent-loop/scripts/collect-project-data.py
+python3 .agent-loop/scripts/score-data-quality.py
+python3 .agent-loop/scripts/select-next-goal.py
+python3 .agent-loop/scripts/run-full-validation.py
+python3 .agent-loop/scripts/write-report.py
+python3 .agent-loop/scripts/publish-iteration.py
+```
+
 ## Under The Hood
 
 The loop persists state in repo files:
@@ -104,6 +128,8 @@ The loop persists state in repo files:
 Key scripts:
 
 - `.agent-loop/scripts/set-loop-session.py`
+- `.agent-loop/scripts/collect-project-data.py`
+- `.agent-loop/scripts/score-data-quality.py`
 - `.agent-loop/scripts/select-next-goal.py`
 - `.agent-loop/scripts/run-full-validation.py`
 - `.agent-loop/scripts/write-report.py`

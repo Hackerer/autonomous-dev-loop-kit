@@ -26,6 +26,7 @@ High-quality project data should cover all of these categories before high-impac
    - package managers
    - test/build tools
    - framework signals
+   - automation or script-tooling signals for repos that are not package-manager driven
 3. Validation surface
    - available lint, typecheck, test, build, and e2e commands
    - blocking acceptance gates
@@ -78,6 +79,7 @@ The snapshot should be able to represent:
 
 - repo identity and Git state
 - detected tooling and framework signals
+- repo archetype and automation/tooling signals for script-first repos
 - configured validation commands
 - target outcome and constraints
 - evidence sources, freshness, confidence, and gaps

@@ -103,7 +103,7 @@
     "id": "iteration-10-polish-and-alignment",
     "title": "Align wrappers, protocol, README, and examples around high-quality project data acquisition",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Public docs, wrappers, and examples consistently describe the data acquisition flow",
       "The repo defaults are coherent after the first nine iterations"
