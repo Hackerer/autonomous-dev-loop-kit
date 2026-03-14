@@ -73,6 +73,47 @@ def main() -> int:
     else:
         branch_name = current_branch(root)
 
+    published_at = utc_now()
+    next_completed = session["completed_iterations"] + 1
+    target = session["target_iterations"]
+
+    state["iteration"] = int(iteration)
+    state["last_report"] = report_path
+    state["status"] = "published"
+    state["session"]["completed_iterations"] = next_completed
+    if target is not None and next_completed >= int(target):
+        state["session"]["status"] = "completed"
+        state["session"]["ended_at"] = published_at
+        state["status"] = "session_completed"
+    else:
+        state["session"]["status"] = "active"
+    state["history"].append(
+        {
+            "iteration": int(iteration),
+            "goal": goal_label,
+            "report": report_path,
+            "branch": branch_name,
+            "published_at": published_at,
+            "session_progress": (
+                None if target is None else f"{next_completed}/{int(target)}"
+            ),
+        }
+    )
+    state["draft_iteration"] = None
+    state["draft_report"] = None
+    state["draft_goal"] = None
+    state["current_goal"] = None
+
+    goal_id = goal.get("id") if isinstance(goal, dict) else None
+    if goal_id:
+        for item in backlog:
+            if item.get("id") == goal_id:
+                item["status"] = "completed"
+                break
+
+    save_state(root, state)
+    save_backlog(root, backlog)
+
     add_result = git(root, "add", "-A")
     if add_result.returncode != 0:
         raise LoopError(add_result.stderr.strip() or "git add -A failed")
@@ -112,45 +153,6 @@ def main() -> int:
         push_result = git(root, "push", "-u", remote, push_target)
         if push_result.returncode != 0:
             raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
-
-    state = load_state(root)
-    state["iteration"] = int(iteration)
-    state["last_report"] = report_path
-    state["status"] = "published"
-    next_completed = session["completed_iterations"] + 1
-    target = session["target_iterations"]
-    state["session"]["completed_iterations"] = next_completed
-    if target is not None and next_completed >= int(target):
-        state["session"]["status"] = "completed"
-        state["session"]["ended_at"] = utc_now()
-        state["status"] = "session_completed"
-    else:
-        state["session"]["status"] = "active"
-    state["history"].append(
-        {
-            "iteration": int(iteration),
-            "goal": goal_label,
-            "report": report_path,
-            "branch": branch_name,
-            "published_at": utc_now(),
-            "session_progress": (
-                None if target is None else f"{next_completed}/{int(target)}"
-            ),
-        }
-    )
-    state["draft_iteration"] = None
-    state["draft_report"] = None
-    state["draft_goal"] = None
-    state["current_goal"] = None
-    save_state(root, state)
-
-    goal_id = goal.get("id") if isinstance(goal, dict) else None
-    if goal_id:
-        for item in backlog:
-            if item.get("id") == goal_id:
-                item["status"] = "completed"
-                break
-        save_backlog(root, backlog)
 
     progress = session_summary(state)
     if progress["target_iterations"] is not None:

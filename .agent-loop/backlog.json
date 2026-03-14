@@ -3,7 +3,7 @@
     "id": "iteration-01-validation-baseline",
     "title": "Add a real repository validation script and use it as the publish gate",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo contains a deterministic validation script for this kit",
       "Validation checks the loop JSON files, Python scripts, and skill metadata without placeholder commands",
@@ -12,9 +12,20 @@
     "notes": "This calibrates the repo for the rest of the loop."
   },
   {
-    "id": "iteration-02-data-quality-reference",
-    "title": "Add a reference that defines what high-quality project data means for the loop",
+    "id": "iteration-02-publish-state-integrity",
+    "title": "Fix publish ordering so loop state and backlog updates are committed in the same version",
     "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "Publishing a version does not leave dirty tracked state files behind",
+      "State and backlog updates for a published version are included in the same commit"
+    ],
+    "notes": "A dirty worktree after publish undermines loop reliability."
+  },
+  {
+    "id": "iteration-03-data-quality-reference",
+    "title": "Add a reference that defines what high-quality project data means for the loop",
+    "priority": "high",
     "status": "pending",
     "acceptance": [
       "A new reference file defines required data sources, freshness, confidence, and evidence hierarchy",
@@ -23,7 +34,7 @@
     "notes": "This defines the target standard before adding scripts."
   },
   {
-    "id": "iteration-03-data-schema",
+    "id": "iteration-04-data-schema",
     "title": "Add a structured schema for project data snapshots and evidence",
     "priority": "high",
     "status": "pending",
@@ -34,7 +45,7 @@
     "notes": "The loop needs a concrete shape for collected data."
   },
   {
-    "id": "iteration-04-collect-project-data",
+    "id": "iteration-05-collect-project-data",
     "title": "Add a script that collects first-pass project data into a snapshot file",
     "priority": "high",
     "status": "pending",
@@ -45,7 +56,7 @@
     "notes": "This turns data acquisition into an explicit step."
   },
   {
-    "id": "iteration-05-score-data-quality",
+    "id": "iteration-06-score-data-quality",
     "title": "Add a script that scores whether the collected project data is good enough to act on",
     "priority": "high",
     "status": "pending",
@@ -56,9 +67,9 @@
     "notes": "The loop should know whether it has enough context."
   },
   {
-    "id": "iteration-06-state-integration",
+    "id": "iteration-07-state-integration",
     "title": "Integrate data snapshot and quality state into the loop's durable state model",
-    "priority": "high",
+    "priority": "medium",
     "status": "pending",
     "acceptance": [
       "State or related artifacts can record where the latest data snapshot lives",
@@ -67,7 +78,7 @@
     "notes": "Collected data should survive context loss."
   },
   {
-    "id": "iteration-07-reporting-evidence",
+    "id": "iteration-08-reporting-evidence",
     "title": "Extend reports to include evidence sources and data quality observations",
     "priority": "medium",
     "status": "pending",
@@ -78,7 +89,7 @@
     "notes": "Reports should explain why the loop trusted its context."
   },
   {
-    "id": "iteration-08-goal-selection-from-data",
+    "id": "iteration-09-goal-selection-from-data",
     "title": "Improve next-goal selection using data quality gaps and evidence gaps",
     "priority": "medium",
     "status": "pending",
@@ -89,25 +100,14 @@
     "notes": "This links collected data to planning quality."
   },
   {
-    "id": "iteration-09-example-workflow",
-    "title": "Add a concrete example workflow that shows data acquisition before autonomous edits",
-    "priority": "medium",
-    "status": "pending",
-    "acceptance": [
-      "The repo contains a concrete example of how to collect, score, and use project data",
-      "The example is accessible from the public docs or references"
-    ],
-    "notes": "Users should see the intended behavior end to end."
-  },
-  {
     "id": "iteration-10-polish-and-alignment",
-    "title": "Align wrappers, protocol, README, and defaults around high-quality project data acquisition",
+    "title": "Align wrappers, protocol, README, and examples around high-quality project data acquisition",
     "priority": "medium",
     "status": "pending",
     "acceptance": [
-      "Public docs and wrappers consistently describe the data acquisition flow",
+      "Public docs, wrappers, and examples consistently describe the data acquisition flow",
       "The repo defaults are coherent after the first nine iterations"
     ],
-    "notes": "Finish with consistency and quality polish."
+    "notes": "Finish with consistency, docs, and example polish."
   }
 ]
