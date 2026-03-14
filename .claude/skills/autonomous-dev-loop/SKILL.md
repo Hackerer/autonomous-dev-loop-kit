@@ -86,5 +86,6 @@ Run this order exactly:
 - Prompting guidance: ../../../.agent-loop/references/prompting-guidelines.md
 - ReAct guide: ../../../.agent-loop/references/react-reasoning-acting.md
 - Data quality guide: ../../../.agent-loop/references/data-quality-acquisition.md
+- Project data template: ../../../.agent-loop/templates/project-data-template.json
 - Report template: ../../../.agent-loop/templates/report-template.md
 </references>

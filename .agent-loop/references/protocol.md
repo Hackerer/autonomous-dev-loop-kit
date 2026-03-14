@@ -13,6 +13,7 @@ This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason 
 - `.agent-loop/state.json`
 - `.agent-loop/backlog.json`
 - `.agent-loop/references/data-quality-acquisition.md`
+- `.agent-loop/templates/project-data-template.json`
 - `docs/reports/`
 
 Do not rely on the conversation as the only source of truth.

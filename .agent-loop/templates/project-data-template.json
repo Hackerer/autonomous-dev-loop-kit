@@ -1,0 +1,35 @@
+{
+  "snapshot_version": 1,
+  "collected_at": null,
+  "repo": {
+    "root": "",
+    "name": "",
+    "current_branch": "",
+    "worktree_clean": null,
+    "remotes": []
+  },
+  "project": {
+    "languages": [],
+    "framework_signals": [],
+    "package_managers": [],
+    "runtime_files": [],
+    "key_paths": []
+  },
+  "validation": {
+    "configured_commands": [],
+    "blocking_gates": [],
+    "confidence": "direct"
+  },
+  "product_context": {
+    "target_outcome": "",
+    "constraints": [],
+    "open_risks": []
+  },
+  "evidence": {
+    "sources": [],
+    "freshness": "stale",
+    "confidence": "assumed",
+    "gaps": []
+  },
+  "notes": []
+}

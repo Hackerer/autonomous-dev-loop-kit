@@ -70,6 +70,18 @@ Use these confidence levels when recording data:
 
 Avoid taking high-risk actions from `assumed` or `stale` data.
 
+## Snapshot Shape
+
+When persisting collected project data, use the template in `.agent-loop/templates/project-data-template.json`.
+
+The snapshot should be able to represent:
+
+- repo identity and Git state
+- detected tooling and framework signals
+- configured validation commands
+- target outcome and constraints
+- evidence sources, freshness, confidence, and gaps
+
 ## Minimum Standard Before Acting
 
 Before a meaningful code edit or publication step, the loop should know:

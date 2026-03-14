@@ -37,7 +37,7 @@
     "id": "iteration-04-data-schema",
     "title": "Add a structured schema for project data snapshots and evidence",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo contains a durable JSON schema or template for collected project data",
       "The schema can represent repo facts, commands, risks, and evidence quality"

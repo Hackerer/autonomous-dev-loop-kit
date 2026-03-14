@@ -67,6 +67,7 @@ def main() -> int:
         ROOT / ".agent-loop/references/prompting-guidelines.md",
         ROOT / ".agent-loop/references/react-reasoning-acting.md",
         ROOT / ".agent-loop/references/data-quality-acquisition.md",
+        ROOT / ".agent-loop/templates/project-data-template.json",
         ROOT / ".agent-loop/templates/report-template.md",
     ]
     for path in required_files:
@@ -76,6 +77,7 @@ def main() -> int:
         ROOT / ".agent-loop/config.json",
         ROOT / ".agent-loop/state.json",
         ROOT / ".agent-loop/backlog.json",
+        ROOT / ".agent-loop/templates/project-data-template.json",
     ]:
         validate_json(json_file, failures)
 
