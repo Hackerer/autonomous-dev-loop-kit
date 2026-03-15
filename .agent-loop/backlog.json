@@ -640,7 +640,7 @@
     "id": "iteration-60-report-trust-gates",
     "title": "Turn task and release reports into trustworthy publish artifacts",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Known template placeholders in task reports and release reports are detected and blocked",
       "Publish scripts explain which sections are still placeholders",

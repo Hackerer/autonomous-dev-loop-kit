@@ -24,6 +24,7 @@ from common import (
     remote_exists,
     require_evaluator_pass,
     require_green_validation,
+    require_no_report_placeholders,
     require_review_state,
     release_summary,
     save_backlog,
@@ -66,6 +67,7 @@ def main() -> int:
     report_path = state.get("draft_report")
     if not iteration or not report_path:
         raise LoopError("No draft report exists. Run write-report.py before publishing.")
+    require_no_report_placeholders(root / report_path, "Task iteration report")
 
     goal = require_selected_goal({"current_goal": state.get("current_goal"), "draft_goal": state.get("draft_goal")})
     require_goal_in_active_release(config, state, goal)

@@ -15,6 +15,7 @@ from common import (
     load_state,
     remote_exists,
     release_summary,
+    require_no_report_placeholders,
     require_green_validation,
     save_state,
     session_summary,
@@ -45,6 +46,13 @@ def main() -> int:
     report_path = state.get("draft_release_report")
     if not report_path:
         raise LoopError("No draft release report exists. Run `python3 .agent-loop/scripts/write-release-report.py` first.")
+    require_no_report_placeholders(root / report_path, "Bundled release report")
+    for item in release.get("task_iterations", []):
+        if not isinstance(item, dict):
+            continue
+        task_report = str(item.get("report", "")).strip()
+        if task_report:
+            require_no_report_placeholders(root / task_report, "Bundled task report")
 
     git_config = config.get("git", {})
     strategy = git_config.get("strategy", "push-branch")

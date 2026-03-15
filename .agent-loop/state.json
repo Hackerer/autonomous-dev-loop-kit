@@ -1,13 +1,13 @@
 {
-  "iteration": 58,
-  "status": "release_report_written",
+  "iteration": 59,
+  "status": "published",
   "session": {
     "id": "session-20260315-152645",
     "status": "active",
     "target_releases": 5,
-    "completed_releases": 1,
+    "completed_releases": 2,
     "target_iterations": null,
-    "completed_iterations": 2,
+    "completed_iterations": 3,
     "started_at": "2026-03-15T15:26:45Z",
     "ended_at": null
   },
@@ -20,80 +20,79 @@
   },
   "current_goal": null,
   "release": {
-    "number": 2,
-    "title": "R2: Make release state transitions deterministic and block orphan publish paths",
-    "summary": "Ship the single high-priority goal `Make release state transitions deterministic and block orphan publish paths` as a standalone bundled release.",
+    "number": 3,
+    "title": "R3: Turn task and release reports into trustworthy publish artifacts",
+    "summary": "Ship the single high-priority goal `Turn task and release reports into trustworthy publish artifacts` as a standalone bundled release.",
     "status": "ready_to_release",
     "brief": {
-      "objective": "Make release sequencing deterministic and prevent orphan task publishes.",
-      "target_user_value": "Operators can trust release numbering, session progress, and publish attribution without reading raw state.",
-      "why_now": "Telemetry is only useful if release and publish state cannot drift or produce orphan records.",
-      "packaging_rationale": "Release sequencing fixes and orphan guards belong together because both protect the trustworthiness of release history and usage telemetry.",
+      "objective": "Make published task and release reports trustworthy by construction.",
+      "target_user_value": "Operators can trust that anything published to docs/reports and docs/releases is concrete, not template filler.",
+      "why_now": "The loop now produces better telemetry and state history, so the next trust gap is report content quality.",
+      "packaging_rationale": "Placeholder blocking and better release aggregation belong together because both determine whether the top-level release artifact is believable.",
       "scope_in": [
-        "Session-id derivation for active sessions",
-        "Consecutive release numbering within a session",
-        "Active-goal and active-release guards before reporting and publish"
+        "Detect placeholder content in task and release reports",
+        "Block publish when placeholders remain",
+        "Filter placeholder lines out of release-report aggregation"
       ],
       "scope_out": [
-        "Placeholder report quality gates",
-        "Status and doctor commands"
+        "PM release archetypes",
+        "Status and doctor tooling"
       ],
       "release_acceptance": [
-        "Current sessions derive a stable session id even after migration",
-        "Release planner keeps consecutive numbers within the active session",
-        "Orphan iteration publish attempts fail with actionable errors"
+        "Task publish fails if the report still contains placeholder guidance text",
+        "Release publish fails if the release report or bundled task reports still contain placeholders",
+        "Release aggregation keeps real delivered and observation lines while dropping template filler"
       ],
-      "launch_story": "This release hardens the loop's state machine so every published task and release has a trustworthy place in session history.",
+      "launch_story": "This release turns the reporting layer into a real trust boundary: if a report is published, it contains real content.",
       "deferred_items": [
-        "Turn task and release reports into trustworthy publish artifacts",
         "Strengthen PM release planning with archetypes and better packaging signals",
         "Add operator-facing status and doctor tooling for loop recovery"
       ]
     },
     "goal_ids": [
-      "iteration-59-release-state-consistency"
+      "iteration-60-report-trust-gates"
     ],
     "goal_titles": [
-      "Make release state transitions deterministic and block orphan publish paths"
+      "Turn task and release reports into trustworthy publish artifacts"
     ],
     "completed_goal_ids": [
-      "iteration-59-release-state-consistency"
+      "iteration-60-report-trust-gates"
     ],
     "task_iterations": [
       {
-        "iteration": 58,
-        "goal": "Make release state transitions deterministic and block orphan publish paths",
-        "goal_id": "iteration-59-release-state-consistency",
-        "report": "docs/reports/v58.md",
-        "published_at": "2026-03-15T16:07:53Z"
+        "iteration": 59,
+        "goal": "Turn task and release reports into trustworthy publish artifacts",
+        "goal_id": "iteration-60-report-trust-gates",
+        "report": "docs/reports/v59.md",
+        "published_at": "2026-03-15T16:22:09Z"
       }
     ],
-    "selected_at": "2026-03-15T16:06:45Z",
+    "selected_at": "2026-03-15T16:18:45Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R2.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T16:07:07Z",
+    "captured_at": "2026-03-15T16:19:11Z",
     "research_findings": [
-      "The first telemetry release surfaced that active sessions created before session-id support still serialize as null ids unless the loop derives a stable fallback.",
-      "Validator coverage now reproduces an orphan publish attempt and a dirty completed_releases counter, making the release-state bug concrete and testable.",
-      "Release trust depends on two guarantees: session-local release numbering must stay consecutive, and no task publish can happen without a valid active goal inside a planned release."
+      "Existing release reports can still preserve template guidance text when task reports or release-closeout inputs are incomplete.",
+      "A publish gate is the right enforcement point because it protects Git history without making report drafting unusable.",
+      "Release aggregation also needs to skip placeholder lines, otherwise reports can look populated while still containing empty template guidance."
     ],
     "committee_feedback": [],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Observed state drift and orphan publish paths justify a dedicated hardening release before report-quality or UX work.",
+      "summary": "Report trust now needs hard gates so published artifacts cannot contain template filler.",
       "evidence_refs": [
-        ".agent-loop/scripts/validate-kit.py",
-        ".agent-loop/scripts/publish-iteration.py",
-        ".agent-loop/scripts/common.py"
+        "docs/releases/R1.md",
+        "docs/releases/R3.md",
+        ".agent-loop/scripts/write-release-report.py"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -101,19 +100,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve: this is the next highest-value hardening step because it prevents the loop from emitting misleading release history.",
+        "summary": "Approve: published reports are user-facing artifacts, so placeholder content is a direct trust failure.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve: state normalization, release-number derivation, and active-release guards are the correct structural controls for this failure mode.",
+        "summary": "Approve: a shared placeholder detector in common.py creates one consistent gate for task and release publication.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Approve: users need clear failures for orphan publish attempts instead of silent bad history.",
+        "summary": "Approve: operators should fail fast with a clear explanation instead of noticing bad release notes after publish.",
         "decision": "approve",
         "dissent": []
       }
@@ -121,15 +120,16 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Derive session ids for migrated sessions, bind release numbering to the active session, and guard report/publish against invalid goal-release context.",
-        "next_action": "Validate the state-machine fixes end to end and then publish the hardening release."
+        "summary": "Detect placeholder content centrally, enforce it in publish gates, and strip placeholder lines out of release aggregation.",
+        "next_action": "Run validation and then publish the report hardening release."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Validator evidence proves the kit can now defend against orphan publish and release-number drift regressions.",
-        "decision_record": "Proceed with release-state hardening as a standalone bundled release.",
+        "summary": "Observed release reports prove that report-level placeholder text can currently leak into durable artifacts.",
+        "decision_record": "Proceed with placeholder gating plus aggregation cleanup as one bundled release.",
         "evidence_refs": [
-          ".agent-loop/scripts/validate-kit.py"
+          "docs/releases/R1.md",
+          "docs/releases/R3.md"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -138,16 +138,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Make release state transitions deterministic and block orphan publish paths",
-      "why_selected": "Telemetry without trustworthy release sequencing would produce better-looking logs but not better product evidence.",
+      "selected_goal": "Turn task and release reports into trustworthy publish artifacts",
+      "why_selected": "The release experience still breaks if the top-level artifact reads like a template instead of a real release note.",
       "scope_in": [
-        "Derive stable session ids for active sessions missing explicit ids",
-        "Use session-local release history to recover consecutive release numbers when counters drift",
-        "Reject report or publish attempts when the active goal is missing, unspecified, or outside the active release"
+        "Detect known placeholder guidance text in reports",
+        "Block task and release publish when placeholders remain",
+        "Ignore placeholder lines when aggregating release delivery and output sections"
       ],
       "scope_out": [
-        "Do not add placeholder-content gates yet",
-        "Do not add operator doctor commands yet"
+        "Do not change release planning prompts yet",
+        "Do not add status or doctor commands yet"
       ],
       "assumptions": [],
       "risks": [],
@@ -155,7 +155,7 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if state-machine hardening breaks seeded validator targets or bundled release planning"
+        "Stop if placeholder gating breaks seeded validator flows or blocks concrete reports"
       ],
       "dissent": [],
       "next_action": ""
@@ -174,8 +174,8 @@
       "weighted_score": 5.0,
       "result": "pass",
       "critique": [
-        "This release directly hardens the trust boundary for release history and publish attribution.",
-        "The change stays focused on deterministic state handling and avoids mixing in later UX/reporting work."
+        "This release protects a user-visible quality boundary without widening scope into planning or recovery UX.",
+        "The gate is deterministic because it relies on explicit placeholder markers instead of subjective heuristics."
       ],
       "minimum_fixes_required": []
     },
@@ -184,13 +184,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-59-release-state-consistency",
-    "goal_title": "Make release state transitions deterministic and block orphan publish paths"
+    "goal_id": "iteration-60-report-trust-gates",
+    "goal_title": "Turn task and release reports into trustworthy publish artifacts"
   },
-  "last_report": "docs/reports/v58.md",
+  "last_report": "docs/reports/v59.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T16:07:25Z",
+    "ran_at": "2026-03-15T16:19:26Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -794,6 +794,20 @@
       "branch": "main",
       "published_at": "2026-03-15T16:07:53Z",
       "session_progress": "1/5 releases"
+    },
+    {
+      "iteration": 59,
+      "goal": "Turn task and release reports into trustworthy publish artifacts",
+      "goal_id": "iteration-60-report-trust-gates",
+      "release_number": 3,
+      "release_title": "R3: Turn task and release reports into trustworthy publish artifacts",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v59.md",
+      "branch": "main",
+      "published_at": "2026-03-15T16:22:09Z",
+      "session_progress": "2/5 releases"
     }
   ],
   "release_history": [
@@ -894,6 +908,30 @@
       "report": "docs/releases/R1.md",
       "published_at": "2026-03-15T15:46:07Z",
       "commit": "04e09ae520c071eee63c23737caaf39e7d5d9f0c"
+    },
+    {
+      "number": 2,
+      "session_id": "session-20260315-152645",
+      "title": "R2: Make release state transitions deterministic and block orphan publish paths",
+      "summary": "Ship the single high-priority goal `Make release state transitions deterministic and block orphan publish paths` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-59-release-state-consistency"
+      ],
+      "goal_titles": [
+        "Make release state transitions deterministic and block orphan publish paths"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 58,
+          "goal": "Make release state transitions deterministic and block orphan publish paths",
+          "goal_id": "iteration-59-release-state-consistency",
+          "report": "docs/reports/v58.md",
+          "published_at": "2026-03-15T16:07:53Z"
+        }
+      ],
+      "report": "docs/releases/R2.md",
+      "published_at": "2026-03-15T16:08:32Z",
+      "commit": "55e060c05d75db99750bfeb3e2fdf2c68a72f3bf"
     }
   ]
 }

@@ -453,6 +453,8 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
                 "Seeded structured flow analysis",
                 "--acceptance",
                 "Seeded structured flow acceptance",
+                "--observation",
+                "Seeded structured flow observation",
                 "--delivered",
                 "Seeded structured flow delivery",
                 "--reflection",
@@ -514,7 +516,20 @@ def validate_release_flow(failures: list[str]) -> None:
         check(started.returncode == 0, "Bundled-release target starts a release session", failures)
 
         planned = subprocess.run(
-            ["python3", ".agent-loop/scripts/plan-release.py", "--goal-id", "goal-a", "--goal-id", "goal-b"],
+            [
+                "python3",
+                ".agent-loop/scripts/plan-release.py",
+                "--goal-id",
+                "goal-a",
+                "--goal-id",
+                "goal-b",
+                "--scope-out",
+                "Goal C stays out of this validator release",
+                "--deferred-item",
+                "Goal C stays deferred",
+                "--release-acceptance",
+                "Validator bundled release acceptance",
+            ],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -561,7 +576,16 @@ def validate_release_flow(failures: list[str]) -> None:
         )
 
         release_report = subprocess.run(
-            ["python3", ".agent-loop/scripts/write-release-report.py", "--summary", "Ship bundled release R1"],
+            [
+                "python3",
+                ".agent-loop/scripts/write-release-report.py",
+                "--summary",
+                "Ship bundled release R1",
+                "--output-note",
+                "Bundled release validator output note",
+                "--next-release",
+                "Stop after validator release",
+            ],
             cwd=str(target),
             text=True,
             capture_output=True,

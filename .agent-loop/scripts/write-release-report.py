@@ -11,6 +11,7 @@ from common import (
     LoopError,
     active_release,
     find_repo_root,
+    is_placeholder_text,
     load_config,
     load_state,
     relpath,
@@ -92,9 +93,21 @@ def main() -> int:
         task_trace_lines.append(f"- {task_label} -> `{report_rel}`")
         if report_rel:
             sections = section_map(root / report_rel)
-            delivered_lines.extend([f"{task_label}: {line[2:]}" for line in sections.get("Delivered", []) if line.startswith("- ")])
+            delivered_lines.extend(
+                [
+                    f"{task_label}: {line[2:]}"
+                    for line in sections.get("Delivered", [])
+                    if line.startswith("- ") and not is_placeholder_text(line[2:])
+                ]
+            )
             validation_lines.extend([f"{task_label}: {line[2:]}" for line in sections.get("Full Validation", []) if line.startswith("- ")])
-            output_lines.extend([f"{task_label}: {line[2:]}" for line in sections.get("Key Observations", []) if line.startswith("- ")])
+            output_lines.extend(
+                [
+                    f"{task_label}: {line[2:]}"
+                    for line in sections.get("Key Observations", [])
+                    if line.startswith("- ") and not is_placeholder_text(line[2:])
+                ]
+            )
 
     content = [
         f"# R{release_number} Release Report",

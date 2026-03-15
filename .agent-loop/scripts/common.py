@@ -16,6 +16,25 @@ STATE_FILE = "state.json"
 BACKLOG_FILE = "backlog.json"
 LAST_VALIDATION_FILE = "last-validation.json"
 DEFAULT_USAGE_LOG_PATH = ".agent-loop/data/usage-log.jsonl"
+PLACEHOLDER_SNIPPETS = (
+    "Summarize the current repo state before this version.",
+    "Summarize the repo, product, user, and architecture research completed before selecting this version.",
+    "Record the delivery and audit secretary outcome for this iteration.",
+    "Document the acceptance criteria for this task iteration.",
+    "Capture the evidence or observation that most influenced this task iteration.",
+    "List the concrete changes delivered in this task iteration.",
+    "Reflect on requirement clarity and architectural impact.",
+    "Propose the next highest-value task inside the current release or the next release theme.",
+    "Document why this bundled release exists and what user-facing package it represents.",
+    "Record the release-level in-scope items.",
+    "Record the release-level out-of-scope items.",
+    "Record the deferred items that stay out of this release.",
+    "Summarize what this release delivered across the included task iterations.",
+    "Record the release-level acceptance criteria for this bundled version.",
+    "Record the validation results that prove this release is technically sound.",
+    "Explain the notable outputs, operator-visible behavior, and architectural consequences of this release.",
+    "Document the next bundled release theme or reason to stop.",
+)
 EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
 EXPECTED_COUNCIL_IDS = ("product-council", "architecture-council", "operator-council")
 EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
@@ -76,6 +95,34 @@ def append_jsonl(path: Path, payload: dict[str, Any]) -> None:
 
 def relpath(path: Path, root: Path) -> str:
     return str(path.resolve().relative_to(root.resolve()))
+
+
+def is_placeholder_text(value: str) -> bool:
+    text = " ".join(str(value or "").strip().split())
+    if not text:
+        return False
+    return any(snippet in text for snippet in PLACEHOLDER_SNIPPETS)
+
+
+def report_placeholder_lines(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    hits: list[str] = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        candidate = line[2:].strip() if line.startswith("- ") else line
+        if is_placeholder_text(candidate):
+            hits.append(candidate)
+    return hits
+
+
+def require_no_report_placeholders(path: Path, label: str) -> None:
+    hits = report_placeholder_lines(path)
+    if hits:
+        preview = "; ".join(hits[:3])
+        raise LoopError(f"{label} still contains placeholder content: {preview}")
 
 
 def default_state() -> dict[str, Any]:
