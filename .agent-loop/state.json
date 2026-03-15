@@ -1,13 +1,13 @@
 {
-  "iteration": 60,
-  "status": "release_report_written",
+  "iteration": 61,
+  "status": "published",
   "session": {
     "id": "session-20260315-152645",
     "status": "active",
     "target_releases": 5,
-    "completed_releases": 3,
+    "completed_releases": 4,
     "target_iterations": null,
-    "completed_iterations": 4,
+    "completed_iterations": 5,
     "started_at": "2026-03-15T15:26:45Z",
     "ended_at": null
   },
@@ -20,103 +20,107 @@
   },
   "current_goal": null,
   "release": {
-    "number": 4,
-    "title": "R4: Strengthen PM release planning with archetypes and better packaging signals",
-    "summary": "Ship the single high-priority goal `Strengthen PM release planning with archetypes and better packaging signals` as a standalone bundled release.",
+    "number": 5,
+    "title": "R5: Add operator-facing status and doctor tooling for loop recovery",
+    "summary": "Ship the single high-priority goal `Add operator-facing status and doctor tooling for loop recovery` as a standalone bundled release.",
     "status": "ready_to_release",
     "brief": {
       "archetype": "workflow",
-      "objective": "Make bundled release planning read like product planning instead of generic bundling.",
-      "target_user_value": "Operators get clearer version themes, stronger user-value framing, and better default release stories without hand-writing every field.",
-      "why_now": "After telemetry, state trust, and report trust are in place, the next UX gap is that release planning still sounds too generic.",
-      "packaging_rationale": "Archetype-aware planning and stronger packaging signals belong together because they both improve why-this-version and why-these-goals-now.",
+      "objective": "Give operators a first-class way to inspect loop state and recover from blockers.",
+      "target_user_value": "Operators can answer where the loop is stuck and what to run next without reading raw state files.",
+      "why_now": "After telemetry, state consistency, report trust, and PM release planning quality, the main UX gap is day-to-day recovery and inspection.",
+      "packaging_rationale": "Status and doctor belong together because one explains current loop state while the other explains how to recover.",
       "packaging_signals": [
         "Archetype: workflow",
-        "Matched keywords: planning, release, workflow",
-        "Shared theme: strengthen",
+        "Matched keywords: operator, release",
+        "Shared theme: tooling",
         "Bundled goals: 1"
       ],
       "scope_in": [
-        "Add release archetypes to planning config",
-        "Auto-detect a likely archetype from goal titles, notes, and acceptance criteria",
-        "Persist packaging signals into the release brief and release report"
+        "Add loop-status.py",
+        "Add loop-doctor.py",
+        "Document status and doctor in README, protocol, and installer guidance"
       ],
       "scope_out": [
-        "Status and doctor commands"
+        "No new validation or committee gates"
       ],
       "release_acceptance": [
-        "Planner records an archetype for each release",
-        "Planner uses archetype templates to improve objective, user value, and launch story defaults",
-        "Release reports expose packaging signals that justify the bundle"
+        "loop-status.py prints session, release, goal, and gate status",
+        "loop-doctor.py prints actionable recovery findings",
+        "validate-kit.py covers both scripts"
       ],
-      "launch_story": "This release upgrades the planner from task bundling to product-style version framing, so each bundled release has a clearer theme and story.",
-      "deferred_items": [
-        "Add operator-facing status and doctor tooling for loop recovery"
-      ]
+      "launch_story": "This release gives operators a practical cockpit for the loop: one command to inspect state, one command to recover.",
+      "deferred_items": []
     },
     "goal_ids": [
-      "iteration-61-pm-release-planning-quality"
+      "iteration-62-status-and-doctor-ux"
     ],
     "goal_titles": [
-      "Strengthen PM release planning with archetypes and better packaging signals"
+      "Add operator-facing status and doctor tooling for loop recovery"
     ],
     "completed_goal_ids": [
-      "iteration-61-pm-release-planning-quality"
+      "iteration-62-status-and-doctor-ux"
     ],
     "task_iterations": [
       {
-        "iteration": 60,
-        "goal": "Strengthen PM release planning with archetypes and better packaging signals",
-        "goal_id": "iteration-61-pm-release-planning-quality",
-        "report": "docs/reports/v60.md",
-        "published_at": "2026-03-15T16:42:08Z"
+        "iteration": 61,
+        "goal": "Add operator-facing status and doctor tooling for loop recovery",
+        "goal_id": "iteration-62-status-and-doctor-ux",
+        "report": "docs/reports/v61.md",
+        "published_at": "2026-03-15T16:57:15Z"
       }
     ],
-    "selected_at": "2026-03-15T16:38:34Z",
+    "selected_at": "2026-03-15T16:55:27Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R4.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T16:41:38Z",
+    "captured_at": "2026-03-15T16:56:37Z",
     "research_findings": [
-      "Current planner output is coherent but often generic, with phrases like 'around X' that do not feel like real product release framing.",
-      "Release archetypes can provide stronger defaults for objective, target user value, packaging rationale, and launch story without making the planner heavyweight.",
-      "Packaging signals help operators understand why the planner grouped a release the way it did, which improves trust and later refinement."
+      "Usage-log analysis shows operators need a faster way to inspect live loop state without reading raw JSON."
     ],
-    "committee_feedback": [],
-    "committee_decision": [],
-    "reflection_notes": [],
+    "committee_feedback": [
+      "Product, architecture, and operator councils aligned on shipping lightweight read-only operator recovery tooling."
+    ],
+    "committee_decision": [
+      "Approve a single bundled release for loop-status, loop-doctor, and operator-facing guidance."
+    ],
+    "reflection_notes": [
+      "Operator recovery should stay read-only in the first release to preserve trust and avoid hidden automation."
+    ],
     "research_gate": {
       "status": "captured",
-      "summary": "The planner now needs better version semantics, not just better gating, so release briefs read like intentional product packaging.",
+      "summary": "Usage-log analysis shows operators need a clearer way to inspect live loop state and recover from blockers without reading raw JSON state files.",
       "evidence_refs": [
-        ".agent-loop/scripts/plan-release.py",
-        "docs/releases/R1.md"
+        ".agent-loop/data/usage-log.jsonl",
+        ".agent-loop/scripts/analyze-usage-logs.py"
       ],
-      "data_quality_score": 100.0,
-      "open_gaps": []
+      "data_quality_score": 4.7,
+      "open_gaps": [
+        "Status and doctor output should stay concise enough for day-to-day use."
+      ]
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve: clearer version themes are the next UX upgrade because the planner still sounds too generic for user-visible releases.",
+        "summary": "This release closes the highest remaining UX gap after telemetry and report trust by giving operators an explicit inspection and recovery surface.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve: archetype templates and packaging signals fit naturally into config-driven release planning and durable release briefs.",
+        "summary": "Standalone status and doctor scripts fit the existing repo-local script boundary and avoid coupling operator recovery UX into publishing or validation flows.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Approve: operators need to understand why a bundle exists, not just which tasks were selected.",
+        "summary": "Operators need a simple answer to where the loop is blocked and what command to run next; status and doctor provide that without forcing raw state inspection.",
         "decision": "approve",
         "dissent": []
       }
@@ -124,15 +128,15 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Add archetype-aware release planning with reusable templates and package the strongest bundle signals into the release brief.",
-        "next_action": "Validate the new planning defaults and publish the PM-planning upgrade."
+        "summary": "Ship a bundled workflow release that adds inspection and recovery commands plus documentation and installer guidance.",
+        "next_action": "Run full validation, then publish the task and bundled release."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Release planning currently lacks enough structured evidence to explain why a version theme was chosen.",
-        "decision_record": "Proceed with archetype-aware PM release planning as the next bundled release.",
+        "summary": "Decision is backed by usage-log findings and durable state coverage; no escalation is required if operator tools stay read-only.",
+        "decision_record": "Approve the operator recovery release with scope limited to loop-status, loop-doctor, validation coverage, and operator-facing docs.",
         "evidence_refs": [
-          ".agent-loop/scripts/plan-release.py"
+          ".agent-loop/references/protocol.md"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -141,63 +145,71 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Strengthen PM release planning with archetypes and better packaging signals",
-      "why_selected": "The loop now needs stronger version definition quality so bundled releases feel intentional to real operators.",
+      "selected_goal": "iteration-62-status-and-doctor-ux",
+      "why_selected": "Operator recovery is the remaining UX gap after telemetry, state consistency, report trust, and PM release planning quality were delivered.",
       "scope_in": [
-        "Define release archetypes and templates in config",
-        "Auto-detect an archetype from goal evidence",
-        "Persist packaging signals into the release brief and release report"
+        "Add loop-status.py for structured loop inspection.",
+        "Add loop-doctor.py for actionable recovery diagnostics.",
+        "Document operator recovery commands in README, protocol, and installer guidance."
       ],
       "scope_out": [
-        "Do not add recovery tooling yet"
+        "Do not add new validation gates or committee roles."
       ],
-      "assumptions": [],
-      "risks": [],
+      "assumptions": [
+        "Existing durable state is sufficient to explain operator-facing loop health."
+      ],
+      "risks": [
+        "Operator output could become noisy if status and doctor expose too much raw state."
+      ],
       "required_validation": [
-        "python3 .agent-loop/scripts/validate-kit.py"
+        "validate-kit.py must cover loop-status.py and loop-doctor.py.",
+        "run-full-validation.py must remain green after adding operator tooling."
       ],
       "stop_conditions": [
-        "Stop if archetype-aware planning makes release planning less deterministic or breaks existing release-flow validation"
+        "Stop if status or doctor require mutating state to be useful."
       ],
-      "dissent": [],
-      "next_action": ""
+      "dissent": [
+        "Keep the first release of operator tooling read-only and avoid auto-repair behavior."
+      ],
+      "next_action": "Validate the new operator tooling and publish the bundled release if all gates pass."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 5.0,
-        "scope_fitness": 5.0,
-        "repo_safety": 5.0,
-        "validation_readiness": 5.0,
-        "state_durability": 5.0,
-        "publish_safety": 5.0
+        "goal_clarity": 4.8,
+        "scope_fitness": 4.7,
+        "repo_safety": 4.8,
+        "validation_readiness": 4.9,
+        "state_durability": 4.8,
+        "publish_safety": 4.8
       },
-      "weighted_score": 5.0,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "This release improves version-definition quality without disturbing the stronger gates added in earlier releases.",
-        "Config-driven archetypes keep the planner explainable and portable across repos."
+        "The release is tightly scoped, durable, and easy to validate."
       ],
-      "minimum_fixes_required": []
+      "minimum_fixes_required": [
+        "Keep operator tooling read-only and block publish if validation regresses."
+      ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": ""
+      "recommended_action": "Proceed to validation and publish if the new tools remain green."
     },
-    "goal_id": "iteration-61-pm-release-planning-quality",
-    "goal_title": "Strengthen PM release planning with archetypes and better packaging signals"
+    "goal_id": "iteration-62-status-and-doctor-ux",
+    "goal_title": "Add operator-facing status and doctor tooling for loop recovery"
   },
-  "last_report": "docs/reports/v60.md",
+  "last_report": "docs/reports/v61.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T16:41:51Z",
+    "ran_at": "2026-03-15T16:56:51Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/plan-release.py\n[PASS] Required file exists: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Required file exists: .agent-loop/scripts/record-usage-event.py\n[PASS] Required file exists: .agent-loop/scripts/publish-release.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/write-release-report.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/plan-release.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/publish-release.py\n[PASS] Python compile: .agent-loop/scripts/record-usage-event.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-release-report.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/s\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/plan-release.py\n[PASS] Required file exists: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Required file exists: .agent-loop/scripts/loop-status.py\n[PASS] Required file exists: .agent-loop/scripts/loop-doctor.py\n[PASS] Required file exists: .agent-loop/scripts/record-usage-event.py\n[PASS] Required file exists: .agent-loop/scripts/publish-release.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/write-release-report.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/loop-doctor.py\n[PASS] Python compile: .agent-loop/scripts/loop-status.py\n[PASS] Python compile: .agent-loop/scripts/plan-release.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/publish-release.py\n[PASS] Python compile: .agent-loop/scripts/record-usage-event.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-release-report.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -824,6 +836,20 @@
       "branch": "main",
       "published_at": "2026-03-15T16:42:08Z",
       "session_progress": "3/5 releases"
+    },
+    {
+      "iteration": 61,
+      "goal": "Add operator-facing status and doctor tooling for loop recovery",
+      "goal_id": "iteration-62-status-and-doctor-ux",
+      "release_number": 5,
+      "release_title": "R5: Add operator-facing status and doctor tooling for loop recovery",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v61.md",
+      "branch": "main",
+      "published_at": "2026-03-15T16:57:15Z",
+      "session_progress": "4/5 releases"
     }
   ],
   "release_history": [
@@ -972,6 +998,30 @@
       "report": "docs/releases/R3.md",
       "published_at": "2026-03-15T16:26:42Z",
       "commit": "a6cef794579ff079c5464010f68fb79ed41465df"
+    },
+    {
+      "number": 4,
+      "session_id": "session-20260315-152645",
+      "title": "R4: Strengthen PM release planning with archetypes and better packaging signals",
+      "summary": "Ship the single high-priority goal `Strengthen PM release planning with archetypes and better packaging signals` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-61-pm-release-planning-quality"
+      ],
+      "goal_titles": [
+        "Strengthen PM release planning with archetypes and better packaging signals"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 60,
+          "goal": "Strengthen PM release planning with archetypes and better packaging signals",
+          "goal_id": "iteration-61-pm-release-planning-quality",
+          "report": "docs/reports/v60.md",
+          "published_at": "2026-03-15T16:42:08Z"
+        }
+      ],
+      "report": "docs/releases/R4.md",
+      "published_at": "2026-03-15T16:42:30Z",
+      "commit": "b26196415c717ba21f591da84655b71195c120b7"
     }
   ]
 }

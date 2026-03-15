@@ -666,7 +666,7 @@
     "id": "iteration-62-status-and-doctor-ux",
     "title": "Add operator-facing status and doctor tooling for loop recovery",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Operators can print a concise status summary for session progress, active release, active goal, validation, and readiness gates",
       "The status output highlights missing review state, evaluator state, or release-closeout work",

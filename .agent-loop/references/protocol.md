@@ -110,6 +110,11 @@ Every bundled release is delivered through repeated task iterations plus one rel
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
    - Decide whether the next version should start or whether the loop should stop.
 
+When a session is blocked or confusing, inspect it before editing:
+
+- `python3 .agent-loop/scripts/loop-status.py`
+- `python3 .agent-loop/scripts/loop-doctor.py`
+
 ## Release Gate
 
 A bundled release is publishable only if all of these are true:

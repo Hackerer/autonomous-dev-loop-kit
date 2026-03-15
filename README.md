@@ -192,6 +192,13 @@ python3 .agent-loop/scripts/analyze-usage-logs.py
 python3 .agent-loop/scripts/analyze-usage-logs.py --repo /path/to/ai-trade --repo /path/to/info-rss
 ```
 
+To inspect the live loop state or diagnose common blockers, use:
+
+```bash
+python3 .agent-loop/scripts/loop-status.py
+python3 .agent-loop/scripts/loop-doctor.py
+```
+
 If research is still insufficient before goal selection, record that explicitly instead of pushing ahead:
 
 ```bash
@@ -251,6 +258,8 @@ python3 .agent-loop/scripts/assert-implementation-readiness.py
 ```
 
 Reports should also surface durable open gaps, stop conditions, and escalation status so later operators can see why a version was blocked, risky, or one step away from escalation.
+
+When a loop feels stuck, prefer checking `loop-status.py` first and `loop-doctor.py` second before editing state manually.
 
 ## Data-First Workflow
 

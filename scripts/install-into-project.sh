@@ -146,6 +146,9 @@ Next bootstrap steps:
   8. When all tasks in the active release are published, write and publish the bundled release:
      python3 .agent-loop/scripts/write-release-report.py
      python3 .agent-loop/scripts/publish-release.py
-  9. Usage logs will accumulate in:
+  9. Inspect or diagnose the live loop state when needed:
+     python3 .agent-loop/scripts/loop-status.py
+     python3 .agent-loop/scripts/loop-doctor.py
+ 10. Usage logs will accumulate in:
      ${TARGET_DIR}/.agent-loop/data/usage-log.jsonl
 EOF

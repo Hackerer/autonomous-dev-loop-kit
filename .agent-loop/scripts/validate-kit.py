@@ -1082,6 +1082,40 @@ def validate_usage_logging(failures: list[str]) -> None:
             check(isinstance(sessions, list) and bool(sessions), "Usage-log analysis exposes session summaries", failures)
 
 
+def validate_operator_recovery_tools(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an operator-recovery target", failures)
+
+        status_run = subprocess.run(
+            ["python3", ".agent-loop/scripts/loop-status.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(status_run.returncode == 0, "loop-status.py runs successfully", failures)
+        if status_run.returncode == 0:
+            payload = json.loads(status_run.stdout)
+            check(isinstance(payload.get("session"), dict), "loop-status.py exposes session details", failures)
+            check(isinstance(payload.get("release"), dict), "loop-status.py exposes release details", failures)
+
+        doctor_run = subprocess.run(
+            ["python3", ".agent-loop/scripts/loop-doctor.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(doctor_run.returncode == 0, "loop-doctor.py runs successfully", failures)
+        if doctor_run.returncode == 0:
+            payload = json.loads(doctor_run.stdout)
+            findings = payload.get("findings", [])
+            check(isinstance(findings, list), "loop-doctor.py exposes structured findings", failures)
+            check(bool(findings), "loop-doctor.py detects missing session or release setup", failures)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -1096,6 +1130,8 @@ def main() -> int:
         ROOT / ".agent-loop/scripts/continue-loop-session.py",
         ROOT / ".agent-loop/scripts/plan-release.py",
         ROOT / ".agent-loop/scripts/analyze-usage-logs.py",
+        ROOT / ".agent-loop/scripts/loop-status.py",
+        ROOT / ".agent-loop/scripts/loop-doctor.py",
         ROOT / ".agent-loop/scripts/record-usage-event.py",
         ROOT / ".agent-loop/scripts/publish-release.py",
         ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
@@ -1485,6 +1521,7 @@ def main() -> int:
     validate_review_reset_on_goal_change(failures)
     validate_session_continuation(failures)
     validate_usage_logging(failures)
+    validate_operator_recovery_tools(failures)
     validate_structured_committee_flow(failures)
     validate_release_flow(failures)
     helper = subprocess.run(
