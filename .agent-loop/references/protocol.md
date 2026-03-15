@@ -83,9 +83,11 @@ Every version follows the same state machine:
 8. `report`
    - Write a version report in `docs/reports/`.
    - Prefer the durable review state in `.agent-loop/state.json` for research, committee feedback, decisions, and reflection when it matches the active goal.
+   - Refuse to write the report if committee review is required but no matching recorded review state exists yet.
    - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
 9. `publish`
    - Commit the complete version.
+   - Refuse to publish if committee review is required but no matching recorded review state exists for the draft goal.
    - Push or otherwise publish according to config.
 10. `loop-reflect`
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
@@ -96,6 +98,7 @@ Every version follows the same state machine:
 A version is publishable only if all of these are true:
 
 - The scoped goal is completed or explicitly narrowed and explained in the report.
+- A recorded `review_state` exists for the active goal when committee review is required.
 - The configured full-validation suite passes.
 - A report file exists in `docs/reports/`.
 - The worktree state being published is intentional and understood.

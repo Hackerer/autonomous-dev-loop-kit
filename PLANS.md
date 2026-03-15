@@ -14,6 +14,7 @@ Updated: 2026-03-15
 - The repo now has explicit project-data acquisition, evidence schema, scoring, and committee configuration for pre-implementation challenge.
 - The loop now stores research and committee review conclusions in durable state and can flow that review context back into collected project data and report generation.
 - The repo now has a repo-local installer path for target projects while preserving target-specific loop config by default.
+- The loop now enforces matching review-state capture before report writing and publication when committee review is required.
 - The repo still needs repository-specific validation commands instead of the placeholder validation step when installed into a target project.
 - The repo should keep each published version small, testable, and directly connected to better pre-execution data quality and committee review.
 
@@ -43,6 +44,7 @@ Updated: 2026-03-15
 - 2026-03-15: Start storing research and committee review conclusions as durable loop state instead of report-only output.
 - 2026-03-15: Reuse goal-matched review state automatically in project snapshots and version reports.
 - 2026-03-15: Add a repo-local installer that seeds target projects without overwriting their loop config by default.
+- 2026-03-15: Make matching review-state capture a hard gate for report writing and publication.
 
 ## Backlog Notes
 

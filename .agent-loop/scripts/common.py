@@ -374,6 +374,29 @@ def review_state_matches_goal(review_state: Any, goal: Any) -> bool:
     return not review_goal_id and not review_goal_title
 
 
+def require_review_state(config: dict[str, Any], state: dict[str, Any], goal: Any) -> dict[str, Any]:
+    discovery = discovery_config(config)
+    if not discovery.get("require_committee_review", False):
+        review_state = state.get("review_state")
+        return review_state if isinstance(review_state, dict) else {}
+
+    review_state = state.get("review_state")
+    if not isinstance(review_state, dict) or not review_state_matches_goal(review_state, goal):
+        raise LoopError(
+            "Recorded review state is missing or does not match the active goal. Run `python3 .agent-loop/scripts/capture-review.py ...` before reporting or publishing."
+        )
+
+    has_content = any(
+        review_state.get(key)
+        for key in ("research_findings", "committee_feedback", "committee_decision", "reflection_notes")
+    )
+    if not has_content:
+        raise LoopError(
+            "Recorded review state is empty for the active goal. Capture research, committee feedback, or a decision before reporting or publishing."
+        )
+    return review_state
+
+
 def session_summary(state: dict[str, Any]) -> dict[str, Any]:
     session = state.get("session")
     if not isinstance(session, dict):

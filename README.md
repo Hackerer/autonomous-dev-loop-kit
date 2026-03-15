@@ -162,6 +162,8 @@ The wrappers interpret that as:
 - publish every version to the current project's own GitHub repo
 - stop after the third published version or earlier on stop conditions
 
+When committee review is required, the loop will now refuse to write a report or publish a version until `python3 .agent-loop/scripts/capture-review.py` has recorded matching review state for the active goal.
+
 ## Data-First Workflow
 
 This kit now assumes a data-first loop:

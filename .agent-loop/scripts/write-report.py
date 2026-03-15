@@ -15,8 +15,8 @@ from common import (
     load_state,
     relpath,
     reporting_path,
-    review_state_matches_goal,
     require_green_validation,
+    require_review_state,
     save_state,
     session_summary,
 )
@@ -69,12 +69,11 @@ def main() -> int:
     goal_label = goal_title(goal)
     today = datetime.now().date().isoformat()
     project_data = state.get("project_data", {})
-    review_state = state.get("review_state", {})
-    review_matches_goal = review_state_matches_goal(review_state, goal)
-    review_research = list(review_state.get("research_findings", [])) if review_matches_goal else []
-    review_feedback = list(review_state.get("committee_feedback", [])) if review_matches_goal else []
-    review_decision = list(review_state.get("committee_decision", [])) if review_matches_goal else []
-    review_reflection = list(review_state.get("reflection_notes", [])) if review_matches_goal else []
+    review_state = require_review_state(config, state, goal)
+    review_research = list(review_state.get("research_findings", []))
+    review_feedback = list(review_state.get("committee_feedback", []))
+    review_decision = list(review_state.get("committee_decision", []))
+    review_reflection = list(review_state.get("reflection_notes", []))
 
     research_lines = merge_unique(args.research, review_research)
     committee_lines = []
@@ -94,7 +93,7 @@ def main() -> int:
     evidence_sources = list(args.source)
     snapshot_path = project_data.get("snapshot_path")
     quality_path = project_data.get("quality_path")
-    if review_matches_goal:
+    if review_state:
         evidence_sources.append("Durable review state: `.agent-loop/state.json`")
     if snapshot_path:
         evidence_sources.append(f"Project data snapshot: `{snapshot_path}`")

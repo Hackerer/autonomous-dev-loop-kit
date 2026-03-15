@@ -58,6 +58,154 @@ def validate_skill(skill_md: Path, failures: list[str]) -> None:
     check(re.search(r"^description:\s+.+$", body, re.MULTILINE) is not None, f"Skill description present: {skill_md.relative_to(ROOT)}", failures)
 
 
+def install_target_project(target: Path, args: list[str] | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["bash", "scripts/install-into-project.sh", "--target", str(target), *(args or [])],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+
+
+def seeded_state(goal_id: str) -> dict:
+    return {
+        "iteration": 0,
+        "status": "goal_selected",
+        "session": {
+            "status": "active",
+            "target_iterations": 1,
+            "completed_iterations": 0,
+            "started_at": "2026-03-15T00:00:00Z",
+            "ended_at": None,
+        },
+        "project_data": {
+            "snapshot_path": None,
+            "quality_path": None,
+            "last_collected_at": None,
+            "last_quality_score": None,
+            "last_quality_status": None,
+        },
+        "current_goal": {
+            "id": goal_id,
+            "title": "Gate review-state reporting and publication",
+            "selected_at": "2026-03-15T00:00:00Z",
+            "source": ".agent-loop/backlog.json",
+        },
+        "draft_iteration": None,
+        "draft_report": None,
+        "draft_goal": None,
+        "review_state": {
+            "status": "not_started",
+            "captured_at": None,
+            "research_findings": [],
+            "committee_feedback": [],
+            "committee_decision": [],
+            "reflection_notes": [],
+        },
+        "last_report": None,
+        "last_validation": {
+            "status": "passed",
+            "ran_at": "2026-03-15T00:00:00Z",
+            "results": [
+                {
+                    "command": "python3 .agent-loop/scripts/validate-kit.py",
+                    "exit_code": 0,
+                    "stdout": "",
+                    "stderr": "",
+                    "name": "validate-kit",
+                    "required": True,
+                    "passed": True,
+                }
+            ],
+        },
+        "consecutive_failures": 0,
+        "history": [],
+    }
+
+
+def validate_review_gate(failures: list[str]) -> None:
+    goal_id = "review-gate-test"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a validation target", failures)
+
+        state_path = target / ".agent-loop/state.json"
+        write_json(state_path, seeded_state(goal_id))
+
+        report_attempt = subprocess.run(
+            [
+                "python3",
+                ".agent-loop/scripts/write-report.py",
+                "--analysis",
+                "Gate test",
+                "--acceptance",
+                "Gate test",
+                "--delivered",
+                "Gate test",
+                "--reflection",
+                "Gate test",
+                "--next-goal",
+                "Gate test",
+            ],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(report_attempt.returncode != 0, "write-report.py rejects missing review state when committee review is required", failures)
+        check(
+            "capture-review.py" in report_attempt.stderr or "review state" in report_attempt.stderr.lower(),
+            "write-report.py explains how to satisfy the review-state gate",
+            failures,
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a publish-gate target", failures)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Publish-gate target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(
+            ["git", "remote", "add", "origin", "https://github.com/example/autonomous-dev-loop-kit.git"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        state = seeded_state(goal_id)
+        state["draft_iteration"] = 1
+        state["draft_report"] = "docs/reports/v1.md"
+        state["draft_goal"] = state["current_goal"]
+        write_json(target / ".agent-loop/state.json", state)
+        (target / "docs/reports").mkdir(parents=True, exist_ok=True)
+        (target / "docs/reports/v1.md").write_text("# Gate Test Report\n", encoding="utf-8")
+
+        publish_attempt = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(publish_attempt.returncode != 0, "publish-iteration.py rejects missing review state when committee review is required", failures)
+        check(
+            "capture-review.py" in publish_attempt.stderr or "review state" in publish_attempt.stderr.lower(),
+            "publish-iteration.py explains how to satisfy the review-state gate",
+            failures,
+        )
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -144,6 +292,8 @@ def main() -> int:
     check(collector.returncode == 0, "collect-project-data.py runs successfully", failures)
     if collector.returncode == 0:
         validate_json(generated_project_data, failures)
+        project_data = json.loads(generated_project_data.read_text(encoding="utf-8"))
+        check(isinstance(project_data.get("latest_review_state"), dict), "Project data includes latest_review_state", failures)
 
     generated_quality = ROOT / ".agent-loop/data/data-quality.generated.json"
     scorer = subprocess.run(
@@ -256,6 +406,8 @@ def main() -> int:
             "Project installer can replace config when requested",
             failures,
         )
+
+    validate_review_gate(failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)

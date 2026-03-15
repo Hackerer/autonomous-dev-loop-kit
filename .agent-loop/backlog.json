@@ -51,7 +51,7 @@
     "id": "iteration-15-wrapper-protocol-alignment",
     "title": "Require recorded review state before reporting and publication",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The loop refuses to report or publish when required review-state artifacts are missing",
       "Validation can detect missing durable review-state support",

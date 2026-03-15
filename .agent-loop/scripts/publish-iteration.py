@@ -18,6 +18,7 @@ from common import (
     require_session_capacity,
     remote_exists,
     require_green_validation,
+    require_review_state,
     save_backlog,
     save_state,
     session_summary,
@@ -60,6 +61,7 @@ def main() -> int:
         raise LoopError("No draft report exists. Run write-report.py before publishing.")
 
     goal = state.get("draft_goal") or state.get("current_goal")
+    require_review_state(config, state, goal)
     goal_label = goal_title(goal)
     goal_slug = slugify(goal_label)
 
