@@ -309,6 +309,9 @@ def main() -> int:
         validate_json(generated_project_data, failures)
         project_data = json.loads(generated_project_data.read_text(encoding="utf-8"))
         check(isinstance(project_data.get("latest_review_state"), dict), "Project data includes latest_review_state", failures)
+        latest_review_state = project_data.get("latest_review_state", {})
+        check(isinstance(latest_review_state.get("evaluation"), dict), "Project data includes evaluation readiness summary", failures)
+        check(isinstance(latest_review_state.get("scope_decision"), dict), "Project data includes scope decision summary", failures)
 
     generated_quality = ROOT / ".agent-loop/data/data-quality.generated.json"
     scorer = subprocess.run(

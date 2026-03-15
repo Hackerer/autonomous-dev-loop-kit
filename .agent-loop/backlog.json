@@ -170,8 +170,8 @@
   {
     "id": "iteration-25-project-data-review-v2",
     "title": "Expose structured review-state and evaluator readiness in project-data snapshots",
-    "priority": "medium",
-    "status": "pending",
+    "priority": "high",
+    "status": "completed",
     "acceptance": [
       "Project data includes the current structured review-state summary",
       "Snapshot data indicates whether evaluation passed or is still incomplete",

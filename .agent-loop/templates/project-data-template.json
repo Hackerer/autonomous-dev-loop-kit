@@ -38,15 +38,41 @@
   "latest_review_state": {
     "status": "not_started",
     "captured_at": null,
-    "research_findings": [],
-    "committee_feedback": [],
-    "committee_decision": [],
-    "reflection_notes": [],
     "goal_id": null,
     "goal_title": null,
     "matches_current_goal": null,
     "current_goal_id": null,
-    "current_goal_title": null
+    "current_goal_title": null,
+    "research_gate": {
+      "status": "not_started",
+      "summary": "",
+      "data_quality_score": null,
+      "open_gaps": []
+    },
+    "council_status": {
+      "product_council": "not_started",
+      "architecture_council": "not_started",
+      "operator_council": "not_started"
+    },
+    "scope_decision": {
+      "status": "not_started",
+      "selected_goal": "",
+      "scope_in_count": 0,
+      "scope_out_count": 0,
+      "required_validation": [],
+      "stop_conditions": [],
+      "dissent_count": 0
+    },
+    "evaluation": {
+      "status": "not_started",
+      "rubric_version": "",
+      "weighted_score": null,
+      "result": "pending"
+    },
+    "escalation": {
+      "status": "not_needed",
+      "reason": ""
+    }
   },
   "evidence": {
     "sources": [],

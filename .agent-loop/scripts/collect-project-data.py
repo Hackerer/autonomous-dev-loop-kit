@@ -238,18 +238,49 @@ def main() -> int:
         "constraints": parse_constraints(root),
         "open_risks": parse_open_risks(root),
     }
+    research_gate = review_state.get("research_gate", {})
+    councils = review_state.get("councils", {})
+    scope_decision = review_state.get("scope_decision", {})
+    evaluation = review_state.get("evaluation", {})
+    escalation = review_state.get("escalation", {})
     snapshot["latest_review_state"] = {
         "status": review_state.get("status", "not_started"),
         "captured_at": review_state.get("captured_at"),
-        "research_findings": list(review_state.get("research_findings", [])),
-        "committee_feedback": list(review_state.get("committee_feedback", [])),
-        "committee_decision": list(review_state.get("committee_decision", [])),
-        "reflection_notes": list(review_state.get("reflection_notes", [])),
         "goal_id": review_state.get("goal_id"),
         "goal_title": review_state.get("goal_title"),
         "matches_current_goal": review_state_matches_goal(review_state, current_goal),
         "current_goal_id": current_goal.get("id") if isinstance(current_goal, dict) else None,
         "current_goal_title": goal_title(current_goal) if current_goal else None,
+        "research_gate": {
+            "status": research_gate.get("status", "not_started") if isinstance(research_gate, dict) else "not_started",
+            "summary": research_gate.get("summary", "") if isinstance(research_gate, dict) else "",
+            "data_quality_score": research_gate.get("data_quality_score") if isinstance(research_gate, dict) else None,
+            "open_gaps": list(research_gate.get("open_gaps", [])) if isinstance(research_gate, dict) else [],
+        },
+        "council_status": {
+            "product_council": councils.get("product_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
+            "architecture_council": councils.get("architecture_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
+            "operator_council": councils.get("operator_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
+        },
+        "scope_decision": {
+            "status": scope_decision.get("status", "not_started") if isinstance(scope_decision, dict) else "not_started",
+            "selected_goal": scope_decision.get("selected_goal", "") if isinstance(scope_decision, dict) else "",
+            "scope_in_count": len(scope_decision.get("scope_in", [])) if isinstance(scope_decision, dict) else 0,
+            "scope_out_count": len(scope_decision.get("scope_out", [])) if isinstance(scope_decision, dict) else 0,
+            "required_validation": list(scope_decision.get("required_validation", [])) if isinstance(scope_decision, dict) else [],
+            "stop_conditions": list(scope_decision.get("stop_conditions", [])) if isinstance(scope_decision, dict) else [],
+            "dissent_count": len(scope_decision.get("dissent", [])) if isinstance(scope_decision, dict) else 0,
+        },
+        "evaluation": {
+            "status": evaluation.get("status", "not_started") if isinstance(evaluation, dict) else "not_started",
+            "rubric_version": evaluation.get("rubric_version", "") if isinstance(evaluation, dict) else "",
+            "weighted_score": evaluation.get("weighted_score") if isinstance(evaluation, dict) else None,
+            "result": evaluation.get("result", "pending") if isinstance(evaluation, dict) else "pending",
+        },
+        "escalation": {
+            "status": escalation.get("status", "not_needed") if isinstance(escalation, dict) else "not_needed",
+            "reason": escalation.get("reason", "") if isinstance(escalation, dict) else "",
+        },
     }
     snapshot["evidence"] = {
         "sources": [
