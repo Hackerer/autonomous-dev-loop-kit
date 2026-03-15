@@ -84,6 +84,13 @@ def main() -> int:
     parser.add_argument("--evaluation-result", choices=["pass", "revise", "fail"], help="Evaluator final result.")
     parser.add_argument("--critique", action="append", default=[], help="Evaluator critique bullet.")
     parser.add_argument("--minimum-fix", action="append", default=[], help="Minimum fix required before implementation.")
+    parser.add_argument(
+        "--escalation-status",
+        choices=["not_needed", "watch", "escalated"],
+        help="Escalation status for the current iteration.",
+    )
+    parser.add_argument("--escalation-reason", help="Why the iteration should be watched or escalated.")
+    parser.add_argument("--recommended-action", help="Recommended next action for the escalation.")
     parser.add_argument("--reflection", action="append", default=[], help="Optional reflection bullet to persist.")
     parser.add_argument("--json", action="store_true", help="Print the captured review payload as JSON.")
     parser.add_argument("--no-state", action="store_true", help="Validate and print the payload without updating state.")
@@ -122,6 +129,9 @@ def main() -> int:
         and not args.evaluation_result
         and not args.critique
         and not args.minimum_fix
+        and not args.escalation_status
+        and not args.escalation_reason
+        and not args.recommended_action
         and not args.reflection
     ):
         raise LoopError("At least one review input is required.")
@@ -244,6 +254,17 @@ def main() -> int:
         list(evaluation.get("minimum_fixes_required", [])), list(args.minimum_fix)
     )
     payload["evaluation"] = evaluation
+
+    escalation = payload.get("escalation", {})
+    if not isinstance(escalation, dict):
+        escalation = {}
+    if args.escalation_status:
+        escalation["status"] = args.escalation_status
+    if args.escalation_reason:
+        escalation["reason"] = args.escalation_reason
+    if args.recommended_action:
+        escalation["recommended_action"] = args.recommended_action
+    payload["escalation"] = escalation
 
     if not args.no_state:
         state["review_state"] = payload

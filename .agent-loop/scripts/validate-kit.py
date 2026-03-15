@@ -575,6 +575,12 @@ def main() -> int:
             "Sample evaluator critique",
             "--minimum-fix",
             "Sample evaluator fix",
+            "--escalation-status",
+            "watch",
+            "--escalation-reason",
+            "Sample escalation reason",
+            "--recommended-action",
+            "Sample escalation action",
             "--json",
             "--no-state",
         ],
@@ -601,6 +607,10 @@ def main() -> int:
         check(evaluation.get("rubric_version") == "iteration-readiness-v1", "capture-review.py records rubric version", failures)
         check(evaluation.get("scores", {}).get("goal_clarity") == 4.5, "capture-review.py records evaluator scores", failures)
         check(evaluation.get("result") == "pass", "capture-review.py records evaluator result", failures)
+        escalation = captured.get("escalation", {})
+        check(isinstance(escalation, dict), "capture-review.py emits escalation payload", failures)
+        check(escalation.get("status") == "watch", "capture-review.py records escalation status", failures)
+        check(escalation.get("reason") == "Sample escalation reason", "capture-review.py records escalation reason", failures)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"

@@ -243,7 +243,7 @@
     "id": "iteration-31-escalation-capture",
     "title": "Allow capture-review.py to persist escalation status and recommended action",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "capture-review.py can record escalation status, reason, and recommended action",
       "Escalation data lands in review_state.escalation without affecting lighter flows",
