@@ -574,5 +574,29 @@
       "validate-kit exercises the new release planning, release report, and release publish path"
     ],
     "notes": "The repo should not keep telling operators that every tiny iteration is the final version."
+  },
+  {
+    "id": "iteration-55-verify-config-migration",
+    "title": "Verify OpenClaw config migration to coding folder",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "Config symlink points to new location",
+      "OpenClaw loads config correctly",
+      "All agents are accessible"
+    ],
+    "notes": "Verification iteration 1 for config migration"
+  },
+  {
+    "id": "iteration-56-verify-agent-access",
+    "title": "Verify Agent access and memory system",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Memory system works from new location",
+      "Skills are accessible",
+      "Workspaces are accessible"
+    ],
+    "notes": "Verification iteration 2 for config migration"
   }
 ]

@@ -1,12 +1,12 @@
 {
-  "iteration": 54,
-  "status": "release_report_written",
+  "iteration": 55,
+  "status": "published",
   "session": {
     "status": "active",
     "target_releases": 15,
-    "completed_releases": 2,
+    "completed_releases": 3,
     "target_iterations": null,
-    "completed_iterations": 5,
+    "completed_iterations": 6,
     "started_at": "2026-03-15T12:42:57Z",
     "ended_at": null
   },
@@ -19,72 +19,64 @@
   },
   "current_goal": null,
   "release": {
-    "number": 3,
-    "title": "R3: Generate detailed bundled release reports that aggregate task delivery + 2 more bundled goals",
-    "summary": "Bundle these goals into one user-facing release: Generate detailed bundled release reports that aggregate task delivery; Publish bundled releases separately from task iterations and record release-level usage events; Align protocol, skills, installer guidance, and validation with bundled release semantics",
-    "status": "ready_to_release",
+    "number": 4,
+    "title": "R4: Verify OpenClaw config migration to coding folder + 1 more bundled goals",
+    "summary": "Bundle these goals into one user-facing release: Verify OpenClaw config migration to coding folder; Verify Agent access and memory system",
+    "status": "in_progress",
     "brief": {
-      "objective": "",
-      "target_user_value": "",
-      "why_now": "",
-      "packaging_rationale": "",
-      "scope_in": [],
+      "objective": "Ship a coherent release around verify.",
+      "target_user_value": "Users should experience one packaged improvement with a clear story instead of several disconnected tiny task commits.",
+      "why_now": "These bundled goals are the highest-value pending items that reinforce the same release theme and should land together now.",
+      "packaging_rationale": "These goals all strengthen the same release theme around verify, so shipping them together creates a clearer user-visible version.",
+      "scope_in": [
+        "Verify OpenClaw config migration to coding folder",
+        "Verify Agent access and memory system"
+      ],
       "scope_out": [],
-      "release_acceptance": [],
-      "launch_story": "",
+      "release_acceptance": [
+        "Config symlink points to new location",
+        "OpenClaw loads config correctly",
+        "All agents are accessible",
+        "Memory system works from new location",
+        "Skills are accessible",
+        "Workspaces are accessible"
+      ],
+      "launch_story": "This release tells one simple story: Ship a coherent release around verify. It packages 2 aligned improvements into a single version.",
       "deferred_items": []
     },
     "goal_ids": [
-      "iteration-52-release-reporting",
-      "iteration-53-release-publication-and-logging",
-      "iteration-54-release-protocol-alignment"
+      "iteration-55-verify-config-migration",
+      "iteration-56-verify-agent-access"
     ],
     "goal_titles": [
-      "Generate detailed bundled release reports that aggregate task delivery",
-      "Publish bundled releases separately from task iterations and record release-level usage events",
-      "Align protocol, skills, installer guidance, and validation with bundled release semantics"
+      "Verify OpenClaw config migration to coding folder",
+      "Verify Agent access and memory system"
     ],
     "completed_goal_ids": [
-      "iteration-52-release-reporting",
-      "iteration-53-release-publication-and-logging",
-      "iteration-54-release-protocol-alignment"
+      "iteration-55-verify-config-migration"
     ],
     "task_iterations": [
       {
-        "iteration": 52,
-        "goal": "Generate detailed bundled release reports that aggregate task delivery",
-        "goal_id": "iteration-52-release-reporting",
-        "report": "docs/reports/v52.md",
-        "published_at": "2026-03-15T13:01:18Z"
-      },
-      {
-        "iteration": 53,
-        "goal": "Publish bundled releases separately from task iterations and record release-level usage events",
-        "goal_id": "iteration-53-release-publication-and-logging",
-        "report": "docs/reports/v53.md",
-        "published_at": "2026-03-15T13:02:22Z"
-      },
-      {
-        "iteration": 54,
-        "goal": "Align protocol, skills, installer guidance, and validation with bundled release semantics",
-        "goal_id": "iteration-54-release-protocol-alignment",
-        "report": "docs/reports/v54.md",
-        "published_at": "2026-03-15T13:15:13Z"
+        "iteration": 55,
+        "goal": "Verify OpenClaw config migration to coding folder",
+        "goal_id": "iteration-55-verify-config-migration",
+        "report": "docs/reports/v55.md",
+        "published_at": "2026-03-15T13:17:25Z"
       }
     ],
-    "selected_at": "2026-03-15T12:59:26Z",
+    "selected_at": "2026-03-15T13:16:19Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R3.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T13:14:43Z",
+    "captured_at": "2026-03-15T13:17:19Z",
     "research_findings": [
-      "Aligning protocol ensures bundled release semantics are consistent"
+      "Verify config migration: symlink works, config loads, agents accessible"
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -99,13 +91,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve",
+        "summary": "Approve - critical verification",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve",
+        "summary": "Approve - symlink verified",
         "decision": "Approve",
         "dissent": []
       },
@@ -134,15 +126,15 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Align protocol, skills, installer guidance, and validation with bundled release semantics",
-      "why_selected": "Ensures consistency",
+      "selected_goal": "Verify OpenClaw config migration to coding folder",
+      "why_selected": "Ensure migration is stable",
       "scope_in": [
-        "Update protocol docs",
-        "Update skills",
-        "Update installer"
+        "Verify symlink",
+        "Verify config loads",
+        "Verify agents accessible"
       ],
       "scope_out": [
-        "Modify core scripts"
+        "No modifications"
       ],
       "assumptions": [],
       "risks": [],
@@ -157,9 +149,11 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 4.5,
+      "weighted_score": 5.0,
       "result": "pass",
-      "critique": [],
+      "critique": [
+        "Verification passed: config migration stable"
+      ],
       "minimum_fixes_required": []
     },
     "escalation": {
@@ -167,13 +161,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-54-release-protocol-alignment",
-    "goal_title": "Align protocol, skills, installer guidance, and validation with bundled release semantics"
+    "goal_id": "iteration-55-verify-config-migration",
+    "goal_title": "Verify OpenClaw config migration to coding folder"
   },
-  "last_report": "docs/reports/v54.md",
+  "last_report": "docs/reports/v55.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T13:14:59Z",
+    "ran_at": "2026-03-15T13:17:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -721,6 +715,20 @@
       "branch": "main",
       "published_at": "2026-03-15T13:15:13Z",
       "session_progress": "2/15 releases"
+    },
+    {
+      "iteration": 55,
+      "goal": "Verify OpenClaw config migration to coding folder",
+      "goal_id": "iteration-55-verify-config-migration",
+      "release_number": 4,
+      "release_title": "R4: Verify OpenClaw config migration to coding folder + 1 more bundled goals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v55.md",
+      "branch": "main",
+      "published_at": "2026-03-15T13:17:25Z",
+      "session_progress": "3/15 releases"
     }
   ],
   "release_history": [
@@ -757,6 +765,47 @@
       "report": "docs/releases/R1.md",
       "published_at": "2026-03-15T12:59:21Z",
       "commit": "8670c1122ea41af8d409bb2e9ddb053797a2f2d1"
+    },
+    {
+      "number": 3,
+      "title": "R3: Generate detailed bundled release reports that aggregate task delivery + 2 more bundled goals",
+      "summary": "Bundle these goals into one user-facing release: Generate detailed bundled release reports that aggregate task delivery; Publish bundled releases separately from task iterations and record release-level usage events; Align protocol, skills, installer guidance, and validation with bundled release semantics",
+      "goal_ids": [
+        "iteration-52-release-reporting",
+        "iteration-53-release-publication-and-logging",
+        "iteration-54-release-protocol-alignment"
+      ],
+      "goal_titles": [
+        "Generate detailed bundled release reports that aggregate task delivery",
+        "Publish bundled releases separately from task iterations and record release-level usage events",
+        "Align protocol, skills, installer guidance, and validation with bundled release semantics"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 52,
+          "goal": "Generate detailed bundled release reports that aggregate task delivery",
+          "goal_id": "iteration-52-release-reporting",
+          "report": "docs/reports/v52.md",
+          "published_at": "2026-03-15T13:01:18Z"
+        },
+        {
+          "iteration": 53,
+          "goal": "Publish bundled releases separately from task iterations and record release-level usage events",
+          "goal_id": "iteration-53-release-publication-and-logging",
+          "report": "docs/reports/v53.md",
+          "published_at": "2026-03-15T13:02:22Z"
+        },
+        {
+          "iteration": 54,
+          "goal": "Align protocol, skills, installer guidance, and validation with bundled release semantics",
+          "goal_id": "iteration-54-release-protocol-alignment",
+          "report": "docs/reports/v54.md",
+          "published_at": "2026-03-15T13:15:13Z"
+        }
+      ],
+      "report": "docs/releases/R3.md",
+      "published_at": "2026-03-15T13:15:53Z",
+      "commit": "dffa7b8ca8e844df3e0144659e863afe74e9ae27"
     }
   ]
 }
