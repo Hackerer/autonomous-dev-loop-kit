@@ -170,6 +170,27 @@ def main() -> int:
         if isinstance(minimum_fixes, list):
             evaluation_lines.extend(prefixed_lines("Minimum fix required: ", [str(item) for item in minimum_fixes]))
 
+    stop_and_escalation_lines: list[str] = []
+    if isinstance(research_gate, dict):
+        open_gaps = research_gate.get("open_gaps", [])
+        if isinstance(open_gaps, list):
+            stop_and_escalation_lines.extend(prefixed_lines("Open gap: ", [str(item) for item in open_gaps]))
+    if isinstance(scope_decision, dict):
+        stop_conditions = scope_decision.get("stop_conditions", [])
+        if isinstance(stop_conditions, list):
+            stop_and_escalation_lines.extend(prefixed_lines("Stop condition: ", [str(item) for item in stop_conditions]))
+    escalation = review_state.get("escalation", {})
+    if isinstance(escalation, dict):
+        status = str(escalation.get("status", "")).strip()
+        reason = str(escalation.get("reason", "")).strip()
+        recommended_action = str(escalation.get("recommended_action", "")).strip()
+        if status:
+            stop_and_escalation_lines.append(f"Escalation status: {status}")
+        if reason:
+            stop_and_escalation_lines.append(f"Escalation reason: {reason}")
+        if recommended_action:
+            stop_and_escalation_lines.append(f"Escalation action: {recommended_action}")
+
     validation_lines = []
     for result in validation.get("results", []):
         status = "PASS" if result.get("passed") else "FAIL"
@@ -240,6 +261,12 @@ def main() -> int:
         "",
         "## Evaluation Readiness",
         *bullet_lines(evaluation_lines, "Record the evaluator outcome, weighted score, and minimum fixes when available."),
+        "",
+        "## Stop And Escalation",
+        *bullet_lines(
+            stop_and_escalation_lines,
+            "Record open gaps, stop conditions, and escalation status so a later operator can see why the loop would stop or escalate.",
+        ),
         "",
         "## Full Validation",
         *validation_lines,

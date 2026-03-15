@@ -312,6 +312,8 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
                 "Seeded scope decision",
                 "--scope-in",
                 "Seeded scope in",
+                "--stop-condition",
+                "Seeded stop condition",
                 "--required-validation",
                 "Seeded validation",
                 "--rubric-version",
@@ -322,6 +324,12 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
                 "4.5",
                 "--evaluation-result",
                 "pass",
+                "--escalation-status",
+                "watch",
+                "--escalation-reason",
+                "Seeded escalation reason",
+                "--recommended-action",
+                "Seeded escalation action",
             ],
             cwd=str(target),
             text=True,
@@ -360,6 +368,9 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
             check=False,
         )
         check(report.returncode == 0, "Structured-flow target writes a report", failures)
+        report_content = (target / "docs/reports/v1.md").read_text(encoding="utf-8")
+        check("Seeded stop condition" in report_content, "Structured-flow report renders stop conditions", failures)
+        check("Seeded escalation reason" in report_content, "Structured-flow report renders escalation reasons", failures)
 
         publish = subprocess.run(
             ["python3", ".agent-loop/scripts/publish-iteration.py"],

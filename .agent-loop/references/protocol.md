@@ -90,6 +90,7 @@ Every version follows the same state machine:
    - Prefer the durable review state in `.agent-loop/state.json` for research, committee feedback, decisions, and reflection when it matches the active goal.
    - Refuse to write the report if committee review is required but no matching recorded review state exists yet.
    - Refuse to write the report if evaluator pass is required but no matching passing evaluator result exists yet.
+   - Surface open gaps, stop conditions, and escalation status from durable state so a later operator can see why the loop stopped, would stop, or should escalate.
    - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
 10. `publish`
    - Commit the complete version.

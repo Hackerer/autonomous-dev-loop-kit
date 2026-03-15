@@ -207,7 +207,7 @@
     "id": "iteration-28-stop-and-escalation-reporting",
     "title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Reports and protocol explain when the loop stops or escalates",
       "Open gaps and stop conditions are rendered from durable state",

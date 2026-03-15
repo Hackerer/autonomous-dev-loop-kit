@@ -1,17 +1,17 @@
 {
-  "iteration": 32,
+  "iteration": 33,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 17,
+    "completed_iterations": 18,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:03:01Z",
+    "last_collected_at": "2026-03-15T06:06:34Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,28 +21,28 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:58:14Z",
+    "captured_at": "2026-03-15T06:05:21Z",
     "research_findings": [
-      "The config already exposed escalation thresholds, but the loop still had no deterministic command that interpreted them against the current state.",
-      "The smallest useful model is to assess repeated validation failures, repeated evaluator revise/fail results, and repeated goal churn from durable state and recent history.",
-      "If publish history does not retain evaluation and validation outcomes, future escalation checks stay blind across iterations."
+      "The loop already stored open gaps, stop conditions, and escalation state durably, but the human-facing report still made operators read JSON to understand why a run was blocked.",
+      "The smallest fix is to render those fields explicitly in the report rather than inventing a new workflow layer.",
+      "The temp structured-flow report in validate-kit is the right proof point because it verifies the final human-visible output, not just the stored state."
     ],
     "committee_feedback": [
-      "Product council supports this because stop or escalate decisions should not depend on operator memory.",
-      "Architecture council wants the policy evaluated from durable state and recent history, not from hidden chat context.",
-      "Operator council wants a one-command assessment plus an --apply mode that persists the result without adding ceremony."
+      "Product council wants blocked or risky loop states to be visible to the next operator without reading raw state.",
+      "Architecture council wants reporting to reuse existing durable fields rather than create another stop-state store.",
+      "Operator council wants the report to answer one question quickly: why did this version stop, or what would stop the next one?"
     ],
     "committee_decision": [
-      "Add assess-escalation.py so configured escalation thresholds become a deterministic, state-driven policy."
+      "Render durable stop and escalation signals into reports so blocked or risky loop states are visible without inspecting raw JSON."
     ],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Turn escalation policy from static config into a deterministic script that evaluates repeated failure signals from current state and recent loop history.",
+      "summary": "Render durable open gaps, stop conditions, and escalation state directly into reports so human operators can see why a loop would stop or escalate.",
       "evidence_refs": [
-        ".agent-loop/scripts/assess-escalation.py",
-        ".agent-loop/scripts/common.py",
-        ".agent-loop/scripts/publish-iteration.py",
+        ".agent-loop/scripts/write-report.py",
+        ".agent-loop/references/protocol.md",
+        ".agent-loop/templates/report-template.md",
         ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 100.0,
@@ -51,24 +51,24 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve a narrow policy step that makes escalation explainable and state-driven.",
-        "decision": "Proceed with one assessment script and history enrichment only.",
+        "summary": "Approve a narrow reporting change that exposes existing stop and escalation state to humans.",
+        "decision": "Proceed with report rendering, protocol wording, and validation coverage only.",
         "dissent": [
           "Do not let the council schema turn into a transcript archive."
         ]
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add a shared assessment helper, expose it through a small CLI, and record enough outcome fields in publish history to make later checks deterministic.",
-        "decision": "Keep the policy simple: repeated validation failures, repeated evaluator revise/fail, and repeated goal churn.",
+        "summary": "Render open gaps from research_gate, stop conditions from scope_decision, and escalation fields from review_state.escalation into one report section.",
+        "decision": "Prove the behavior in the existing structured-flow temp target by reading the generated report content.",
         "dissent": [
           "Do not force all downstream scripts to migrate in the same iteration."
         ]
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Print a small watch/escalated/not_needed result with a reason and recommended action, and optionally persist it to review_state.",
-        "decision": "Proceed if the command remains readable from the terminal and easy to validate in temp repos.",
+        "summary": "Keep the section compact and explicit so later maintainers can scan it fast.",
+        "decision": "Proceed if the report shows stop conditions and escalation reason without dumping raw JSON.",
         "dissent": [
           "Do not increase operator typing cost more than necessary."
         ]
@@ -77,63 +77,56 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Model escalation policy for repeated review or validation failures",
-      "why_selected": "The review schema and config already modeled escalation, but the repo still lacked an executable policy that interprets those thresholds consistently.",
+      "selected_goal": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
+      "why_selected": "The durable state already captures these signals, but the human handoff path still hides them too deeply.",
       "scope_in": [
-        "Add assess-escalation.py.",
-        "Assess repeated validation failures, repeated evaluator revise/fail, and repeated goal churn from durable state and recent history.",
-        "Persist evaluation_result, validation_status, and escalation_status into publish history.",
-        "Cover escalation assessment in validate-kit."
+        "Render open gaps, stop conditions, and escalation status in write-report.py.",
+        "Update protocol and report template to mention stop and escalation reporting.",
+        "Validate the rendered report content in the structured-flow temp target."
       ],
       "scope_out": [
-        "Do not automatically stop the loop from inside the assessment script.",
-        "Do not add complex workflow states beyond watch and escalated.",
-        "Do not redesign report output in this version."
+        "Do not change escalation policy thresholds in this version.",
+        "Do not add new stop-state fields.",
+        "Do not redesign the full report structure beyond one additional section."
       ],
       "assumptions": [
-        "Publish history can safely carry compact evaluation and validation outcome fields.",
-        "Current-state review outcomes should count toward escalation together with recent history."
+        "The existing review_state fields are sufficient for human-readable stop and escalation output.",
+        "A dedicated report section is easier to scan than scattering these signals across Research and Scope Decision only."
       ],
       "risks": [
-        "If history misses key outcome fields, the policy will undercount repeat conditions.",
-        "If the policy becomes too eager, the lightweight loop will feel bureaucratic."
+        "If the section duplicates too much existing content, reports become noisy.",
+        "If the validation only checks state and not rendered report content, regressions will slip through."
       ],
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the new policy requires hidden context outside durable state.",
-        "Stop if the script mutates loop state unless explicitly asked with --apply."
+        "Stop if the report section starts duplicating the full raw review state.",
+        "Stop if the new reporting path requires new durable fields rather than reusing existing ones."
       ],
       "dissent": [
-        "Keep escalation as an advisory and durable-state function first; do not auto-halt the loop yet."
+        "Keep the output compact; operators need reasons, not a second state dump."
       ],
-      "next_action": "Run the assessment script against the current repo, then surface its results in later reporting and docs."
+      "next_action": "Publish the reporting change, then align wrapper and skill entrypoints with the stronger committee and evaluator flow."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.6,
-        "scope_fitness": 4.6,
+        "goal_clarity": 4.7,
+        "scope_fitness": 4.7,
         "repo_safety": 4.7,
         "validation_readiness": 4.8,
         "state_durability": 4.8,
         "publish_safety": 4.7
       },
-      "weighted_score": 4.68,
+      "weighted_score": 4.73,
       "result": "pass",
       "critique": [
-        "The iteration readiness contract is now concrete enough to authorize later implementation gates.",
-        "The design now has enough durable structure to justify a real evaluator gate.",
-        "The change is narrowly scoped and closes a real protocol gap without increasing ceremony.",
-        "The version gives the evaluator a concrete input artifact without changing the broader workflow.",
-        "The change converts an existing config promise into an executable policy without widening the workflow."
+        "This version improves human handoff without widening the underlying protocol."
       ],
       "minimum_fixes_required": [
-        "Keep missing quality artifacts from crashing the new blocker path.",
-        "Ensure the brief requires scope_decision but not evaluator output.",
-        "Record enough outcome fields in history for later escalation checks."
+        "Keep the report section concise and driven from existing state."
       ]
     },
     "escalation": {
@@ -141,10 +134,10 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-27-escalation-policy",
-    "goal_title": "Model escalation policy for repeated review or validation failures"
+    "goal_id": "iteration-28-stop-and-escalation-reporting",
+    "goal_title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs"
   },
-  "last_report": "docs/reports/v32.md",
+  "last_report": "docs/reports/v33.md",
   "last_validation": {
     "status": "passed",
     "ran_at": "2026-03-15T05:55:12Z",
@@ -421,6 +414,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:03:17Z",
       "session_progress": "17/24"
+    },
+    {
+      "iteration": 33,
+      "goal": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
+      "goal_id": "iteration-28-stop-and-escalation-reporting",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v33.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:06:59Z",
+      "session_progress": "18/24"
     }
   ]
 }

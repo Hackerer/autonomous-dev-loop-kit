@@ -59,6 +59,12 @@ Date: {date}
 - What rubric and evaluator result authorized this iteration?
 - What critique or minimum fixes remained?
 
+## Stop And Escalation
+
+- What open gaps were still present?
+- What stop conditions would have halted the loop?
+- Did the loop mark this iteration as `not_needed`, `watch`, or `escalated`?
+
 ## Full Validation
 
 - Command:

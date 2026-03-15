@@ -182,6 +182,8 @@ When the evaluator gate is enabled, the loop will also require a matching passin
 python3 .agent-loop/scripts/assert-implementation-readiness.py
 ```
 
+Reports should also surface durable open gaps, stop conditions, and escalation status so later operators can see why a version was blocked, risky, or one step away from escalation.
+
 ## Data-First Workflow
 
 This kit now assumes a data-first loop:
