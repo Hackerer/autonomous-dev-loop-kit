@@ -6,14 +6,19 @@ from pathlib import Path
 
 from common import find_repo_root, load_json, save_json, load_state, save_state, relpath
 
-MAX_RAW_SCORE = 110
-
-
-def add_gap(gaps: list[str], condition: bool, message: str, score: int) -> int:
-    if condition:
-        return score
-    gaps.append(message)
-    return 0
+DEFAULT_REQUIRED_SIGNALS = [
+    "collection_timestamp",
+    "repo_root",
+    "git_branch",
+    "git_remote",
+    "worktree_clean",
+    "languages",
+    "tooling_signals",
+    "validation_commands",
+    "target_outcome",
+    "constraints",
+    "direct_evidence",
+]
 
 
 def has_tooling_signals(project: dict) -> bool:
@@ -24,6 +29,48 @@ def has_tooling_signals(project: dict) -> bool:
         or project.get("tooling_signals")
         or project.get("repo_archetype")
     )
+
+
+def profile_summary(snapshot: dict) -> dict:
+    project = snapshot.get("project", {})
+    if not isinstance(project, dict):
+        project = {}
+    profile = project.get("archetype_profile", {})
+    if not isinstance(profile, dict):
+        profile = {}
+    required_signals = profile.get("required_signals", [])
+    if not isinstance(required_signals, list) or not required_signals:
+        required_signals = list(DEFAULT_REQUIRED_SIGNALS)
+    return {
+        "id": str(profile.get("id", "") or "baseline"),
+        "label": str(profile.get("label", "") or "Baseline Repo"),
+        "required_signals": [str(item) for item in required_signals if str(item).strip()],
+        "committee_emphasis": [str(item) for item in profile.get("committee_emphasis", []) if str(item).strip()]
+        if isinstance(profile.get("committee_emphasis"), list)
+        else [],
+    }
+
+
+def signal_checks(snapshot: dict) -> dict[str, tuple[bool, str]]:
+    repo = snapshot.get("repo", {})
+    project = snapshot.get("project", {})
+    validation = snapshot.get("validation", {})
+    product_context = snapshot.get("product_context", {})
+    evidence = snapshot.get("evidence", {})
+    return {
+        "collection_timestamp": (bool(snapshot.get("collected_at")), "missing collection timestamp"),
+        "repo_root": (bool(repo.get("root")), "missing repo root"),
+        "git_branch": (bool(repo.get("current_branch")), "missing current branch"),
+        "git_remote": (bool(repo.get("remotes")), "missing git remotes"),
+        "worktree_clean": (repo.get("worktree_clean") is not None, "missing worktree cleanliness signal"),
+        "languages": (bool(project.get("languages")), "missing language detection"),
+        "tooling_signals": (has_tooling_signals(project), "missing tooling or automation signals"),
+        "repo_archetype": (bool(project.get("repo_archetype")), "missing repo archetype detection"),
+        "validation_commands": (bool(validation.get("configured_commands")), "missing validation commands"),
+        "target_outcome": (bool(product_context.get("target_outcome")), "missing target outcome"),
+        "constraints": (bool(product_context.get("constraints")), "missing constraints"),
+        "direct_evidence": (evidence.get("confidence") in {"direct", "derived"}, "low confidence evidence"),
+    }
 
 
 def main() -> int:
@@ -39,28 +86,28 @@ def main() -> int:
 
     snapshot = load_json(input_path)
     state = load_state(root)
+    profile = profile_summary(snapshot)
+    checks = signal_checks(snapshot)
     gaps: list[str] = []
-    score = 0
+    evaluated_signals: list[dict[str, object]] = []
+    satisfied = 0
 
-    repo = snapshot.get("repo", {})
-    project = snapshot.get("project", {})
-    validation = snapshot.get("validation", {})
-    product_context = snapshot.get("product_context", {})
-    evidence = snapshot.get("evidence", {})
+    for signal_id in profile["required_signals"]:
+        passed, message = checks.get(signal_id, (False, f"unknown quality signal '{signal_id}'"))
+        if passed:
+            satisfied += 1
+        else:
+            gaps.append(f"{profile['label']}: {message}")
+        evaluated_signals.append(
+            {
+                "id": signal_id,
+                "passed": passed,
+                "message": message,
+            }
+        )
 
-    score += add_gap(gaps, bool(snapshot.get("collected_at")), "missing collection timestamp", 10)
-    score += add_gap(gaps, bool(repo.get("root")), "missing repo root", 10)
-    score += add_gap(gaps, bool(repo.get("current_branch")), "missing current branch", 10)
-    score += add_gap(gaps, bool(repo.get("remotes")), "missing git remotes", 10)
-    score += add_gap(gaps, repo.get("worktree_clean") is not None, "missing worktree cleanliness signal", 10)
-    score += add_gap(gaps, bool(project.get("languages")), "missing language detection", 10)
-    score += add_gap(gaps, has_tooling_signals(project), "missing tooling or automation signals", 10)
-    score += add_gap(gaps, bool(validation.get("configured_commands")), "missing validation commands", 10)
-    score += add_gap(gaps, bool(product_context.get("target_outcome")), "missing target outcome", 10)
-    score += add_gap(gaps, bool(product_context.get("constraints")), "missing constraints", 10)
-    score += add_gap(gaps, evidence.get("confidence") in {"direct", "derived"}, "low confidence evidence", 10)
-
-    overall_score = round((score / MAX_RAW_SCORE) * 100)
+    total_required = len(profile["required_signals"]) or 1
+    overall_score = round((satisfied / total_required) * 100)
 
     status = "ready"
     if overall_score < 70:
@@ -70,13 +117,17 @@ def main() -> int:
 
     quality = {
         "snapshot_path": str(input_path),
+        "archetype_profile": profile,
         "overall_score": overall_score,
         "status": status,
+        "evaluated_signals": evaluated_signals,
+        "missing_signals": [item["id"] for item in evaluated_signals if not item["passed"]],
         "blocking_gaps": gaps,
         "recommendations": [
             "Refresh missing repo or git signals before high-risk edits.",
             "Refresh validation and remote signals before publishing.",
-            "Refresh collection and quality artifacts after material repo changes."
+            "Refresh collection and quality artifacts after material repo changes.",
+            "Use the active archetype profile to decide which missing signals matter before broad edits.",
         ],
     }
 

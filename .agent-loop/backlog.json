@@ -363,7 +363,7 @@
     "id": "iteration-41-archetype-quality-scoring",
     "title": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Data-quality scoring can use archetype-aware expectations when a profile is configured or detected",
       "Blocking gaps explain which profile expectations are missing",

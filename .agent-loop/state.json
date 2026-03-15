@@ -1,17 +1,17 @@
 {
-  "iteration": 40,
+  "iteration": 41,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 1,
+    "completed_iterations": 2,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:09:20Z",
+    "last_collected_at": "2026-03-15T07:12:25Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:08:57Z",
+    "captured_at": "2026-03-15T07:11:59Z",
     "research_findings": [
-      "The lightweight committee baseline still applies one generic quality shape to every repo archetype, even though collect-project-data already detects archetype signals.",
-      "A config-level profile model can stay optional while giving later versions a durable place to attach archetype-aware thresholds and committee emphasis.",
-      "The smallest safe first step is schema plus resolution support, not scoring changes."
+      "The new archetype profile model exists in config and project data, but score-data-quality still ignores it and applies one generic checklist.",
+      "The next smallest step is to let quality scoring consume the resolved profile and explain missing signals in profile-specific terms.",
+      "For the current repo, agent-skill-kit should require repo_archetype detection while preserving the overall ready status."
     ],
     "committee_feedback": [
-      "Product Council: profile support should make the next stage more context-aware without changing the operator surface yet.",
-      "Architecture Council: profiles need a single config source and a shared resolver before later scripts consume them.",
-      "Operator Council: the feature must remain optional and backward compatible for repos that do not care about archetypes."
+      "Product Council: the scoring output should explain why a gap matters for this repo type, not just say a signal is missing.",
+      "Architecture Council: use the resolved profile already present in project data rather than re-encoding profile logic in multiple places.",
+      "Operator Council: quality output should become more legible, not more policy-heavy."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Introduce a lightweight archetype profile model and resolution path before letting scoring or gates depend on it.",
+      "summary": "Make score-data-quality consume the active archetype profile and emit profile-specific evaluated signals and blocking gaps.",
       "evidence_refs": [
-        ".agent-loop/config.json",
-        ".agent-loop/scripts/common.py",
-        ".agent-loop/scripts/collect-project-data.py"
+        ".agent-loop/scripts/score-data-quality.py",
+        ".agent-loop/data/project-data.json",
+        ".agent-loop/config.json"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,36 +48,36 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Add a compact profile model now so later committee and data-quality behavior can vary by repo type without a protocol rewrite.",
-        "decision": "Approve a config-first version with no scoring behavior change yet.",
+        "summary": "Profile-aware scoring is the first behavior change that makes archetype profiles matter in the loop.",
+        "decision": "Approve a focused scoring update that keeps overall thresholds stable.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add shared archetype-profile validation and resolution in common.py, then expose the resolved profile in collected project data.",
-        "decision": "Keep the schema narrow and avoid duplicating threshold logic across scripts in the first step.",
+        "summary": "Reuse the profile contract from collected project data and emit a structured list of evaluated signals for later scripts.",
+        "decision": "Prefer one scoring table over more hard-coded additive checks.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Make profiles descriptive and low-ceremony so solo operators are not forced to learn a new setup path on day one.",
-        "decision": "Approve if the default path remains unchanged for repos that rely on the baseline profile.",
+        "summary": "Expose profile id, required signals, and missing signal ids so later reports and committee packets can stay concise.",
+        "decision": "Approve if the output stays compact and backward-compatible enough for existing workflows.",
         "dissent": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Define lightweight repo archetype profiles for data quality and committee defaults",
-      "why_selected": "The kit already detects repo archetypes; adding a durable profile model is the smallest step that unlocks later archetype-aware scoring and committee tuning.",
+      "selected_goal": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+      "why_selected": "The profile schema only becomes useful once the quality gate actually reads it and explains missing signals in profile-specific terms.",
       "scope_in": [
-        "Define optional archetype profile config in .agent-loop/config.json.",
-        "Add shared validation and resolution helpers in common.py.",
-        "Expose the resolved archetype profile in collected project data and validate it."
+        "Make score-data-quality read the resolved archetype profile from project data.",
+        "Emit structured evaluated signals, missing signal ids, and the active profile in data-quality output.",
+        "Refine profile signal ids so archetype-specific requirements can differ safely."
       ],
       "scope_out": [
-        "Do not change score-data-quality blocking behavior yet.",
-        "Do not add new mandatory setup for existing repos."
+        "Do not yet change committee rendering or readiness gates.",
+        "Do not introduce archetype-specific scoring weights."
       ],
       "assumptions": [],
       "risks": [],
@@ -85,31 +85,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if profile support changes existing readiness or publish behavior in this version."
+        "Stop if profile-aware scoring changes this repo from ready to blocked without a real missing signal."
       ],
       "dissent": [
-        "Keep the profile schema compact; this is not a full policy engine."
+        "Keep the scoring simple; archetype profiles should select required signals, not become a weighted policy engine."
       ],
-      "next_action": "Implement the config schema, shared resolver, project-data exposure, and validation coverage."
+      "next_action": "Update the scoring script, validate the output structure, and refresh the README sentence that explains profile-aware scoring."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.7,
+        "goal_clarity": 4.8,
         "scope_fitness": 4.8,
         "repo_safety": 4.7,
-        "validation_readiness": 4.6,
+        "validation_readiness": 4.7,
         "state_durability": 4.8,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.73,
+      "weighted_score": 4.78,
       "result": "pass",
       "critique": [
-        "This step creates a durable extension point without broadening scope into scoring or gate rewrites."
+        "This makes the new profile model behaviorally real while keeping scoring thresholds and publish gates stable."
       ],
       "minimum_fixes_required": [
-        "Keep the profile model optional and backward compatible."
+        "Preserve the current repo's ready status unless a profile-required signal is actually missing."
       ]
     },
     "escalation": {
@@ -117,13 +117,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-40-archetype-profiles",
-    "goal_title": "Define lightweight repo archetype profiles for data quality and committee defaults"
+    "goal_id": "iteration-41-archetype-quality-scoring",
+    "goal_title": "Apply repo archetype profiles to data-quality scoring and blocking behavior"
   },
-  "last_report": "docs/reports/v40.md",
+  "last_report": "docs/reports/v41.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:09:12Z",
+    "ran_at": "2026-03-15T07:12:17Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -493,6 +493,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:09:47Z",
       "session_progress": "1/10"
+    },
+    {
+      "iteration": 41,
+      "goal": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+      "goal_id": "iteration-41-archetype-quality-scoring",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v41.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:12:47Z",
+      "session_progress": "2/10"
     }
   ]
 }

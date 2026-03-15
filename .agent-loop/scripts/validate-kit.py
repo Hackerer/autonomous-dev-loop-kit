@@ -838,6 +838,19 @@ def main() -> int:
     check(scorer.returncode == 0, "score-data-quality.py runs successfully", failures)
     if scorer.returncode == 0:
         validate_json(generated_quality, failures)
+        quality = json.loads(generated_quality.read_text(encoding="utf-8"))
+        check(isinstance(quality.get("archetype_profile"), dict), "score-data-quality.py records the active archetype profile", failures)
+        check(
+            quality.get("archetype_profile", {}).get("id") == "agent-skill-kit",
+            "score-data-quality.py uses the current repo archetype profile",
+            failures,
+        )
+        check(isinstance(quality.get("evaluated_signals"), list) and quality.get("evaluated_signals"), "score-data-quality.py records evaluated signal details", failures)
+        check(
+            "repo_archetype" in quality.get("archetype_profile", {}).get("required_signals", []),
+            "agent-skill-kit profile requires repo_archetype during scoring",
+            failures,
+        )
 
     committee_renderer = subprocess.run(
         ["python3", ".agent-loop/scripts/render-committee.py", "--json"],

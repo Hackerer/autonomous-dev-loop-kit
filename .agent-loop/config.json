@@ -36,6 +36,7 @@
           ],
           "required_signals": [
             "collection_timestamp",
+            "repo_root",
             "git_branch",
             "git_remote",
             "worktree_clean",
@@ -59,11 +60,13 @@
           ],
           "required_signals": [
             "collection_timestamp",
+            "repo_root",
             "git_branch",
             "git_remote",
             "worktree_clean",
             "languages",
             "tooling_signals",
+            "repo_archetype",
             "validation_commands",
             "target_outcome",
             "constraints",
@@ -82,6 +85,7 @@
           ],
           "required_signals": [
             "collection_timestamp",
+            "repo_root",
             "git_branch",
             "git_remote",
             "worktree_clean",
@@ -105,6 +109,7 @@
           ],
           "required_signals": [
             "collection_timestamp",
+            "repo_root",
             "git_branch",
             "git_remote",
             "worktree_clean",

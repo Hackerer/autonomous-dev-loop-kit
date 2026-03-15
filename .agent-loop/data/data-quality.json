@@ -1,11 +1,98 @@
 {
   "snapshot_path": "/Users/max/Documents/coding/autonomous-dev-loop-kit/.agent-loop/data/project-data.json",
+  "archetype_profile": {
+    "id": "agent-skill-kit",
+    "label": "Agent Skill Kit",
+    "required_signals": [
+      "collection_timestamp",
+      "repo_root",
+      "git_branch",
+      "git_remote",
+      "worktree_clean",
+      "languages",
+      "tooling_signals",
+      "repo_archetype",
+      "validation_commands",
+      "target_outcome",
+      "constraints",
+      "direct_evidence"
+    ],
+    "committee_emphasis": [
+      "repo portability",
+      "operator clarity",
+      "release safety"
+    ]
+  },
   "overall_score": 100,
   "status": "ready",
+  "evaluated_signals": [
+    {
+      "id": "collection_timestamp",
+      "passed": true,
+      "message": "missing collection timestamp"
+    },
+    {
+      "id": "repo_root",
+      "passed": true,
+      "message": "missing repo root"
+    },
+    {
+      "id": "git_branch",
+      "passed": true,
+      "message": "missing current branch"
+    },
+    {
+      "id": "git_remote",
+      "passed": true,
+      "message": "missing git remotes"
+    },
+    {
+      "id": "worktree_clean",
+      "passed": true,
+      "message": "missing worktree cleanliness signal"
+    },
+    {
+      "id": "languages",
+      "passed": true,
+      "message": "missing language detection"
+    },
+    {
+      "id": "tooling_signals",
+      "passed": true,
+      "message": "missing tooling or automation signals"
+    },
+    {
+      "id": "repo_archetype",
+      "passed": true,
+      "message": "missing repo archetype detection"
+    },
+    {
+      "id": "validation_commands",
+      "passed": true,
+      "message": "missing validation commands"
+    },
+    {
+      "id": "target_outcome",
+      "passed": true,
+      "message": "missing target outcome"
+    },
+    {
+      "id": "constraints",
+      "passed": true,
+      "message": "missing constraints"
+    },
+    {
+      "id": "direct_evidence",
+      "passed": true,
+      "message": "low confidence evidence"
+    }
+  ],
+  "missing_signals": [],
   "blocking_gaps": [],
   "recommendations": [
     "Refresh missing repo or git signals before high-risk edits.",
     "Refresh validation and remote signals before publishing.",
-    "Refresh collection and quality artifacts after material repo changes."
+    "Refresh collection and quality artifacts after material repo changes.",
+    "Use the active archetype profile to decide which missing signals matter before broad edits."
   ]
 }

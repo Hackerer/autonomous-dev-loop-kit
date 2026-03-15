@@ -226,7 +226,7 @@ This kit now assumes a data-first loop:
 8. reflect, refresh data if the repo changed materially
 9. report and publish
 
-High-quality data does not require a package manager. Script-first repos can also reach `ready` if the snapshot captures direct automation signals such as `.agent-loop/scripts`, agent-skill directories, and the repo archetype. The config can now map those repo archetypes to lightweight profile defaults instead of forcing one generic expectation for every project.
+High-quality data does not require a package manager. Script-first repos can also reach `ready` if the snapshot captures direct automation signals such as `.agent-loop/scripts`, agent-skill directories, and the repo archetype. The config can now map those repo archetypes to lightweight profile defaults, and `score-data-quality.py` will evaluate the active profile's required signals instead of assuming one generic expectation for every project.
 
 Core commands:
 

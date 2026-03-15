@@ -21,11 +21,13 @@ EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
 EXPECTED_EVALUATOR_PERSONA_ID = "independent-evaluator"
 EXPECTED_ARCHETYPE_SIGNAL_IDS = (
     "collection_timestamp",
+    "repo_root",
     "git_branch",
     "git_remote",
     "worktree_clean",
     "languages",
     "tooling_signals",
+    "repo_archetype",
     "validation_commands",
     "target_outcome",
     "constraints",
