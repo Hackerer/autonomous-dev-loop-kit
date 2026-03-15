@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T14:10:12Z",
+    "last_collected_at": "2026-03-15T14:12:53Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -87,13 +87,14 @@
   },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T14:11:26Z",
+    "captured_at": "2026-03-15T14:13:49Z",
     "research_findings": [
       "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state",
       "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall.",
       "Runtime profiles already defined in lab/config/policies/runtime-profiles.json: container-dev, host-chat, host-gateway, container-clean. Need to verify agents reference these profiles instead of inline config.",
       "Capability registry is mostly complete. Plugins: acpx, diffs, memory-core, memory-lancedb, open-prose. Skills: excel-export, long-job-runner, research-ecom, task-dispatch. Missing: autonomous-dev-loop skill needs registration.",
-      "Job Layer is defined in lab/config/jobs/defaults.json. Profiles: interactive-default (45s, no checkpoint), managed-default (180s, checkpoint, status/cancel/retry/continue). Kinds: coding, research, analysis, ops, finance."
+      "Job Layer is defined in lab/config/jobs/defaults.json. Profiles: interactive-default (45s, no checkpoint), managed-default (180s, checkpoint, status/cancel/retry/continue). Kinds: coding, research, analysis, ops, finance.",
+      "Running comprehensive integration tests: 1) validate_config.py passed, 2) All agents configured, 3) Memory system configured, 4) Job Layer configured, 5) Runtime profiles defined, 6) Capabilities registered."
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -108,13 +109,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve - Job profiles well defined",
+        "summary": "Approve - Integration tests pass",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve - Long-running tasks can use Job Layer",
+        "summary": "Approve - All components validated",
         "decision": "Approve",
         "dissent": []
       },
@@ -143,8 +144,8 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Deep integrate Job Layer for long-running tasks",
-      "why_selected": "OpenClaw architecture: Long-running work must move through job layer",
+      "selected_goal": "Run comprehensive integration testing",
+      "why_selected": "Verify all components work together",
       "scope_in": [
         "Verify project configuration is complete",
         "Check project isolation boundaries",
@@ -160,13 +161,18 @@
         "Document dependencies",
         "Verify job profiles are complete",
         "Check long-job-runner skill integration",
-        "Verify job status observable"
+        "Verify job status observable",
+        "Run validate_config.py",
+        "Check agent configs",
+        "Verify memory system",
+        "Verify Job Layer"
       ],
       "scope_out": [
         "Do not modify live runtime yet",
         "Do not modify existing memory content",
         "Do not change live config yet",
-        "Do not modify live config"
+        "Do not modify live config",
+        "No destructive tests"
       ],
       "assumptions": [],
       "risks": [],
@@ -192,7 +198,8 @@
         "Memory Scale integration plan is ready",
         "Runtime profiles are well-defined and ready for agent reference",
         "Capability registry is complete",
-        "Job Layer is properly configured with profiles and kinds"
+        "Job Layer is properly configured with profiles and kinds",
+        "All integration tests pass"
       ],
       "minimum_fixes_required": []
     },
@@ -207,7 +214,7 @@
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T14:11:59Z",
+    "ran_at": "2026-03-15T14:14:10Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
