@@ -303,7 +303,7 @@
     "id": "iteration-36-session-continuation",
     "title": "Add a non-destructive session continuation path for longer autonomous runs",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo supports extending an active session without resetting completed progress",
       "The operator can persist additional loop capacity with a deterministic script path",

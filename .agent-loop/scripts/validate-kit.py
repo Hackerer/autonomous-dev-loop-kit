@@ -661,6 +661,37 @@ def validate_review_reset_on_goal_change(failures: list[str]) -> None:
             check("First goal finding" not in findings, "capture-review.py resets review state when the goal changes", failures)
 
 
+def validate_session_continuation(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a session-continuation target", failures)
+
+        state = load_state(target)
+        state["session"] = {
+            "status": "completed",
+            "target_iterations": 2,
+            "completed_iterations": 2,
+            "started_at": "2026-03-15T00:00:00Z",
+            "ended_at": "2026-03-15T00:10:00Z",
+        }
+        state["status"] = "session_completed"
+        write_json(target / ".agent-loop/state.json", state)
+
+        continued = subprocess.run(
+            ["python3", ".agent-loop/scripts/continue-loop-session.py", "--add", "3"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(continued.returncode == 0, "continue-loop-session.py extends a completed session", failures)
+        if continued.returncode == 0:
+            updated_state = load_state(target)
+            check(updated_state.get("session", {}).get("target_iterations") == 5, "continue-loop-session.py preserves completed progress while extending target", failures)
+            check(updated_state.get("session", {}).get("status") == "active", "continue-loop-session.py reopens the session as active", failures)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -672,6 +703,7 @@ def main() -> int:
         ROOT / "scripts/install-into-project.sh",
         ROOT / ".agent-loop/scripts/assert-implementation-readiness.py",
         ROOT / ".agent-loop/scripts/assess-escalation.py",
+        ROOT / ".agent-loop/scripts/continue-loop-session.py",
         ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
@@ -976,6 +1008,7 @@ def main() -> int:
     validate_evaluator_brief(failures)
     validate_escalation_policy(failures)
     validate_review_reset_on_goal_change(failures)
+    validate_session_continuation(failures)
     validate_structured_committee_flow(failures)
 
     if failures:

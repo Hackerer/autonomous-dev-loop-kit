@@ -208,6 +208,7 @@ python3 .agent-loop/scripts/score-data-quality.py
 python3 .agent-loop/scripts/render-committee.py
 python3 .agent-loop/scripts/render-evaluator-brief.py
 python3 .agent-loop/scripts/assert-implementation-readiness.py
+python3 .agent-loop/scripts/continue-loop-session.py --add 5
 python3 .agent-loop/scripts/select-next-goal.py
 python3 .agent-loop/scripts/run-full-validation.py
 python3 .agent-loop/scripts/write-report.py
@@ -232,6 +233,7 @@ Key scripts:
 - `.agent-loop/scripts/render-committee.py`
 - `.agent-loop/scripts/render-evaluator-brief.py`
 - `.agent-loop/scripts/assert-implementation-readiness.py`
+- `.agent-loop/scripts/continue-loop-session.py`
 - `.agent-loop/scripts/select-next-goal.py`
 - `.agent-loop/scripts/run-full-validation.py`
 - `.agent-loop/scripts/write-report.py`
