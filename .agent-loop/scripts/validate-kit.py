@@ -454,6 +454,78 @@ def validate_goal_selection_readiness(failures: list[str]) -> None:
         )
 
 
+def validate_evaluator_brief(failures: list[str]) -> None:
+    goal_id = "evaluator-brief-test"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an evaluator-brief target", failures)
+
+        snapshot_path = target / ".agent-loop/data/project-data.json"
+        write_json(
+            snapshot_path,
+            {
+                "repo": {"current_branch": "main"},
+                "product_context": {
+                    "target_outcome": "Ship one small evaluator-facing improvement",
+                    "constraints": ["keep the brief independent from committee debate"],
+                },
+                "validation": {
+                    "configured_commands": ["python3 .agent-loop/scripts/validate-kit.py"],
+                },
+            },
+        )
+
+        state = seeded_state(goal_id)
+        state["project_data"]["snapshot_path"] = ".agent-loop/data/project-data.json"
+        state["project_data"]["last_quality_status"] = "ready"
+        state["review_state"]["status"] = "captured"
+        state["review_state"]["captured_at"] = "2026-03-15T00:00:00Z"
+        state["review_state"]["research_findings"] = ["Seeded evaluator-brief research"]
+        state["review_state"]["goal_id"] = goal_id
+        state["review_state"]["goal_title"] = "Gate review-state reporting and publication"
+        state["review_state"]["scope_decision"] = {
+            "status": "captured",
+            "selected_goal": "Render evaluator input contract",
+            "why_selected": "Make the evaluator lane directly usable.",
+            "scope_in": ["render goal, scope, rubric, and project context"],
+            "scope_out": ["do not include committee debate"],
+            "assumptions": ["scope decision already exists"],
+            "risks": ["brief could accidentally leak committee detail"],
+            "required_validation": ["python3 .agent-loop/scripts/validate-kit.py"],
+            "stop_conditions": ["stop if committee discussion appears in the brief"],
+            "dissent": [],
+            "next_action": "render the evaluator brief",
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        brief = subprocess.run(
+            ["python3", ".agent-loop/scripts/render-evaluator-brief.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(brief.returncode == 0, "render-evaluator-brief.py runs successfully", failures)
+        if brief.returncode == 0:
+            payload = json.loads(brief.stdout)
+            check(
+                payload.get("scope_decision", {}).get("selected_goal") == "Render evaluator input contract",
+                "render-evaluator-brief.py exposes the selected scope decision",
+                failures,
+            )
+            check(
+                payload.get("rubric", {}).get("id") == "iteration-readiness-v1",
+                "render-evaluator-brief.py includes the evaluator rubric",
+                failures,
+            )
+            check(
+                "committee_feedback" not in payload and "councils" not in payload,
+                "render-evaluator-brief.py stays independent from council discussion details",
+                failures,
+            )
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -464,6 +536,7 @@ def main() -> int:
         ROOT / "PLANS.md",
         ROOT / "scripts/install-into-project.sh",
         ROOT / ".agent-loop/scripts/assert-implementation-readiness.py",
+        ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".agent-loop/config.json",
@@ -764,6 +837,7 @@ def main() -> int:
     validate_review_gate(failures)
     validate_evaluator_gate(failures)
     validate_goal_selection_readiness(failures)
+    validate_evaluator_brief(failures)
     validate_structured_committee_flow(failures)
 
     if failures:

@@ -41,6 +41,12 @@ The councils and evaluator are defined in `.agent-loop/config.json`. The repo al
 python3 .agent-loop/scripts/render-committee.py
 ```
 
+And once a scope decision exists for the active goal, the repo can render the independent evaluator input contract with:
+
+```bash
+python3 .agent-loop/scripts/render-evaluator-brief.py
+```
+
 ## What It Enforces
 
 For every version, the loop requires:
@@ -198,6 +204,7 @@ Core commands:
 python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
 python3 .agent-loop/scripts/render-committee.py
+python3 .agent-loop/scripts/render-evaluator-brief.py
 python3 .agent-loop/scripts/assert-implementation-readiness.py
 python3 .agent-loop/scripts/select-next-goal.py
 python3 .agent-loop/scripts/run-full-validation.py
@@ -221,6 +228,7 @@ Key scripts:
 - `.agent-loop/scripts/collect-project-data.py`
 - `.agent-loop/scripts/score-data-quality.py`
 - `.agent-loop/scripts/render-committee.py`
+- `.agent-loop/scripts/render-evaluator-brief.py`
 - `.agent-loop/scripts/assert-implementation-readiness.py`
 - `.agent-loop/scripts/select-next-goal.py`
 - `.agent-loop/scripts/run-full-validation.py`

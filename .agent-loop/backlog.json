@@ -267,7 +267,7 @@
     "id": "iteration-33-independent-evaluator-brief",
     "title": "Add a lightweight evaluator brief script driven by scope decision and rubric",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo includes a script that renders the evaluator input contract from scope decision and rubric",
       "The evaluator brief stays independent from council discussion details",

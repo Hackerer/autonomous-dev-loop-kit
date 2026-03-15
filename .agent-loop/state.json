@@ -1,17 +1,17 @@
 {
-  "iteration": 30,
+  "iteration": 31,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 15,
+    "completed_iterations": 16,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:51:52Z",
+    "last_collected_at": "2026-03-15T05:55:19Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,27 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:49:58Z",
+    "captured_at": "2026-03-15T05:54:30Z",
     "research_findings": [
-      "select-next-goal.py loaded quality artifacts eagerly and could fail before the new research gate logic ran in temp installs.",
-      "The smallest durable fix is to make goal selection block on explicit signals only: quality status insufficient or research_gate status need_more_context.",
-      "Operators need the exact blocking gaps echoed back from quality and research state, otherwise the new gate is not actionable."
+      "The evaluator lane already had config, rubric, and pass gating, but no dedicated artifact that isolates what the evaluator should actually read.",
+      "The evaluator brief should be driven by the active goal, matching scope decision, rubric, and compact project context, while excluding committee summaries and debate.",
+      "A temp installed repo is the right proof path because the brief must work outside this repo and stay deterministic."
     ],
     "committee_feedback": [
-      "Product council supports this because it prevents premature scope choice and makes missing context visible before the loop commits to a version.",
-      "Architecture council supports a lightweight gate wired into existing state instead of adding a new workflow layer.",
-      "Operator council wants blocking messages to list the exact open gaps so the terminal user knows what evidence to gather next."
+      "Product council supports this because it turns the evaluator from a conceptual role into an actionable review step.",
+      "Architecture council wants the brief to depend on scope_decision and rubric only, not council summaries.",
+      "Operator council wants a readable JSON or terminal brief that can be used in installed target repos as well as this kit repo."
     ],
     "committee_decision": [
-      "Add an explicit need_more_context research status and make goal selection stop on that status or an insufficient data-quality result."
+      "Add render-evaluator-brief.py so the independent evaluator has a concrete, portable input contract."
     ],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Goal selection should stop only when durable project-data quality or the structured research gate explicitly says more context is required.",
+      "summary": "Make the independent evaluator a concrete lane by rendering a portable brief from scope decision and rubric without leaking committee discussion details.",
       "evidence_refs": [
-        ".agent-loop/scripts/select-next-goal.py",
+        ".agent-loop/scripts/render-evaluator-brief.py",
+        ".agent-loop/references/iteration-readiness-rubric.json",
         ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 100.0,
@@ -49,24 +50,24 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve a narrow change that only blocks selection on explicit insufficient-context signals and keeps normal ready flows unchanged.",
-        "decision": "Proceed with a lightweight blocker in select-next-goal plus a small capture-review extension for need_more_context.",
+        "summary": "Approve a narrow evaluator-facing artifact that improves readiness without adding a second decision process.",
+        "decision": "Proceed with one brief script and temp-repo validation only.",
         "dissent": [
           "Do not let the council schema turn into a transcript archive."
         ]
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add a reusable blocker helper, make quality loading tolerant of missing files, and prove both block paths in validate-kit temp repos.",
-        "decision": "Keep the gate deterministic and state-driven; do not force full research capture for every goal in this version.",
+        "summary": "Read the matching scope decision from durable state, the rubric from its configured file, and a compact project context from the latest project-data snapshot.",
+        "decision": "Keep committee_feedback and councils out of the brief payload entirely.",
         "dissent": [
           "Do not force all downstream scripts to migrate in the same iteration."
         ]
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Make the stop reason readable from stderr and keep the new command surface to one optional research-status flag.",
-        "decision": "Proceed if the operator gets exact quality or research gaps in the failure message.",
+        "summary": "Make the script work in both text and JSON form so operators can inspect it directly or pipe it into later automation.",
+        "decision": "Proceed if the brief stays compact and independent from council discussion details.",
         "dissent": [
           "Do not increase operator typing cost more than necessary."
         ]
@@ -75,49 +76,48 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Block goal selection when research or data quality says more context is required",
-      "why_selected": "This closes a protocol gap: the repo already modeled research gating, but goal selection could still continue without respecting insufficient-context signals.",
+      "selected_goal": "Add a lightweight evaluator brief script driven by scope decision and rubric",
+      "why_selected": "The evaluator is already a configured gate, but the repo still lacks a concrete artifact that defines the evaluator input contract for the active goal.",
       "scope_in": [
-        "Add an explicit research gate status for need_more_context.",
-        "Block goal selection when quality status is insufficient.",
-        "Block goal selection when research_gate.status is need_more_context.",
-        "Echo blocking gaps clearly in the error path.",
-        "Cover both paths in validate-kit."
+        "Add render-evaluator-brief.py.",
+        "Render the active goal, scope decision, rubric, evaluator persona, and compact project context.",
+        "Keep committee discussion details out of the rendered payload.",
+        "Cover the script in validate-kit with a temp installed target repo."
       ],
       "scope_out": [
-        "Do not require research capture before every goal selection in this version.",
-        "Do not add a new workflow engine or transcript storage.",
-        "Do not redesign data-quality scoring thresholds."
+        "Do not add automatic evaluator scoring.",
+        "Do not change the evaluator gate itself in this version.",
+        "Do not redesign report rendering around the new brief yet."
       ],
       "assumptions": [
-        "Existing quality status values remain ready, usable-with-gaps, and insufficient.",
-        "A missing quality file should not crash goal selection if a last-known status already exists in state."
+        "A matching scope_decision already exists before the evaluator brief is rendered.",
+        "The latest project-data snapshot is sufficient as evaluator context."
       ],
       "risks": [
-        "Over-blocking could make lightweight flows too heavy if usable-with-gaps is treated like insufficient.",
-        "A stale quality path could produce confusing failures unless the loader is tolerant."
+        "If the brief includes committee discussion, the evaluator lane stops being independent.",
+        "If the script depends on repo-specific state beyond project-data and scope_decision, it will be harder to reuse in installed targets."
       ],
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the new blocker prevents normal ready flows from selecting a goal.",
-        "Stop if the change requires broader workflow rewrites outside capture-review and select-next-goal."
+        "Stop if the new script requires evaluator results to exist before the brief can render.",
+        "Stop if the brief starts duplicating committee discussion."
       ],
       "dissent": [
-        "Keep the gate keyed to explicit insufficient-context signals only; do not infer blockers from every open gap yet."
+        "Keep the evaluator brief small; do not turn it into a second report format."
       ],
-      "next_action": "Validate the new blocker end to end, then document the new need_more_context path in the protocol and example workflow."
+      "next_action": "Validate the brief in a temp target repo and then add it to the documented command surface."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.6,
-        "scope_fitness": 4.7,
+        "goal_clarity": 4.7,
+        "scope_fitness": 4.6,
         "repo_safety": 4.7,
         "validation_readiness": 4.8,
-        "state_durability": 4.6,
+        "state_durability": 4.7,
         "publish_safety": 4.7
       },
       "weighted_score": 4.69,
@@ -125,10 +125,12 @@
       "critique": [
         "The iteration readiness contract is now concrete enough to authorize later implementation gates.",
         "The design now has enough durable structure to justify a real evaluator gate.",
-        "The change is narrowly scoped and closes a real protocol gap without increasing ceremony."
+        "The change is narrowly scoped and closes a real protocol gap without increasing ceremony.",
+        "The version gives the evaluator a concrete input artifact without changing the broader workflow."
       ],
       "minimum_fixes_required": [
-        "Keep missing quality artifacts from crashing the new blocker path."
+        "Keep missing quality artifacts from crashing the new blocker path.",
+        "Ensure the brief requires scope_decision but not evaluator output."
       ]
     },
     "escalation": {
@@ -136,18 +138,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-32-research-readiness-gate",
-    "goal_title": "Block goal selection when research or data quality says more context is required"
+    "goal_id": "iteration-33-independent-evaluator-brief",
+    "goal_title": "Add a lightweight evaluator brief script driven by scope decision and rubric"
   },
-  "last_report": "docs/reports/v30.md",
+  "last_report": "docs/reports/v31.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:51:42Z",
+    "ran_at": "2026-03-15T05:55:12Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] Project data includes evaluation readiness summary\n[PASS] Project data includes scope decision summary\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee r\n...[truncated]...\nrt\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] Project data includes evaluation readiness summary\n[PASS] Project data includes scope decision summary\n[PASS] score-data-quality.py r\n...[truncated]...\nrt\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -396,6 +398,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:52:07Z",
       "session_progress": "15/24"
+    },
+    {
+      "iteration": 31,
+      "goal": "Add a lightweight evaluator brief script driven by scope decision and rubric",
+      "report": "docs/reports/v31.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:55:37Z",
+      "session_progress": "16/24"
     }
   ]
 }
