@@ -17,6 +17,7 @@ from common import (
     load_state,
     require_session_capacity,
     remote_exists,
+    require_evaluator_pass,
     require_green_validation,
     require_review_state,
     save_backlog,
@@ -62,6 +63,7 @@ def main() -> int:
 
     goal = state.get("draft_goal") or state.get("current_goal")
     require_review_state(config, state, goal)
+    require_evaluator_pass(config, state, goal)
     goal_label = goal_title(goal)
     goal_slug = slugify(goal_label)
 

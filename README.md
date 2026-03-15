@@ -164,6 +164,12 @@ The wrappers interpret that as:
 
 When committee review is required, the loop will now refuse to write a report or publish a version until `python3 .agent-loop/scripts/capture-review.py` has recorded matching review state for the active goal.
 
+When the evaluator gate is enabled, the loop will also require a matching passing evaluator result for the active goal before implementation readiness, reporting, and publication. The explicit pre-implementation check is:
+
+```bash
+python3 .agent-loop/scripts/assert-implementation-readiness.py
+```
+
 ## Data-First Workflow
 
 This kit now assumes a data-first loop:

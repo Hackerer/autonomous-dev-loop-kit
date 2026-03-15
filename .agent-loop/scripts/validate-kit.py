@@ -73,8 +73,8 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
 
 
-def seeded_state(goal_id: str) -> dict:
-    return {
+def seeded_state(goal_id: str, evaluator_result: str | None = None) -> dict:
+    state = {
         "iteration": 0,
         "status": "goal_selected",
         "session": {
@@ -107,6 +107,15 @@ def seeded_state(goal_id: str) -> dict:
             "committee_feedback": [],
             "committee_decision": [],
             "reflection_notes": [],
+            "evaluation": {
+                "status": "not_started",
+                "rubric_version": "",
+                "scores": {},
+                "weighted_score": None,
+                "result": "pending",
+                "critique": [],
+                "minimum_fixes_required": [],
+            },
         },
         "last_report": None,
         "last_validation": {
@@ -127,6 +136,24 @@ def seeded_state(goal_id: str) -> dict:
         "consecutive_failures": 0,
         "history": [],
     }
+    if evaluator_result is not None:
+        state["review_state"]["status"] = "captured"
+        state["review_state"]["captured_at"] = "2026-03-15T00:00:00Z"
+        state["review_state"]["research_findings"] = ["Seeded review finding"]
+        state["review_state"]["committee_feedback"] = ["Seeded committee feedback"]
+        state["review_state"]["committee_decision"] = ["Seeded committee decision"]
+        state["review_state"]["goal_id"] = goal_id
+        state["review_state"]["goal_title"] = "Gate review-state reporting and publication"
+        state["review_state"]["evaluation"] = {
+            "status": "captured",
+            "rubric_version": "iteration-readiness-v1",
+            "scores": {"goal_clarity": 4.5},
+            "weighted_score": 4.5,
+            "result": evaluator_result,
+            "critique": [],
+            "minimum_fixes_required": [],
+        }
+    return state
 
 
 def validate_review_gate(failures: list[str]) -> None:
@@ -206,6 +233,44 @@ def validate_review_gate(failures: list[str]) -> None:
         )
 
 
+def validate_evaluator_gate(failures: list[str]) -> None:
+    goal_id = "evaluator-gate-test"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an evaluator-gate target", failures)
+
+        write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="revise"))
+        readiness_attempt = subprocess.run(
+            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(readiness_attempt.returncode != 0, "assert-implementation-readiness.py rejects missing evaluator pass", failures)
+        check(
+            "evaluator" in readiness_attempt.stderr.lower() or "evaluation" in readiness_attempt.stderr.lower(),
+            "assert-implementation-readiness.py explains the evaluator gate",
+            failures,
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a passing evaluator target", failures)
+
+        write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="pass"))
+        readiness_attempt = subprocess.run(
+            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(readiness_attempt.returncode == 0, "assert-implementation-readiness.py accepts matching evaluator pass", failures)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -215,6 +280,7 @@ def main() -> int:
         ROOT / "CLAUDE.md",
         ROOT / "PLANS.md",
         ROOT / "scripts/install-into-project.sh",
+        ROOT / ".agent-loop/scripts/assert-implementation-readiness.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".agent-loop/config.json",
@@ -500,6 +566,7 @@ def main() -> int:
         )
 
     validate_review_gate(failures)
+    validate_evaluator_gate(failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)

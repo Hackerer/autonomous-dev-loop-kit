@@ -1,17 +1,17 @@
 {
-  "iteration": 25,
+  "iteration": 26,
   "status": "published",
   "session": {
     "status": "active",
-    "target_iterations": 15,
-    "completed_iterations": 10,
+    "target_iterations": 20,
+    "completed_iterations": 11,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:12:39Z",
+    "last_collected_at": "2026-03-15T05:22:35Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,7 +21,7 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:11:36Z",
+    "captured_at": "2026-03-15T05:18:59Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
@@ -43,7 +43,10 @@
       "The right migration path is additive: keep the current report structure, but enrich it from scope_decision, research_gate, council summaries, and evaluation when those blocks are populated.",
       "Project data still mirrors review_state too literally, which makes snapshots noisy and forces downstream automation to sift through more detail than it needs.",
       "The better snapshot contract is a compact review summary that exposes readiness and decision highlights, not the whole durable state tree.",
-      "The key signals are research-gate status, council capture status, selected goal summary, evaluation result, and escalation status."
+      "The key signals are research-gate status, council capture status, selected goal summary, evaluation result, and escalation status.",
+      "The kit now has structured evaluator results, but there is still no shared gate that refuses to proceed when evaluation is missing or not pass for the active goal.",
+      "A dedicated readiness checker plus a shared helper is the smallest enforceable step: it can be called explicitly before implementation and reused by later report or publish gates.",
+      "The evaluator gate should be goal-aware in the same way review-state capture is goal-aware, otherwise an earlier passing evaluation could accidentally authorize the wrong iteration."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
@@ -66,7 +69,10 @@
       "Operator council wants open gaps, dissent, and evaluator outcome visible in reports so future maintainers can understand not just what shipped, but what remained contested or conditional.",
       "Product council wants project-data to show whether the current goal is ready and what decision was selected, not a dump of every intermediate note.",
       "Architecture council wants project-data to summarize structured review state rather than duplicate it, so state.json remains the source of truth and snapshots stay lightweight.",
-      "Operator council wants repo scans to reveal evaluator readiness and major gaps quickly, without reading a long state blob."
+      "Operator council wants repo scans to reveal evaluator readiness and major gaps quickly, without reading a long state blob.",
+      "Product council wants evaluator pass to be a real threshold before implementation starts, otherwise the new evaluator lane is just decorative.",
+      "Architecture council wants one shared goal-aware helper so protocol, readiness checks, and later release gates all agree on the same pass condition.",
+      "Operator council wants a clear failing command that says the evaluator is missing or revise-fail, rather than leaving operators to infer that from raw state."
     ],
     "committee_decision": [
       "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
@@ -75,7 +81,8 @@
       "Add a compact iteration-readiness rubric reference file, point config and validation at it, and keep the scoring model small enough to stay repo-portable.",
       "Add evaluator result flags to capture-review.py for rubric version, individual scores, weighted score, result, critique, and minimum fixes, and persist them into review_state.evaluation.",
       "Teach write-report.py to read structured review_state blocks for research, scope decision, dissent, and evaluator outcome while preserving the existing report shape and compatibility fallbacks.",
-      "Replace the verbose project-data latest_review_state block with a compact structured review summary that highlights readiness, scope decision, evaluation, and escalation status."
+      "Replace the verbose project-data latest_review_state block with a compact structured review summary that highlights readiness, scope decision, evaluation, and escalation status.",
+      "Add a shared require_evaluator_pass helper, expose it through an assert-implementation-readiness.py script, and require evaluator pass for report and publish when the config enables that gate."
     ],
     "reflection_notes": [],
     "research_gate": {
@@ -119,51 +126,63 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Persist selected goal, scope boundaries, assumptions, and required validation as a structured scope decision",
-      "why_selected": "The committee architecture now needs a durable execution record for what the loop chose to do and not do, not just richer advice.",
+      "selected_goal": "Require a passing evaluator result before implementation begins when configured",
+      "why_selected": "The new design now has councils, scope decisions, rubric, evaluator results, and project-data summary, so evaluator gating is the highest-value missing enforcement step.",
       "scope_in": [
         "Add structured scope-decision flags to capture-review.py.",
-        "Persist selected_goal, scope_in, scope_out, assumptions, risks, required_validation, stop_conditions, dissent, and next_action into review_state.scope_decision."
+        "Persist selected_goal, scope_in, scope_out, assumptions, risks, required_validation, stop_conditions, dissent, and next_action into review_state.scope_decision.",
+        "Add config support for an evaluator pass gate before implementation.",
+        "Add a shared goal-aware evaluator-pass helper and a dedicated readiness-check script.",
+        "Use the same evaluator-pass helper in later report and publish gates when configured."
       ],
       "scope_out": [
         "Do not yet change report rendering to prefer scope_decision over the compatibility fields.",
-        "Do not add evaluator scoring in this iteration."
+        "Do not add evaluator scoring in this iteration.",
+        "Do not add automatic evaluator scoring in this iteration.",
+        "Do not redesign goal selection yet."
       ],
       "assumptions": [
-        "The flat committee_decision list remains available for compatibility during migration."
+        "The flat committee_decision list remains available for compatibility during migration.",
+        "The current workflow can treat the readiness-check script as the explicit pre-implementation gate."
       ],
       "risks": [
-        "If scope-decision capture becomes too verbose, the lightweight committee model will regress into process overhead."
+        "If scope-decision capture becomes too verbose, the lightweight committee model will regress into process overhead.",
+        "If evaluator gating is not goal-aware, stale pass results could authorize the wrong scope."
       ],
       "required_validation": [
-        "validate-kit must prove scope_decision fields can be captured in no-state mode."
+        "validate-kit must prove scope_decision fields can be captured in no-state mode.",
+        "validate-kit must prove readiness fails without a matching passing evaluation and succeeds when one is present."
       ],
       "stop_conditions": [
-        "Stop if the new scope-decision flags force unrelated scripts to migrate in the same version."
+        "Stop if the new scope-decision flags force unrelated scripts to migrate in the same version.",
+        "Stop if the new evaluator gate breaks current report or publish flows for matching pass states."
       ],
       "dissent": [
-        "Keep the scope-decision block compact and avoid narrative bloat."
+        "Keep the scope-decision block compact and avoid narrative bloat.",
+        "Keep the gate lightweight and script-driven rather than introducing a larger workflow engine."
       ],
-      "next_action": "Use the new scope-decision structure as the durable source for later report and evaluator work."
+      "next_action": "Implement the shared helper and readiness script, then wire it into protocol, docs, and validation."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.4,
-        "scope_fitness": 4.2,
-        "repo_safety": 4.3,
+        "goal_clarity": 4.5,
+        "scope_fitness": 4.4,
+        "repo_safety": 4.4,
         "validation_readiness": 4.5,
-        "state_durability": 4.4,
+        "state_durability": 4.5,
         "publish_safety": 4.5
       },
-      "weighted_score": 4.36,
+      "weighted_score": 4.47,
       "result": "pass",
       "critique": [
-        "The iteration readiness contract is now concrete enough to authorize later implementation gates."
+        "The iteration readiness contract is now concrete enough to authorize later implementation gates.",
+        "The design now has enough durable structure to justify a real evaluator gate."
       ],
       "minimum_fixes_required": [
-        "Keep evaluator capture and council capture clearly separated in later report rendering."
+        "Keep evaluator capture and council capture clearly separated in later report rendering.",
+        "Keep the gate error message explicit about how to capture or fix evaluator results."
       ]
     },
     "escalation": {
@@ -171,18 +190,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-25-project-data-review-v2",
-    "goal_title": "Expose structured review-state and evaluator readiness in project-data snapshots"
+    "goal_id": "iteration-26-evaluator-gate",
+    "goal_title": "Require a passing evaluator result before implementation begins when configured"
   },
-  "last_report": "docs/reports/v25.md",
+  "last_report": "docs/reports/v26.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:12:39Z",
+    "ran_at": "2026-03-15T05:22:37Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] Project data includes evaluation readiness summary\n[PASS] Project data includes scope decision summary\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee renderer exposes council summaries\n[PASS] Committee renderer exposes secretariat summaries\n[PASS] Committee renderer exposes evaluator summary\n[PASS] capture-revie\n...[truncated]...\n-iteration.py explains how to satisfy the review-state gate\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] Project data includes evaluation readiness summary\n[PASS] Project data includes scope decision summary\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee r\n...[truncated]...\nimplementation-readiness.py accepts matching evaluator pass\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -391,6 +410,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:13:26Z",
       "session_progress": "10/15"
+    },
+    {
+      "iteration": 26,
+      "goal": "Require a passing evaluator result before implementation begins when configured",
+      "report": "docs/reports/v26.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:23:07Z",
+      "session_progress": "11/20"
     }
   ]
 }

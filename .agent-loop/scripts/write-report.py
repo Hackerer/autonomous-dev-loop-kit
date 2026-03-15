@@ -15,6 +15,7 @@ from common import (
     load_state,
     relpath,
     reporting_path,
+    require_evaluator_pass,
     require_green_validation,
     require_review_state,
     save_state,
@@ -74,6 +75,7 @@ def main() -> int:
     today = datetime.now().date().isoformat()
     project_data = state.get("project_data", {})
     review_state = require_review_state(config, state, goal)
+    require_evaluator_pass(config, state, goal)
     review_research = list(review_state.get("research_findings", []))
     review_feedback = list(review_state.get("committee_feedback", []))
     review_decision = list(review_state.get("committee_decision", []))

@@ -434,6 +434,10 @@ def validate_committee(config: dict[str, Any]) -> list[str]:
                 errors.append(f"committee.evaluator references unknown persona '{persona_id}'")
             if not str(evaluator.get("rubric_ref", "")).strip():
                 errors.append("committee.evaluator.rubric_ref is required when evaluator is provided")
+            if "require_pass_before_implementation" in evaluator and not isinstance(
+                evaluator.get("require_pass_before_implementation"), bool
+            ):
+                errors.append("committee.evaluator.require_pass_before_implementation must be a boolean when provided")
             thresholds = evaluator.get("result_thresholds", {})
             if not isinstance(thresholds, dict):
                 errors.append("committee.evaluator.result_thresholds must be an object")
@@ -548,6 +552,7 @@ def evaluator_summary(config: dict[str, Any]) -> dict[str, Any]:
     return {
         "persona": personas.get(persona_id, {}),
         "rubric_ref": str(evaluator.get("rubric_ref", "")),
+        "require_pass_before_implementation": bool(evaluator.get("require_pass_before_implementation", False)),
         "result_thresholds": evaluator.get("result_thresholds", {}),
     }
 
@@ -695,6 +700,30 @@ def require_review_state(config: dict[str, Any], state: dict[str, Any], goal: An
             "Recorded review state is empty for the active goal. Capture research, committee feedback, or a decision before reporting or publishing."
         )
     return review_state
+
+
+def require_evaluator_pass(config: dict[str, Any], state: dict[str, Any], goal: Any) -> dict[str, Any]:
+    committee = committee_config(config)
+    evaluator = committee.get("evaluator", {})
+    if not isinstance(evaluator, dict) or not evaluator.get("require_pass_before_implementation", False):
+        evaluation = state.get("review_state", {}).get("evaluation")
+        return evaluation if isinstance(evaluation, dict) else {}
+
+    review_state = require_review_state(config, state, goal)
+    evaluation = review_state.get("evaluation")
+    if not isinstance(evaluation, dict):
+        raise LoopError(
+            "Evaluator result is missing for the active goal. Record a passing evaluator result with `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass` before implementation."
+        )
+    if evaluation.get("status") != "captured":
+        raise LoopError(
+            "Evaluator result has not been captured for the active goal. Record it with `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass` before implementation."
+        )
+    if str(evaluation.get("result", "")).strip() != "pass":
+        raise LoopError(
+            "Evaluator result is not pass for the active goal. Resolve the critique and record a passing evaluator result before implementation."
+        )
+    return evaluation
 
 
 def session_summary(state: dict[str, Any]) -> dict[str, Any]:

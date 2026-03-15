@@ -183,7 +183,7 @@
     "id": "iteration-26-evaluator-gate",
     "title": "Require a passing evaluator result before implementation begins when configured",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The loop can enforce evaluator pass before proceeding past pre-implementation gates",
       "Missing or revise-fail evaluation blocks the iteration clearly",
@@ -238,5 +238,65 @@
       "The docs explain the stronger model without sounding like enterprise governance"
     ],
     "notes": "Close the loop by documenting the final lighter-weight architecture."
+  },
+  {
+    "id": "iteration-31-escalation-capture",
+    "title": "Allow capture-review.py to persist escalation status and recommended action",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "capture-review.py can record escalation status, reason, and recommended action",
+      "Escalation data lands in review_state.escalation without affecting lighter flows",
+      "Validation covers the new capture path"
+    ],
+    "notes": "The escalation schema exists but still lacks a writer path."
+  },
+  {
+    "id": "iteration-32-research-readiness-gate",
+    "title": "Block goal selection when research or data quality says more context is required",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "The loop refuses to select a goal when research_gate or project-data quality indicates insufficient context",
+      "The operator sees required evidence or open gaps clearly",
+      "Validation covers the readiness block"
+    ],
+    "notes": "The new design should support need-more-context before scope decision."
+  },
+  {
+    "id": "iteration-33-independent-evaluator-brief",
+    "title": "Add a lightweight evaluator brief script driven by scope decision and rubric",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "The repo includes a script that renders the evaluator input contract from scope decision and rubric",
+      "The evaluator brief stays independent from council discussion details",
+      "Validation covers the new script"
+    ],
+    "notes": "The evaluator should be a real lane, not only a config entry."
+  },
+  {
+    "id": "iteration-34-wrapper-and-skill-alignment",
+    "title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Codex and Claude skill guidance reflects councils, evaluator, and readiness blocking",
+      "The wrapper protocol stays consistent with the stronger V2 flow",
+      "Docs remain concise and not enterprise-heavy"
+    ],
+    "notes": "The stronger flow should be visible in the operator entrypoints."
+  },
+  {
+    "id": "iteration-35-committee-v2-closeout",
+    "title": "Close the committee V2 loop with end-to-end guardrails and plan refresh",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Backlog, plan, and validation reflect the finalized committee V2 baseline",
+      "The repo can describe the end-to-end lightweight committee architecture cleanly",
+      "Remaining open questions are explicit rather than hidden in partial implementation"
+    ],
+    "notes": "This version should leave the new design coherent and explainable."
   }
 ]

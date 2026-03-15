@@ -66,7 +66,11 @@ Every version follows the same state machine:
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
    - Refuse to start a new version if the configured session limit has already been reached.
-5. `implement`
+5. `implementation-readiness`
+   - Record the scope decision and evaluator result in durable state.
+   - Run `python3 .agent-loop/scripts/assert-implementation-readiness.py`.
+   - Refuse to start implementation if committee review is required but the active goal lacks a matching passing evaluator result.
+6. `implement`
    - Use short ReAct cycles inside implementation:
      - reason from the current evidence
      - take one concrete action
@@ -74,22 +78,24 @@ Every version follows the same state machine:
      - update the next action
    - Make the minimum coherent code change.
    - Update or add tests for the real behavior.
-6. `validate`
+7. `validate`
    - Run the full configured validation suite.
    - No publish step is allowed if validation is red.
-7. `reflect`
+8. `reflect`
    - Reflect on what the research and committee review got right, wrong, or incomplete after seeing validation results.
    - Update the next-step recommendation based on the new evidence.
-8. `report`
+9. `report`
    - Write a version report in `docs/reports/`.
    - Prefer the durable review state in `.agent-loop/state.json` for research, committee feedback, decisions, and reflection when it matches the active goal.
    - Refuse to write the report if committee review is required but no matching recorded review state exists yet.
+   - Refuse to write the report if evaluator pass is required but no matching passing evaluator result exists yet.
    - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
-9. `publish`
+10. `publish`
    - Commit the complete version.
    - Refuse to publish if committee review is required but no matching recorded review state exists for the draft goal.
+   - Refuse to publish if evaluator pass is required but no matching passing evaluator result exists for the draft goal.
    - Push or otherwise publish according to config.
-10. `loop-reflect`
+11. `loop-reflect`
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
    - Decide whether the next version should start or whether the loop should stop.
 
@@ -99,6 +105,7 @@ A version is publishable only if all of these are true:
 
 - The scoped goal is completed or explicitly narrowed and explained in the report.
 - A recorded `review_state` exists for the active goal when committee review is required.
+- A passing evaluator result exists for the active goal when evaluator pass is required.
 - The configured full-validation suite passes.
 - A report file exists in `docs/reports/`.
 - The worktree state being published is intentional and understood.

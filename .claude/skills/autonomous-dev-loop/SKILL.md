@@ -55,15 +55,16 @@ Run this order exactly:
 3. If project data is missing, stale, or low-quality, run `python3 .agent-loop/scripts/collect-project-data.py` and `python3 .agent-loop/scripts/score-data-quality.py`.
 4. Run `python3 .agent-loop/scripts/render-committee.py`, do explicit research, and challenge the candidate scope through the product-manager, technical-architect, and user committees.
 5. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
-6. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
-7. Implement the smallest coherent change set.
-8. Add or update tests for the real behavior.
-9. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
-10. If validation fails, do not commit or push.
-11. Reflect on what the research and committee review got right, wrong, or incomplete.
-12. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings and committee observations.
-13. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
-14. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
+6. Capture the scope decision and evaluator result, then run `python3 .agent-loop/scripts/assert-implementation-readiness.py`. Do not implement if it fails.
+7. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
+8. Implement the smallest coherent change set.
+9. Add or update tests for the real behavior.
+10. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
+11. If validation fails, do not commit or push.
+12. Reflect on what the research and committee review got right, wrong, or incomplete.
+13. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings and committee observations.
+14. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
+15. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
 </iteration_loop>
 
 <non_negotiable_rules>
