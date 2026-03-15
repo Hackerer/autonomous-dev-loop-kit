@@ -861,6 +861,27 @@ def require_evaluator_pass(config: dict[str, Any], state: dict[str, Any], goal: 
     return evaluation
 
 
+def implementation_gate_status(config: dict[str, Any], evaluation: dict[str, Any] | None) -> dict[str, str]:
+    evaluator = committee_config(config).get("evaluator", {})
+    if not isinstance(evaluator, dict):
+        evaluator = {}
+    gate_mode = str(evaluator.get("implementation_gate_mode", "blocking")).strip() or "blocking"
+    result = ""
+    status = "pending"
+    if isinstance(evaluation, dict):
+        result = str(evaluation.get("result", "")).strip()
+        if evaluation.get("status") == "captured":
+            if result == "pass":
+                status = "pass"
+            elif result in {"revise", "fail"}:
+                status = "warn" if gate_mode == "advisory" else "block"
+    return {
+        "mode": gate_mode,
+        "evaluation_result": result or "pending",
+        "status": status,
+    }
+
+
 def session_summary(state: dict[str, Any]) -> dict[str, Any]:
     session = state.get("session")
     if not isinstance(session, dict):

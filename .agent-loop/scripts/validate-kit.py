@@ -406,6 +406,7 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check("Seeded escalation reason" in report_content, "Structured-flow report renders escalation reasons", failures)
         check("Seeded delivery secretary summary" in report_content, "Structured-flow report renders delivery secretary output", failures)
         check("Seeded audit decision record" in report_content, "Structured-flow report renders audit secretary output", failures)
+        check("Implementation gate:" in report_content, "Structured-flow report renders implementation gate outcome", failures)
 
         publish = subprocess.run(
             ["python3", ".agent-loop/scripts/publish-iteration.py"],
@@ -565,6 +566,7 @@ def validate_evaluator_brief(failures: list[str]) -> None:
                 "render-evaluator-brief.py includes the evaluator rubric",
                 failures,
             )
+            check(isinstance(payload.get("implementation_gate"), dict), "render-evaluator-brief.py exposes implementation gate status", failures)
             check(
                 "committee_feedback" not in payload and "councils" not in payload,
                 "render-evaluator-brief.py stays independent from council discussion details",

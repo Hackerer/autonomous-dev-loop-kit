@@ -7,6 +7,7 @@ from datetime import datetime
 
 from common import (
     committee_summary,
+    implementation_gate_status,
     LoopError,
     find_repo_root,
     goal_title,
@@ -172,6 +173,10 @@ def main() -> int:
 
     evaluation_lines: list[str] = []
     if isinstance(evaluation, dict) and evaluation.get("status") == "captured":
+        gate = implementation_gate_status(config, evaluation)
+        evaluation_lines.append(
+            f"Implementation gate: {gate.get('status')} ({gate.get('mode')}, evaluator {gate.get('evaluation_result')})"
+        )
         rubric_version = str(evaluation.get("rubric_version", "")).strip()
         weighted_score = evaluation.get("weighted_score")
         result = str(evaluation.get("result", "")).strip()

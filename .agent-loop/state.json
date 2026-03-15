@@ -1,17 +1,17 @@
 {
-  "iteration": 46,
+  "iteration": 47,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 7,
+    "completed_iterations": 8,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:36:24Z",
+    "last_collected_at": "2026-03-15T07:39:06Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:36:04Z",
+    "captured_at": "2026-03-15T07:38:49Z",
     "research_findings": [
-      "Implementation readiness is currently all-or-nothing: evaluator revise/fail always blocks implementation, even if a repo wants lighter onboarding while keeping release gates strict.",
-      "The smallest safe design is to make only the implementation readiness gate configurable as advisory or blocking, while report and publish continue to require evaluator pass.",
-      "This change needs explicit operator-facing messaging so advisory mode cannot be mistaken for publish permission."
+      "Advisory implementation mode only helps if operators can see the resulting gate outcome clearly in the evaluator brief and the version report.",
+      "The smallest useful improvement is to compute one shared implementation-gate status summary and render it wherever operators inspect readiness.",
+      "This can stay lightweight by deriving the status from config plus the captured evaluator result instead of adding more durable state."
     ],
     "committee_feedback": [
-      "Product Council: lighter onboarding should not silently weaken release discipline.",
-      "Architecture Council: advisory mode must be explicit in config and output, not inferred from evaluator results.",
-      "Operator Council: the readiness script must tell the operator whether a warning is advisory or blocking."
+      "Product Council: lighter gate modes only work if the operator can quickly tell whether the system warned or blocked.",
+      "Architecture Council: derive gate status from existing config and evaluation state rather than introducing another persisted artifact.",
+      "Operator Council: the same gate language should appear in the brief, readiness output, and report."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Support advisory versus blocking implementation readiness gate modes while preserving strict report and publish safety.",
+      "summary": "Surface shared implementation-gate outcomes in evaluator briefs and reports so advisory versus blocking behavior is legible.",
       "evidence_refs": [
-        ".agent-loop/scripts/assert-implementation-readiness.py",
         ".agent-loop/scripts/common.py",
-        ".agent-loop/config.json"
+        ".agent-loop/scripts/render-evaluator-brief.py",
+        ".agent-loop/scripts/write-report.py"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,33 +48,33 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Allow implementation readiness to be advisory for some repos without changing strict release safety.",
-        "decision": "Approve a narrow implementation-gate-mode change only.",
+        "summary": "Make implementation gate outcomes visible so advisory mode cannot be mistaken for weakened publish safety.",
+        "decision": "Approve a shared status-summary version that updates briefs and reports only.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add an explicit evaluator implementation_gate_mode config, validate it, and make assert-implementation-readiness honor it while write-report and publish remain strict.",
-        "decision": "Keep blocking as the default and avoid changing require_evaluator_pass semantics for report or publish gates.",
+        "summary": "Add one implementation_gate_status helper and reuse it across readiness, evaluator brief, and report rendering.",
+        "decision": "Keep the status vocabulary compact: pass, warn, or block.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Advisory mode should print a clear warning so operators understand they may implement but still cannot report or publish without pass.",
-        "decision": "Approve if the default remains blocking and the warning is explicit.",
+        "summary": "The operator should be able to scan one line and understand whether implementation was allowed, warned, or blocked.",
+        "decision": "Approve if the summary stays concise and consistent across surfaces.",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "The next useful flexibility point is implementation readiness, not release safety.",
-        "next_action": "Introduce advisory implementation mode without changing publish-time evaluator requirements."
+        "summary": "Gate mode now exists in config; the next step is to make its outcome readable everywhere it matters.",
+        "next_action": "Render shared gate outcomes in evaluator-facing and report-facing surfaces."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "The control boundary should stay explicit: implementation may proceed in advisory mode, but report and publish still require pass.",
-        "decision_record": "Implementation readiness gate mode can vary by repo, but publish safety remains strictly evaluator-pass.",
+        "summary": "Operator-facing artifacts should clearly distinguish advisory warnings from blocking failures.",
+        "decision_record": "Implementation gate status now needs one shared rendered summary so the same evaluation is described consistently across the loop.",
         "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
@@ -83,16 +83,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Support advisory versus blocking readiness gate modes without weakening publish safety",
-      "why_selected": "The kit now has enough durable committee context that implementation readiness can be made more flexible for onboarding, as long as report and publish safety stay strict.",
+      "selected_goal": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs",
+      "why_selected": "The implementation gate can now be advisory or blocking, but the current artifacts do not make that distinction legible enough for operators.",
       "scope_in": [
-        "Add evaluator implementation_gate_mode config with blocking as the default.",
-        "Make assert-implementation-readiness support advisory mode with explicit warnings.",
-        "Cover blocking and advisory behavior in validation and docs."
+        "Add a shared implementation-gate status summary helper.",
+        "Render implementation-gate status in evaluator briefs and version reports.",
+        "Cover the new output in validation."
       ],
       "scope_out": [
-        "Do not weaken report or publish evaluator-pass gates.",
-        "Do not add per-criterion advisory logic yet."
+        "Do not add new durable state.",
+        "Do not change any gate semantics."
       ],
       "assumptions": [],
       "risks": [],
@@ -100,19 +100,19 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if advisory mode changes report or publish safety semantics."
+        "Stop if different surfaces start describing the same gate with inconsistent wording."
       ],
       "dissent": [
-        "Keep advisory support narrow; this version should not expand into full per-gate policy matrices."
+        "Keep the gate vocabulary small and deterministic."
       ],
-      "next_action": "Render gate outcomes and advisory warnings more explicitly in reports and evaluator-facing output."
+      "next_action": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.7,
+        "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.8,
         "state_durability": 4.8,
@@ -121,10 +121,10 @@
       "weighted_score": 4.81,
       "result": "pass",
       "critique": [
-        "This adds flexibility at the right boundary while preserving strict release safety."
+        "This improves operator clarity without adding more protocol state."
       ],
       "minimum_fixes_required": [
-        "Keep blocking as the default and preserve strict evaluator-pass gating for report and publish."
+        "Reuse one shared gate-status helper so the wording stays consistent."
       ]
     },
     "escalation": {
@@ -132,13 +132,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-46-readiness-gate-modes",
-    "goal_title": "Support advisory versus blocking readiness gate modes without weakening publish safety"
+    "goal_id": "iteration-47-gate-outcome-reporting",
+    "goal_title": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs"
   },
-  "last_report": "docs/reports/v46.md",
+  "last_report": "docs/reports/v47.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:36:24Z",
+    "ran_at": "2026-03-15T07:39:06Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -580,6 +580,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:36:36Z",
       "session_progress": "7/10"
+    },
+    {
+      "iteration": 47,
+      "goal": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs",
+      "goal_id": "iteration-47-gate-outcome-reporting",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v47.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:39:16Z",
+      "session_progress": "8/10"
     }
   ]
 }

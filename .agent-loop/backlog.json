@@ -435,7 +435,7 @@
     "id": "iteration-47-gate-outcome-reporting",
     "title": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Reports distinguish blocking failures from advisory warnings",
       "Evaluator or readiness output shows which gates passed, warned, or blocked",

@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 
 from common import (
+    implementation_gate_status,
     LoopError,
     find_repo_root,
     load_config,
@@ -21,11 +22,11 @@ def main() -> int:
 
     review_state = require_review_state(config, state, goal)
     evaluation = review_state.get("evaluation", {}) if isinstance(review_state, dict) else {}
-    evaluator = config.get("committee", {}).get("evaluator", {})
-    gate_mode = str(evaluator.get("implementation_gate_mode", "blocking")).strip()
+    gate = implementation_gate_status(config, evaluation if isinstance(evaluation, dict) else {})
+    gate_mode = gate["mode"]
 
     if gate_mode == "advisory":
-        result = evaluation.get("result", "pending") if isinstance(evaluation, dict) else "pending"
+        result = gate["evaluation_result"]
         if not isinstance(evaluation, dict) or evaluation.get("status") != "captured":
             raise LoopError(
                 "Evaluator result has not been captured for the active goal. Record it before implementation, even in advisory mode."

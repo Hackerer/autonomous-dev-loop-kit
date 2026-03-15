@@ -6,6 +6,7 @@ import json
 import sys
 
 from common import (
+    implementation_gate_status,
     LoopError,
     committee_config,
     evaluator_summary,
@@ -85,6 +86,7 @@ def main() -> int:
         },
         "project_context": build_project_context(root, state),
         "evaluator": evaluator_summary(config),
+        "implementation_gate": implementation_gate_status(config, review_state.get("evaluation", {})),
         "rubric": rubric,
     }
 
@@ -97,6 +99,10 @@ def main() -> int:
     print(f"- Goal: {payload['goal']['title']}")
     print(f"- Evaluator: {persona.get('label', 'unconfigured evaluator')}")
     print(f"- Rubric: {rubric_ref}")
+    print(
+        f"- Implementation gate: {payload['implementation_gate'].get('status')} "
+        f"({payload['implementation_gate'].get('mode')}, evaluator {payload['implementation_gate'].get('evaluation_result')})"
+    )
     print(f"- Target outcome: {payload['project_context'].get('target_outcome', '') or 'not captured'}")
     print(f"- Current branch: {payload['project_context'].get('current_branch', '') or 'unknown'}")
     print("- Scope in:")
