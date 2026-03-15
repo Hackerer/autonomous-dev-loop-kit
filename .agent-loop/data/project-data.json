@@ -1,6 +1,6 @@
 {
   "snapshot_version": 1,
-  "collected_at": "2026-03-15T05:34:26Z",
+  "collected_at": "2026-03-15T05:51:52Z",
   "repo": {
     "root": "/Users/max/Documents/coding/autonomous-dev-loop-kit",
     "name": "autonomous-dev-loop-kit",
@@ -102,19 +102,17 @@
   },
   "latest_review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:34:16Z",
-    "goal_id": "iteration-31-escalation-capture",
-    "goal_title": "Allow capture-review.py to persist escalation status and recommended action",
+    "captured_at": "2026-03-15T05:49:58Z",
+    "goal_id": "iteration-32-research-readiness-gate",
+    "goal_title": "Block goal selection when research or data quality says more context is required",
     "matches_current_goal": true,
-    "current_goal_id": "iteration-31-escalation-capture",
-    "current_goal_title": "Allow capture-review.py to persist escalation status and recommended action",
+    "current_goal_id": "iteration-32-research-readiness-gate",
+    "current_goal_title": "Block goal selection when research or data quality says more context is required",
     "research_gate": {
       "status": "captured",
-      "summary": "The stronger review-state schema now has a research_gate block, and capture-review.py can use it to record readiness or evidence gaps before later scope decisions are persisted.",
+      "summary": "Goal selection should stop only when durable project-data quality or the structured research gate explicitly says more context is required.",
       "data_quality_score": 100.0,
-      "open_gaps": [
-        "No blocking gaps for this schema step."
-      ]
+      "open_gaps": []
     },
     "council_status": {
       "product_council": "captured",
@@ -123,28 +121,27 @@
     },
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Require a passing evaluator result before implementation begins when configured",
+      "selected_goal": "Block goal selection when research or data quality says more context is required",
       "scope_in_count": 5,
-      "scope_out_count": 4,
+      "scope_out_count": 3,
       "required_validation": [
-        "validate-kit must prove scope_decision fields can be captured in no-state mode.",
-        "validate-kit must prove readiness fails without a matching passing evaluation and succeeds when one is present."
+        "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the new scope-decision flags force unrelated scripts to migrate in the same version.",
-        "Stop if the new evaluator gate breaks current report or publish flows for matching pass states."
+        "Stop if the new blocker prevents normal ready flows from selecting a goal.",
+        "Stop if the change requires broader workflow rewrites outside capture-review and select-next-goal."
       ],
-      "dissent_count": 2
+      "dissent_count": 1
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "weighted_score": 4.47,
+      "weighted_score": 4.69,
       "result": "pass"
     },
     "escalation": {
-      "status": "watch",
-      "reason": "Escalation policy is not enforced yet, so repeated failure handling still depends on operator judgment."
+      "status": "not_needed",
+      "reason": ""
     }
   },
   "evidence": {

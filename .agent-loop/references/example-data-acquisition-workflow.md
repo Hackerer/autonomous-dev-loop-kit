@@ -19,8 +19,11 @@ Use this workflow when the loop starts from a minimal prompt such as `循环10`.
    - `python3 .agent-loop/scripts/render-committee.py`
 6. Do research and committee review, then persist the findings:
    - `python3 .agent-loop/scripts/capture-review.py --research ... --committee-feedback ... --decision ...`
+   - If the repo still lacks enough context, record that explicitly:
+     - `python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."`
 7. Select the next goal:
    - `python3 .agent-loop/scripts/select-next-goal.py`
+   - If selection is blocked, gather the missing context first, refresh project data if needed, update research capture, then rerun goal selection.
 8. Implement the version.
 9. Run full validation:
    - `python3 .agent-loop/scripts/run-full-validation.py`

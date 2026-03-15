@@ -9,6 +9,7 @@ from pathlib import Path
 from common import (
     LoopError,
     find_repo_root,
+    goal_selection_blockers,
     goal_title,
     load_backlog,
     load_config,
@@ -29,8 +30,11 @@ def load_quality_context(root: Path, state: dict) -> tuple[str | None, list[str]
     project_data = state.get("project_data", {})
     quality_path = project_data.get("quality_path")
     if not quality_path:
-        return None, []
-    quality = load_json(root / quality_path)
+        return project_data.get("last_quality_status"), []
+    quality_file = root / quality_path
+    if not quality_file.exists():
+        return project_data.get("last_quality_status"), []
+    quality = load_json(quality_file)
     return quality.get("status"), quality.get("blocking_gaps", [])
 
 
@@ -85,6 +89,14 @@ def main() -> int:
     backlog = load_backlog(root)
     state = load_state(root)
     session = require_session_capacity(config, state)
+    quality_status, gaps = load_quality_context(root, state)
+    blockers = goal_selection_blockers(config, state, quality_status, gaps)
+    if blockers:
+        raise LoopError(
+            "Goal selection is blocked because more context is required:\n- "
+            + "\n- ".join(blockers)
+            + "\nRefresh project data or capture updated research findings, then rerun `python3 .agent-loop/scripts/select-next-goal.py`."
+        )
     selected = pick_goal(root, backlog, state)
 
     state["current_goal"] = {

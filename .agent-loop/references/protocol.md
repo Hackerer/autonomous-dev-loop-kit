@@ -65,6 +65,7 @@ Every version follows the same state machine:
 4. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
+   - Refuse goal selection when project-data quality is insufficient or when the research gate explicitly says more context is required.
    - Refuse to start a new version if the configured session limit has already been reached.
 5. `implementation-readiness`
    - Record the scope decision and evaluator result in durable state.

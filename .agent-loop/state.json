@@ -1,17 +1,17 @@
 {
-  "iteration": 29,
+  "iteration": 30,
   "status": "published",
   "session": {
     "status": "active",
-    "target_iterations": 20,
-    "completed_iterations": 14,
+    "target_iterations": 24,
+    "completed_iterations": 15,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:34:26Z",
+    "last_collected_at": "2026-03-15T05:51:52Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,124 +21,52 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:34:16Z",
+    "captured_at": "2026-03-15T05:49:58Z",
     "research_findings": [
-      "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
-      "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
-      "The compatibility rule is simple: structured research-gate inputs should populate the nested block while the old research bullets continue to work for lightweight flows and reports.",
-      "The new schema can hold council-specific summaries, but capture-review.py still only writes one flat committee_feedback list, so product, architecture, and operator voices remain blended together.",
-      "The next step should add optional council-specific flags without removing the generic committee-feedback flags, because lightweight flows still benefit from the simple path.",
-      "Dissent should be modeled as short structured bullets per council, not as full debate transcripts.",
-      "The council slots now hold differentiated advice, but the actual scope decision for an iteration still has no dedicated writer path, so selected goal and boundaries remain trapped in generic decision bullets or reports.",
-      "The next useful step is to add compact scope-decision flags to capture-review.py instead of inventing a separate scope tool, because the same command already owns durable review writing.",
-      "The state should capture only executable boundaries here: selected goal, why selected, scope in/out, assumptions, risks, required validation, stop conditions, dissent, and next action.",
-      "The config already references an evaluator rubric path, but the file does not exist yet, so the evaluator contract is implied rather than durable.",
-      "The next step should create one small portable rubric file instead of embedding long scoring logic into config or prose.",
-      "The rubric only needs implementation-readiness criteria and thresholds now; later evaluator capture can reference it directly.",
-      "The evaluator now has a roster entry and a rubric artifact, but review_state still cannot store evaluator scores or pass-revise-fail judgment, so readiness remains implicit.",
-      "The next step should let capture-review.py record evaluator output in the same durable review document while keeping evaluator judgment separate from council summaries.",
-      "A repeated --score criterion=value flag is enough here; the evaluator lane needs structured numbers and a result, not a new heavyweight file format.",
-      "The durable review model now contains structured scope decisions and evaluator results, but write-report.py still renders only the older flat research and committee sections.",
-      "The report should now show the selected goal rationale, scope boundaries, required validation, dissent, open gaps, and evaluator outcome without exposing the entire raw state tree.",
-      "The right migration path is additive: keep the current report structure, but enrich it from scope_decision, research_gate, council summaries, and evaluation when those blocks are populated.",
-      "Project data still mirrors review_state too literally, which makes snapshots noisy and forces downstream automation to sift through more detail than it needs.",
-      "The better snapshot contract is a compact review summary that exposes readiness and decision highlights, not the whole durable state tree.",
-      "The key signals are research-gate status, council capture status, selected goal summary, evaluation result, and escalation status.",
-      "The kit now has structured evaluator results, but there is still no shared gate that refuses to proceed when evaluation is missing or not pass for the active goal.",
-      "A dedicated readiness checker plus a shared helper is the smallest enforceable step: it can be called explicitly before implementation and reused by later report or publish gates.",
-      "The evaluator gate should be goal-aware in the same way review-state capture is goal-aware, otherwise an earlier passing evaluation could accidentally authorize the wrong iteration.",
-      "The committee V2 architecture now spans config, rendering, structured capture, readiness gating, reports, and project-data summaries, but validate-kit still proves these pieces mostly in isolation.",
-      "The next step should add a compact end-to-end temp-repo scenario that exercises the structured path in order: capture, readiness, report, and publish-safe behavior.",
-      "The validation should stay deterministic and local, so the end-to-end flow should use commit-only publication in a temporary repo instead of depending on a network push.",
-      "The implementation has moved well beyond the original three-role committee guide, but committee-driven-delivery.md still describes a much flatter model than the repo now actually runs.",
-      "The rewrite should document councils, secretariat, evaluator, scope decisions, dissent, and escalation in the lighter V2 language that the repo already implements.",
-      "The key risk is over-documenting: the guide should explain the stronger architecture without sounding like enterprise governance or requiring transcript-heavy process.",
-      "The review schema already has an escalation block, but capture-review.py still cannot write into it, so stop-or-escalate decisions remain implicit or report-only.",
-      "The smallest useful step is to let operators record escalation status, reason, and recommended action in the same durable review document.",
-      "The status vocabulary should stay small and operational, not turn into a full workflow engine."
+      "select-next-goal.py loaded quality artifacts eagerly and could fail before the new research gate logic ran in temp installs.",
+      "The smallest durable fix is to make goal selection block on explicit signals only: quality status insufficient or research_gate status need_more_context.",
+      "Operators need the exact blocking gaps echoed back from quality and research state, otherwise the new gate is not actionable."
     ],
     "committee_feedback": [
-      "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
-      "Architecture council wants the new capture path to layer onto the current script with optional flags, not split research capture into a parallel tool.",
-      "Operator council wants the structured fields to stay small and practical, especially evidence refs and open gaps, so the command remains usable from the terminal.",
-      "Product council wants its scope pressure and user-value concerns to be auditable separately from architecture and operator concerns.",
-      "Architecture council wants council slots to stay summary-based, with a short decision and dissent list rather than a free-form transcript field.",
-      "Operator council wants disagreement and evidence gaps to survive in state so later reports can explain why a scope was conditional or contested.",
-      "Product council wants the chosen goal and stop line written structurally so scope control survives beyond the chat and report prose.",
-      "Architecture council wants the scope-decision block to stay compact and action-oriented, not become a narrative design document inside state.json.",
-      "Operator council wants scope boundaries and stop conditions visible in raw JSON so a future maintainer can understand what the loop intended to do and not do.",
-      "Product council wants the evaluator contract to stay concise so it helps iteration readiness rather than turning into heavy process.",
-      "Architecture council wants a single rubric file path as the source of truth, because evaluator config should point to a stable artifact rather than duplicate weight math inline.",
-      "Operator council wants a readable rubric artifact that future maintainers can inspect without digging through scripts.",
-      "Product council wants evaluator results to stay visibly separate from the council debate so readiness scoring does not get confused with recommendation-making.",
-      "Architecture council wants a simple CLI surface for evaluator capture that can be validated deterministically and mapped directly into the rubric file.",
-      "Operator council wants stored evaluator outcomes to be easy to read in JSON and future reports, especially the difference between revise and fail.",
-      "Product council wants reports to expose why a goal was selected and what was explicitly left out, so scope discipline becomes visible to humans.",
-      "Architecture council wants reports to summarize the structured decision blocks rather than dumping raw JSON, otherwise readability regresses.",
-      "Operator council wants open gaps, dissent, and evaluator outcome visible in reports so future maintainers can understand not just what shipped, but what remained contested or conditional.",
-      "Product council wants project-data to show whether the current goal is ready and what decision was selected, not a dump of every intermediate note.",
-      "Architecture council wants project-data to summarize structured review state rather than duplicate it, so state.json remains the source of truth and snapshots stay lightweight.",
-      "Operator council wants repo scans to reveal evaluator readiness and major gaps quickly, without reading a long state blob.",
-      "Product council wants evaluator pass to be a real threshold before implementation starts, otherwise the new evaluator lane is just decorative.",
-      "Architecture council wants one shared goal-aware helper so protocol, readiness checks, and later release gates all agree on the same pass condition.",
-      "Operator council wants a clear failing command that says the evaluator is missing or revise-fail, rather than leaving operators to infer that from raw state.",
-      "Product council wants the stronger architecture to be demonstrably wired end to end, not only supported by separate unit-style checks.",
-      "Architecture council wants the end-to-end validation to stay fast and local, which means exercising a temporary repo with commit-only publication rather than external network paths.",
-      "Operator council wants confidence that the documented V2 flow actually works in sequence when installed into a target repository.",
-      "Product council wants the guide to explain what each council and execution unit actually decides so the model feels purposeful rather than ceremonial.",
-      "Architecture council wants the docs to track the real repo contract: councils, structured review_state, evaluator gate, project-data summary, and temp-repo validation.",
-      "Operator council wants the rewritten guidance to stay compact and readable, because a committee system that needs a huge manual defeats the lightweight goal.",
-      "Product council wants escalation recorded explicitly when a version should stop or seek a higher-level decision, otherwise the reports can sound cleaner than the actual risk posture.",
-      "Architecture council wants escalation capture to remain a small extension of the current review writer, not a separate subsystem.",
-      "Operator council wants escalation reasons and suggested next action visible in durable state so later maintainers can tell whether a block is terminal or needs human follow-up."
+      "Product council supports this because it prevents premature scope choice and makes missing context visible before the loop commits to a version.",
+      "Architecture council supports a lightweight gate wired into existing state instead of adding a new workflow layer.",
+      "Operator council wants blocking messages to list the exact open gaps so the terminal user knows what evidence to gather next."
     ],
     "committee_decision": [
-      "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
-      "Add optional council-specific summary, decision, and dissent flags to capture-review.py and persist them into review_state.councils while keeping the old flat committee-feedback path.",
-      "Add scope-decision flags to capture-review.py and persist them into review_state.scope_decision while keeping the existing top-level decision bullets for compatibility during migration.",
-      "Add a compact iteration-readiness rubric reference file, point config and validation at it, and keep the scoring model small enough to stay repo-portable.",
-      "Add evaluator result flags to capture-review.py for rubric version, individual scores, weighted score, result, critique, and minimum fixes, and persist them into review_state.evaluation.",
-      "Teach write-report.py to read structured review_state blocks for research, scope decision, dissent, and evaluator outcome while preserving the existing report shape and compatibility fallbacks.",
-      "Replace the verbose project-data latest_review_state block with a compact structured review summary that highlights readiness, scope decision, evaluation, and escalation status.",
-      "Add a shared require_evaluator_pass helper, expose it through an assert-implementation-readiness.py script, and require evaluator pass for report and publish when the config enables that gate.",
-      "Extend validate-kit with a temp target-repo scenario that runs structured capture, readiness, report writing, and commit-only publication through the committee V2 path.",
-      "Rewrite committee-driven-delivery.md around the lighter V2 architecture and align README references so the documented model matches the implemented system without governance bloat.",
-      "Add escalation flags to capture-review.py for status, reason, and recommended action, and persist them into review_state.escalation with simple validation."
+      "Add an explicit need_more_context research status and make goal selection stop on that status or an insufficient data-quality result."
     ],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "The stronger review-state schema now has a research_gate block, and capture-review.py can use it to record readiness or evidence gaps before later scope decisions are persisted.",
+      "summary": "Goal selection should stop only when durable project-data quality or the structured research gate explicitly says more context is required.",
       "evidence_refs": [
-        ".agent-loop/scripts/capture-review.py",
-        ".agent-loop/scripts/common.py"
+        ".agent-loop/scripts/select-next-goal.py",
+        ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 100.0,
-      "open_gaps": [
-        "No blocking gaps for this schema step."
-      ]
+      "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "The product council supports separate durable council lanes so scope pressure and user value arguments stop getting blended into one generic review list.",
-        "decision": "Keep council output summary-shaped and defer full scope-decision structure to a later step.",
+        "summary": "Approve a narrow change that only blocks selection on explicit insufficient-context signals and keeps normal ready flows unchanged.",
+        "decision": "Proceed with a lightweight blocker in select-next-goal plus a small capture-review extension for need_more_context.",
         "dissent": [
           "Do not let the council schema turn into a transcript archive."
         ]
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "The architecture council wants council capture to remain additive: structured council slots should coexist with the flat compatibility fields for now.",
-        "decision": "Use summary, decision, and dissent only; avoid adding free-form transcript fields.",
+        "summary": "Add a reusable blocker helper, make quality loading tolerant of missing files, and prove both block paths in validate-kit temp repos.",
+        "decision": "Keep the gate deterministic and state-driven; do not force full research capture for every goal in this version.",
         "dissent": [
           "Do not force all downstream scripts to migrate in the same iteration."
         ]
       },
       "operator_council": {
         "status": "captured",
-        "summary": "The operator council wants concise council slots that later reports can explain without making terminal usage much heavier.",
-        "decision": "Prefer short summaries and compact dissent bullets over complex nested debate records.",
+        "summary": "Make the stop reason readable from stderr and keep the new command surface to one optional research-status flag.",
+        "decision": "Proceed if the operator gets exact quality or research gaps in the failure message.",
         "dissent": [
           "Do not increase operator typing cost more than necessary."
         ]
@@ -147,77 +75,74 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Require a passing evaluator result before implementation begins when configured",
-      "why_selected": "The new design now has councils, scope decisions, rubric, evaluator results, and project-data summary, so evaluator gating is the highest-value missing enforcement step.",
+      "selected_goal": "Block goal selection when research or data quality says more context is required",
+      "why_selected": "This closes a protocol gap: the repo already modeled research gating, but goal selection could still continue without respecting insufficient-context signals.",
       "scope_in": [
-        "Add structured scope-decision flags to capture-review.py.",
-        "Persist selected_goal, scope_in, scope_out, assumptions, risks, required_validation, stop_conditions, dissent, and next_action into review_state.scope_decision.",
-        "Add config support for an evaluator pass gate before implementation.",
-        "Add a shared goal-aware evaluator-pass helper and a dedicated readiness-check script.",
-        "Use the same evaluator-pass helper in later report and publish gates when configured."
+        "Add an explicit research gate status for need_more_context.",
+        "Block goal selection when quality status is insufficient.",
+        "Block goal selection when research_gate.status is need_more_context.",
+        "Echo blocking gaps clearly in the error path.",
+        "Cover both paths in validate-kit."
       ],
       "scope_out": [
-        "Do not yet change report rendering to prefer scope_decision over the compatibility fields.",
-        "Do not add evaluator scoring in this iteration.",
-        "Do not add automatic evaluator scoring in this iteration.",
-        "Do not redesign goal selection yet."
+        "Do not require research capture before every goal selection in this version.",
+        "Do not add a new workflow engine or transcript storage.",
+        "Do not redesign data-quality scoring thresholds."
       ],
       "assumptions": [
-        "The flat committee_decision list remains available for compatibility during migration.",
-        "The current workflow can treat the readiness-check script as the explicit pre-implementation gate."
+        "Existing quality status values remain ready, usable-with-gaps, and insufficient.",
+        "A missing quality file should not crash goal selection if a last-known status already exists in state."
       ],
       "risks": [
-        "If scope-decision capture becomes too verbose, the lightweight committee model will regress into process overhead.",
-        "If evaluator gating is not goal-aware, stale pass results could authorize the wrong scope."
+        "Over-blocking could make lightweight flows too heavy if usable-with-gaps is treated like insufficient.",
+        "A stale quality path could produce confusing failures unless the loader is tolerant."
       ],
       "required_validation": [
-        "validate-kit must prove scope_decision fields can be captured in no-state mode.",
-        "validate-kit must prove readiness fails without a matching passing evaluation and succeeds when one is present."
+        "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the new scope-decision flags force unrelated scripts to migrate in the same version.",
-        "Stop if the new evaluator gate breaks current report or publish flows for matching pass states."
+        "Stop if the new blocker prevents normal ready flows from selecting a goal.",
+        "Stop if the change requires broader workflow rewrites outside capture-review and select-next-goal."
       ],
       "dissent": [
-        "Keep the scope-decision block compact and avoid narrative bloat.",
-        "Keep the gate lightweight and script-driven rather than introducing a larger workflow engine."
+        "Keep the gate keyed to explicit insufficient-context signals only; do not infer blockers from every open gap yet."
       ],
-      "next_action": "Implement the shared helper and readiness script, then wire it into protocol, docs, and validation."
+      "next_action": "Validate the new blocker end to end, then document the new need_more_context path in the protocol and example workflow."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.5,
-        "scope_fitness": 4.4,
-        "repo_safety": 4.4,
-        "validation_readiness": 4.5,
-        "state_durability": 4.5,
-        "publish_safety": 4.5
+        "goal_clarity": 4.6,
+        "scope_fitness": 4.7,
+        "repo_safety": 4.7,
+        "validation_readiness": 4.8,
+        "state_durability": 4.6,
+        "publish_safety": 4.7
       },
-      "weighted_score": 4.47,
+      "weighted_score": 4.69,
       "result": "pass",
       "critique": [
         "The iteration readiness contract is now concrete enough to authorize later implementation gates.",
-        "The design now has enough durable structure to justify a real evaluator gate."
+        "The design now has enough durable structure to justify a real evaluator gate.",
+        "The change is narrowly scoped and closes a real protocol gap without increasing ceremony."
       ],
       "minimum_fixes_required": [
-        "Keep evaluator capture and council capture clearly separated in later report rendering.",
-        "Keep the gate error message explicit about how to capture or fix evaluator results."
+        "Keep missing quality artifacts from crashing the new blocker path."
       ]
     },
     "escalation": {
-      "status": "watch",
-      "reason": "Escalation policy is not enforced yet, so repeated failure handling still depends on operator judgment.",
-      "recommended_action": "Add deterministic escalation policy and reporting before relying on escalation status in stop decisions."
+      "status": "not_needed",
+      "reason": "",
+      "recommended_action": ""
     },
-    "goal_id": "iteration-31-escalation-capture",
-    "goal_title": "Allow capture-review.py to persist escalation status and recommended action"
+    "goal_id": "iteration-32-research-readiness-gate",
+    "goal_title": "Block goal selection when research or data quality says more context is required"
   },
-  "last_report": "docs/reports/v29.md",
+  "last_report": "docs/reports/v30.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:34:28Z",
+    "ran_at": "2026-03-15T05:51:42Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -463,6 +388,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:34:52Z",
       "session_progress": "14/20"
+    },
+    {
+      "iteration": 30,
+      "goal": "Block goal selection when research or data quality says more context is required",
+      "report": "docs/reports/v30.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:52:07Z",
+      "session_progress": "15/24"
     }
   ]
 }

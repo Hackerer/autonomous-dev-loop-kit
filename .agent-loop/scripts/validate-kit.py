@@ -371,6 +371,89 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check(publish.returncode == 0, "Structured-flow target publishes with commit-only", failures)
 
 
+def validate_goal_selection_readiness(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a goal-selection quality target", failures)
+
+        quality_path = target / ".agent-loop/data/data-quality.json"
+        write_json(
+            quality_path,
+            {
+                "snapshot_path": ".agent-loop/data/project-data.json",
+                "overall_score": 45,
+                "status": "insufficient",
+                "blocking_gaps": ["missing validation commands", "missing target outcome"],
+                "recommendations": [],
+            },
+        )
+        state = load_state(target)
+        state["session"] = {
+            "status": "active",
+            "target_iterations": 1,
+            "completed_iterations": 0,
+            "started_at": "2026-03-15T00:00:00Z",
+            "ended_at": None,
+        }
+        state["project_data"]["quality_path"] = ".agent-loop/data/data-quality.json"
+        state["project_data"]["last_quality_score"] = 45
+        state["project_data"]["last_quality_status"] = "insufficient"
+        write_json(target / ".agent-loop/state.json", state)
+
+        blocked = subprocess.run(
+            ["python3", ".agent-loop/scripts/select-next-goal.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(blocked.returncode != 0, "select-next-goal.py blocks when project-data quality is insufficient", failures)
+        check(
+            "missing validation commands" in blocked.stderr and "missing target outcome" in blocked.stderr,
+            "select-next-goal.py reports blocking data gaps clearly",
+            failures,
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a goal-selection research target", failures)
+
+        state = load_state(target)
+        state["session"] = {
+            "status": "active",
+            "target_iterations": 1,
+            "completed_iterations": 0,
+            "started_at": "2026-03-15T00:00:00Z",
+            "ended_at": None,
+        }
+        state["review_state"]["status"] = "captured"
+        state["review_state"]["captured_at"] = "2026-03-15T00:00:00Z"
+        state["review_state"]["research_gate"] = {
+            "status": "need_more_context",
+            "summary": "More repo evidence is required before scope selection.",
+            "evidence_refs": [],
+            "data_quality_score": 100,
+            "open_gaps": ["inspect target installer behavior", "confirm evaluator output contract"],
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        blocked = subprocess.run(
+            ["python3", ".agent-loop/scripts/select-next-goal.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(blocked.returncode != 0, "select-next-goal.py blocks when research gate requires more context", failures)
+        check(
+            "inspect target installer behavior" in blocked.stderr and "confirm evaluator output contract" in blocked.stderr,
+            "select-next-goal.py reports research gaps clearly",
+            failures,
+        )
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -519,6 +602,8 @@ def main() -> int:
             ".agent-loop/scripts/capture-review.py",
             "--research",
             "Sample repo scan",
+            "--research-status",
+            "captured",
             "--research-summary",
             "Sample research summary",
             "--evidence-ref",
@@ -593,6 +678,7 @@ def main() -> int:
     if review_capture.returncode == 0:
         captured = json.loads(review_capture.stdout)
         check(isinstance(captured.get("research_gate"), dict), "capture-review.py emits research_gate payload", failures)
+        check(captured.get("research_gate", {}).get("status") == "captured", "capture-review.py records research status", failures)
         check(captured.get("research_gate", {}).get("summary") == "Sample research summary", "capture-review.py records research summary", failures)
         councils = captured.get("councils", {})
         check(isinstance(councils, dict), "capture-review.py emits council payloads", failures)
@@ -677,6 +763,7 @@ def main() -> int:
 
     validate_review_gate(failures)
     validate_evaluator_gate(failures)
+    validate_goal_selection_readiness(failures)
     validate_structured_committee_flow(failures)
 
     if failures:

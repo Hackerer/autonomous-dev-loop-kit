@@ -255,7 +255,7 @@
     "id": "iteration-32-research-readiness-gate",
     "title": "Block goal selection when research or data quality says more context is required",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The loop refuses to select a goal when research_gate or project-data quality indicates insufficient context",
       "The operator sees required evidence or open gaps clearly",
@@ -298,5 +298,53 @@
       "Remaining open questions are explicit rather than hidden in partial implementation"
     ],
     "notes": "This version should leave the new design coherent and explainable."
+  },
+  {
+    "id": "iteration-36-session-continuation",
+    "title": "Add a non-destructive session continuation path for longer autonomous runs",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "The repo supports extending an active session without resetting completed progress",
+      "The operator can persist additional loop capacity with a deterministic script path",
+      "Validation covers the continuation behavior"
+    ],
+    "notes": "Longer committee-driven runs should not require manual state editing."
+  },
+  {
+    "id": "iteration-37-example-workflow-v2",
+    "title": "Refresh the example workflow around research blocking, evaluator, and escalation",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "The example workflow shows need-more-context before goal selection when evidence is insufficient",
+      "The example flow includes evaluator readiness and escalation checkpoints",
+      "The example stays concise enough for operators to follow from the terminal"
+    ],
+    "notes": "The protocol is stronger than the current example workflow."
+  },
+  {
+    "id": "iteration-38-install-and-bootstrap-alignment",
+    "title": "Align project installation and bootstrap artifacts with the lighter committee V2 defaults",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Installed target projects get the current committee V2 references and scripts coherently",
+      "Bootstrap guidance points to research gating and evaluator readiness without extra ceremony",
+      "Validation covers the aligned install path"
+    ],
+    "notes": "The installer and repo-local bootstrap should reflect the finished V2 model."
+  },
+  {
+    "id": "iteration-39-v2-baseline-refresh",
+    "title": "Refresh the baseline plan, backlog, and capability summary for the finalized lightweight committee design",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Plan and backlog describe the finalized lightweight committee baseline clearly",
+      "Remaining open questions are explicit and no finished V2 goals stay marked pending",
+      "The repo capability summary matches the actual scripts and gates"
+    ],
+    "notes": "Finish the 10-version run with a clean baseline for the next session."
   }
 ]

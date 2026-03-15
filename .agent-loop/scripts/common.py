@@ -765,6 +765,30 @@ def require_session_capacity(config: dict[str, Any], state: dict[str, Any]) -> d
     return session
 
 
+def goal_selection_blockers(config: dict[str, Any], state: dict[str, Any], quality_status: str | None, gaps: list[str]) -> list[str]:
+    blockers: list[str] = []
+    discovery = discovery_config(config)
+
+    if quality_status == "insufficient":
+        blockers.append("Project data quality is insufficient for goal selection.")
+        blockers.extend(f"Data gap: {gap}" for gap in gaps if str(gap).strip())
+
+    if discovery.get("require_research_before_goal_selection", False):
+        review_state = state.get("review_state", {})
+        research_gate = review_state.get("research_gate", {}) if isinstance(review_state, dict) else {}
+        if isinstance(research_gate, dict) and str(research_gate.get("status", "")).strip() == "need_more_context":
+            summary = str(research_gate.get("summary", "")).strip()
+            if summary:
+                blockers.append(f"Research gate: {summary}")
+            else:
+                blockers.append("Research gate requires more context before selecting a goal.")
+            open_gaps = research_gate.get("open_gaps", [])
+            if isinstance(open_gaps, list):
+                blockers.extend(f"Research gap: {gap}" for gap in open_gaps if str(gap).strip())
+
+    return blockers
+
+
 def require_green_validation(state: dict[str, Any]) -> dict[str, Any]:
     validation = state.get("last_validation") or {}
     if validation.get("status") != "passed":

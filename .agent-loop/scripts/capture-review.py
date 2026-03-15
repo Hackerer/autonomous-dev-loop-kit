@@ -53,6 +53,11 @@ def parse_scores(score_args: list[str]) -> dict[str, float]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Persist research and committee review conclusions for the current iteration.")
     parser.add_argument("--research", action="append", default=[], help="Research finding to persist.")
+    parser.add_argument(
+        "--research-status",
+        choices=["not_started", "captured", "need_more_context"],
+        help="Structured research-gate status.",
+    )
     parser.add_argument("--research-summary", help="Structured research-gate summary.")
     parser.add_argument("--evidence-ref", action="append", default=[], help="Research evidence reference to persist.")
     parser.add_argument("--quality-score", type=float, help="Structured research-gate quality score.")
@@ -98,6 +103,7 @@ def main() -> int:
 
     if (
         not args.research
+        and not args.research_status
         and not args.research_summary
         and not args.evidence_ref
         and args.quality_score is None
@@ -153,9 +159,12 @@ def main() -> int:
     research_gate = payload.get("research_gate", {})
     if not isinstance(research_gate, dict):
         research_gate = {}
-    research_gate["status"] = "captured" if (
-        args.research_summary or args.evidence_ref or args.quality_score is not None or args.open_gap
-    ) else research_gate.get("status", "not_started")
+    if args.research_status:
+        research_gate["status"] = args.research_status
+    elif args.research_summary or args.evidence_ref or args.quality_score is not None or args.open_gap:
+        research_gate["status"] = "captured"
+    else:
+        research_gate["status"] = research_gate.get("status", "not_started")
     if args.research_summary:
         research_gate["summary"] = args.research_summary
     research_gate["evidence_refs"] = merge_unique(list(research_gate.get("evidence_refs", [])), list(args.evidence_ref))

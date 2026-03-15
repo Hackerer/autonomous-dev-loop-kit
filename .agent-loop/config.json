@@ -319,7 +319,7 @@
   },
   "planning": {
     "require_explicit_target_iterations": true,
-    "max_iterations_per_session": 20,
+    "max_iterations_per_session": 30,
     "max_consecutive_failures": 2,
     "goal_selection_policy": "highest-priority-pending"
   },
