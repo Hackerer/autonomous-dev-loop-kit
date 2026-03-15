@@ -1,6 +1,6 @@
 {
   "iteration": 56,
-  "status": "release_report_written",
+  "status": "goal_selected",
   "session": {
     "status": "active",
     "target_releases": 15,
@@ -17,74 +17,68 @@
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
-  "current_goal": null,
+  "current_goal": {
+    "id": "iteration-57-project-first-class",
+    "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
+    "priority": "critical",
+    "selected_at": "2026-03-15T13:42:37Z",
+    "source": ".agent-loop/backlog.json"
+  },
   "release": {
     "number": 4,
-    "title": "R4: Verify OpenClaw config migration to coding folder + 1 more bundled goals",
-    "summary": "Bundle these goals into one user-facing release: Verify OpenClaw config migration to coding folder; Verify Agent access and memory system",
-    "status": "ready_to_release",
+    "title": "R4: Strengthen Project as first-class citizen in OpenClaw architecture + 1 more bundled goals",
+    "summary": "Bundle these goals into one user-facing release: Strengthen Project as first-class citizen in OpenClaw architecture; Enable memory-lancedb with Scale embedding integration",
+    "status": "planned",
     "brief": {
-      "objective": "Ship a coherent release around verify.",
+      "objective": "Ship a coherent release around strengthen.",
       "target_user_value": "Users should experience one packaged improvement with a clear story instead of several disconnected tiny task commits.",
       "why_now": "These bundled goals are the highest-value pending items that reinforce the same release theme and should land together now.",
-      "packaging_rationale": "These goals all strengthen the same release theme around verify, so shipping them together creates a clearer user-visible version.",
+      "packaging_rationale": "These goals all strengthen the same release theme around strengthen, so shipping them together creates a clearer user-visible version.",
       "scope_in": [
-        "Verify OpenClaw config migration to coding folder",
-        "Verify Agent access and memory system"
+        "Strengthen Project as first-class citizen in OpenClaw architecture",
+        "Enable memory-lancedb with Scale embedding integration"
       ],
       "scope_out": [],
       "release_acceptance": [
-        "Config symlink points to new location",
-        "OpenClaw loads config correctly",
-        "All agents are accessible",
-        "Memory system works from new location",
-        "Skills are accessible",
-        "Workspaces are accessible"
+        "Project configuration is complete for all workspaces",
+        "Project isolation boundaries are enforced",
+        "Project-specific memory namespaces are working",
+        "OPENAI_API_KEY is configured",
+        "memory-lancedb plugin is enabled",
+        "Vector search is working with temporal decay"
       ],
-      "launch_story": "This release tells one simple story: Ship a coherent release around verify. It packages 2 aligned improvements into a single version.",
+      "launch_story": "This release tells one simple story: Ship a coherent release around strengthen. It packages 2 aligned improvements into a single version.",
       "deferred_items": []
     },
     "goal_ids": [
-      "iteration-55-verify-config-migration",
-      "iteration-56-verify-agent-access"
+      "iteration-57-project-first-class",
+      "iteration-58-memory-scale-integration"
     ],
     "goal_titles": [
-      "Verify OpenClaw config migration to coding folder",
-      "Verify Agent access and memory system"
+      "Strengthen Project as first-class citizen in OpenClaw architecture",
+      "Enable memory-lancedb with Scale embedding integration"
     ],
-    "completed_goal_ids": [
-      "iteration-55-verify-config-migration",
-      "iteration-56-verify-agent-access"
-    ],
-    "task_iterations": [
-      {
-        "iteration": 55,
-        "goal": "Verify OpenClaw config migration to coding folder",
-        "goal_id": "iteration-55-verify-config-migration",
-        "report": "docs/reports/v55.md",
-        "published_at": "2026-03-15T13:17:25Z"
-      },
-      {
-        "iteration": 56,
-        "goal": "Verify Agent access and memory system",
-        "goal_id": "iteration-56-verify-agent-access",
-        "report": "docs/reports/v56.md",
-        "published_at": "2026-03-15T13:18:21Z"
-      }
-    ],
-    "selected_at": "2026-03-15T13:16:19Z",
+    "completed_goal_ids": [],
+    "task_iterations": [],
+    "selected_at": "2026-03-15T13:40:14Z",
     "published_at": null,
     "report_path": null
   },
-  "draft_iteration": null,
-  "draft_report": null,
-  "draft_release_report": "docs/releases/R4.md",
-  "draft_goal": null,
+  "draft_iteration": 57,
+  "draft_report": "docs/reports/v57.md",
+  "draft_release_report": null,
+  "draft_goal": {
+    "id": "iteration-57-project-first-class",
+    "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
+    "priority": "critical",
+    "selected_at": "2026-03-15T13:40:26Z",
+    "source": ".agent-loop/backlog.json"
+  },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T13:18:08Z",
+    "captured_at": "2026-03-15T13:41:48Z",
     "research_findings": [
-      "Verify memory system and skills work from new location"
+      "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state"
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -99,13 +93,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve",
+        "summary": "Approve - Projects as first-class is core to OpenClaw architecture",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve",
+        "summary": "Approve - Project isolation boundaries should be enforced",
         "decision": "Approve",
         "dissent": []
       },
@@ -134,20 +128,20 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Verify Agent access and memory system",
-      "why_selected": "Ensure end-to-end functionality",
+      "selected_goal": "Strengthen Project as first-class citizen in OpenClaw architecture",
+      "why_selected": "To align with official OpenClaw architecture design rules",
       "scope_in": [
-        "Verify memory works",
-        "Verify skills accessible",
-        "Verify workspaces accessible"
+        "Verify project configuration is complete",
+        "Check project isolation boundaries",
+        "Verify memory namespaces per project"
       ],
       "scope_out": [
-        "No modifications"
+        "Do not modify live runtime yet"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
-        "python3 .agent-loop/scripts/validate-kit.py"
+        "python3 ~/.openclaw/lab/scripts/validate_config.py"
       ],
       "stop_conditions": [],
       "dissent": [],
@@ -157,10 +151,10 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 5.0,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "Verification passed: all systems functional"
+        "Project configuration verified against OpenClaw official architecture"
       ],
       "minimum_fixes_required": []
     },
@@ -169,13 +163,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-56-verify-agent-access",
-    "goal_title": "Verify Agent access and memory system"
+    "goal_id": "iteration-57-project-first-class",
+    "goal_title": "Strengthen Project as first-class citizen in OpenClaw architecture"
   },
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T13:18:21Z",
+    "ran_at": "2026-03-15T13:42:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
