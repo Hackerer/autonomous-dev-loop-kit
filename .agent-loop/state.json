@@ -1,11 +1,11 @@
 {
   "iteration": 63,
-  "status": "published",
+  "status": "release_published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
-    "completed_releases": 1,
+    "completed_releases": 2,
     "target_iterations": null,
     "completed_iterations": 2,
     "started_at": "2026-03-15T18:59:11Z",
@@ -20,60 +20,28 @@
   },
   "current_goal": null,
   "release": {
-    "number": 2,
-    "title": "R2: Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
-    "summary": "Ship the single high-priority goal `Reset new sessions cleanly and accept structured review-state artifacts as valid gate input` as a standalone bundled release.",
-    "status": "ready_to_release",
+    "number": null,
+    "title": "",
+    "summary": "",
+    "status": "not_planned",
     "brief": {
-      "archetype": "workflow",
-      "objective": "Make every new session start cleanly and let the real structured review schema satisfy loop gates.",
-      "target_user_value": "Operators can start a fresh remediation run without inherited failure pressure, and structured committee artifacts work without needing legacy flat review fields.",
-      "why_now": "After publish ordering is fixed, the next biggest trust issue is stale review and failure state leaking into fresh sessions and gates.",
-      "packaging_rationale": "Session reset, history scoping, and structured review-content checks belong together because they all define what the loop considers active state for the current session.",
-      "packaging_signals": [
-        "Archetype: workflow",
-        "Matched keywords: release",
-        "Shared theme: valid",
-        "Bundled goals: 1"
-      ],
-      "scope_in": [
-        "Reset transient review and failure state when starting a fresh session.",
-        "Scope escalation history to the current session.",
-        "Treat structured research, council, secretariat, scope, and evaluator fields as valid review content."
-      ],
-      "scope_out": [
-        "Do not redesign escalation policy or release planning semantics."
-      ],
-      "release_acceptance": [
-        "A fresh session clears transient review and failure pressure.",
-        "Structured review-state content satisfies readiness and reporting gates without legacy flat lists.",
-        "validate-kit.py covers both behaviors."
-      ],
-      "launch_story": "This release makes a new loop session actually feel new, while keeping the stronger structured committee model first-class.",
-      "deferred_items": [
-        "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
-        "Expand validator coverage for reliability fixes and publish a final remediation review"
-      ]
+      "archetype": "",
+      "objective": "",
+      "target_user_value": "",
+      "why_now": "",
+      "packaging_rationale": "",
+      "packaging_signals": [],
+      "scope_in": [],
+      "scope_out": [],
+      "release_acceptance": [],
+      "launch_story": "",
+      "deferred_items": []
     },
-    "goal_ids": [
-      "iteration-64-session-reset-and-review-compatibility"
-    ],
-    "goal_titles": [
-      "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input"
-    ],
-    "completed_goal_ids": [
-      "iteration-64-session-reset-and-review-compatibility"
-    ],
-    "task_iterations": [
-      {
-        "iteration": 63,
-        "goal": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
-        "goal_id": "iteration-64-session-reset-and-review-compatibility",
-        "report": "docs/reports/v63.md",
-        "published_at": "2026-03-15T19:14:04Z"
-      }
-    ],
-    "selected_at": "2026-03-15T19:12:41Z",
+    "goal_ids": [],
+    "goal_titles": [],
+    "completed_goal_ids": [],
+    "task_iterations": [],
+    "selected_at": null,
     "published_at": null,
     "report_path": null
   },
@@ -1100,6 +1068,29 @@
       ],
       "report": "docs/releases/R1.md",
       "published_at": "2026-03-15T19:03:28Z"
+    },
+    {
+      "number": 2,
+      "session_id": "session-20260315-185911",
+      "title": "R2: Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+      "summary": "Ship the single high-priority goal `Reset new sessions cleanly and accept structured review-state artifacts as valid gate input` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-64-session-reset-and-review-compatibility"
+      ],
+      "goal_titles": [
+        "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 63,
+          "goal": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+          "goal_id": "iteration-64-session-reset-and-review-compatibility",
+          "report": "docs/reports/v63.md",
+          "published_at": "2026-03-15T19:14:04Z"
+        }
+      ],
+      "report": "docs/releases/R2.md",
+      "published_at": "2026-03-15T19:16:43Z"
     }
   ]
 }
