@@ -1,17 +1,17 @@
 {
-  "iteration": 36,
+  "iteration": 37,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 21,
+    "completed_iterations": 22,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:14:58Z",
+    "last_collected_at": "2026-03-15T06:16:05Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,24 +21,20 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:14:43Z",
+    "captured_at": "2026-03-15T06:15:57Z",
     "research_findings": [
-      "Longer autonomous sessions currently require manual state edits to extend the target iteration count because set-loop-session.py resets progress.",
-      "The smallest fix is a continuation command that only increases the target and preserves completed progress plus the current session record."
+      "The example workflow still lagged behind the real lightweight V2 protocol and under-described research blocking, evaluator readiness, and escalation assessment."
     ],
     "committee_feedback": [
-      "Product council supports this because longer sessions should not force a fresh restart just to keep shipping versions.",
-      "Architecture council wants continuation to preserve completed progress and avoid touching current goal selection.",
-      "Operator council wants a deterministic command such as --add or a new total target, not manual JSON edits."
+      "A short example flow is often the fastest operator entrypoint, so it has to stay in sync with the protocol."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Add a non-destructive session continuation path so longer loops can keep running without resetting state.",
+      "summary": "Refresh the example workflow so it matches the actual committee V2 sequence from research blocking through escalation assessment.",
       "evidence_refs": [
-        ".agent-loop/scripts/continue-loop-session.py",
-        ".agent-loop/scripts/validate-kit.py"
+        ".agent-loop/references/example-data-acquisition-workflow.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -66,16 +62,13 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Add a non-destructive session continuation path for longer autonomous runs",
-      "why_selected": "The current loop can only reset or stop; it still lacks a clean way to continue a successful long-running session.",
+      "selected_goal": "Refresh the example workflow around research blocking, evaluator, and escalation",
+      "why_selected": "The workflow reference should match the current real sequence, especially now that research blocking and evaluator readiness are first-class gates.",
       "scope_in": [
-        "Add continue-loop-session.py.",
-        "Support adding iterations or setting a new total target without resetting completed progress.",
-        "Validate continuation behavior in temp targets."
+        "Update the example workflow with need_more_context blocking, evaluator brief rendering, readiness confirmation, and escalation assessment."
       ],
       "scope_out": [
-        "Do not change set-loop-session.py reset semantics.",
-        "Do not mutate current goal selection during continuation."
+        "Do not expand the example into a full manual."
       ],
       "assumptions": [],
       "risks": [],
@@ -83,31 +76,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if continuation resets completed progress or current session metadata."
+        "Stop if the example becomes longer than an operator can scan quickly."
       ],
       "dissent": [
-        "Keep continuation narrow; this is a session-capacity tool, not a full session migration system."
+        "Keep the workflow concise even as the protocol gets stronger."
       ],
-      "next_action": "Refresh the example workflow and installer/bootstrap guidance around the finished lightweight V2 baseline."
+      "next_action": "Align installer/bootstrap guidance and then refresh the final baseline docs."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.8,
+        "scope_fitness": 4.9,
         "repo_safety": 4.8,
         "validation_readiness": 4.8,
-        "state_durability": 4.9,
+        "state_durability": 4.8,
         "publish_safety": 4.8
       },
       "weighted_score": 4.83,
       "result": "pass",
       "critique": [
-        "This version improves operator ergonomics without changing the delivery protocol."
+        "A concise example is the fastest way to make the stronger flow legible."
       ],
       "minimum_fixes_required": [
-        "Preserve completed_iterations when extending a session."
+        "Keep the example strictly sequence-oriented."
       ]
     },
     "escalation": {
@@ -115,13 +108,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-36-session-continuation",
-    "goal_title": "Add a non-destructive session continuation path for longer autonomous runs"
+    "goal_id": "iteration-37-example-workflow-v2",
+    "goal_title": "Refresh the example workflow around research blocking, evaluator, and escalation"
   },
-  "last_report": "docs/reports/v36.md",
+  "last_report": "docs/reports/v37.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T06:14:25Z",
+    "ran_at": "2026-03-15T06:15:37Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -443,6 +436,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:15:02Z",
       "session_progress": "21/24"
+    },
+    {
+      "iteration": 37,
+      "goal": "Refresh the example workflow around research blocking, evaluator, and escalation",
+      "goal_id": "iteration-37-example-workflow-v2",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v37.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:16:13Z",
+      "session_progress": "22/24"
     }
   ]
 }

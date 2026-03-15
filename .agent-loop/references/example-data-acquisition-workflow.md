@@ -24,16 +24,23 @@ Use this workflow when the loop starts from a minimal prompt such as `循环10`.
 7. Select the next goal:
    - `python3 .agent-loop/scripts/select-next-goal.py`
    - If selection is blocked, gather the missing context first, refresh project data if needed, update research capture, then rerun goal selection.
-8. Implement the version.
-9. Run full validation:
+8. Capture the scope decision for the selected goal.
+9. Render the evaluator input:
+   - `python3 .agent-loop/scripts/render-evaluator-brief.py`
+10. Capture the evaluator result, then confirm readiness:
+   - `python3 .agent-loop/scripts/assert-implementation-readiness.py`
+11. Implement the version.
+12. Run full validation:
    - `python3 .agent-loop/scripts/run-full-validation.py`
-10. Reflect on research and committee feedback after validation.
-11. Refresh project data if the repo changed materially:
+13. Assess whether repeated failures or churn should trigger watch or escalation:
+   - `python3 .agent-loop/scripts/assess-escalation.py`
+14. Reflect on research and committee feedback after validation.
+15. Refresh project data if the repo changed materially:
    - `python3 .agent-loop/scripts/collect-project-data.py`
    - `python3 .agent-loop/scripts/score-data-quality.py`
-12. Write the report:
+16. Write the report:
    - `python3 .agent-loop/scripts/write-report.py`
-13. Publish:
+17. Publish:
    - `python3 .agent-loop/scripts/publish-iteration.py`
 
 ## Why This Matters

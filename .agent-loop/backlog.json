@@ -315,7 +315,7 @@
     "id": "iteration-37-example-workflow-v2",
     "title": "Refresh the example workflow around research blocking, evaluator, and escalation",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The example workflow shows need-more-context before goal selection when evidence is insufficient",
       "The example flow includes evaluator readiness and escalation checkpoints",
