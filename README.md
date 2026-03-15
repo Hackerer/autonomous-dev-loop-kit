@@ -91,6 +91,40 @@ Do not leave the placeholder validation step in place for real use.
 
 Also customize the committee members in `.agent-loop/config.json` if the default product-manager, technical-architect, and user personas do not match the target project.
 
+## Install Into A Target Project
+
+To install the committee-driven kit into a project root, run:
+
+```bash
+./scripts/install-into-project.sh --target /path/to/project
+```
+
+The installer syncs reusable kit assets such as:
+
+- `.agents/`
+- `.claude/`
+- `.agent-loop/scripts/`
+- `.agent-loop/references/`
+- `.agent-loop/templates/`
+
+It also seeds these files if they are missing:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `PLANS.md`
+- `.agent-loop/config.json`
+- `.agent-loop/state.json`
+- `.agent-loop/backlog.json`
+
+By default, the installer preserves an existing target project's `.agent-loop/config.json`, `.agent-loop/state.json`, `.agent-loop/backlog.json`, `AGENTS.md`, `CLAUDE.md`, and `PLANS.md`.
+
+Optional flags:
+
+- `--overwrite-config`
+- `--overwrite-state`
+- `--overwrite-backlog`
+- `--overwrite-top-level`
+
 ## Install Into Local CLI Skill Directories
 
 To install this kit into your user-level Codex and Claude Code skill folders, run:

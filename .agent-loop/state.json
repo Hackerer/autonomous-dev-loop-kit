@@ -1,17 +1,17 @@
 {
-  "iteration": 13,
+  "iteration": 14,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 5,
-    "completed_iterations": 3,
+    "completed_iterations": 4,
     "started_at": "2026-03-15T00:20:54Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T04:02:32Z",
+    "last_collected_at": "2026-03-15T04:06:32Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,33 +21,33 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T04:00:46Z",
+    "captured_at": "2026-03-15T04:04:27Z",
     "research_findings": [
-      "The project-data snapshot currently omits review_state, so later tools cannot inspect the latest committee-backed rationale from the collected data artifact.",
-      "write-report.py only renders research and committee sections from CLI flags today, which forces manual duplication after capture-review.py has already persisted the same conclusions.",
-      "The loop also needs goal-aware reuse so a previous iteration's review_state cannot leak into a new iteration's report when goals differ."
+      "The repo already has install-to-clis.sh for user-level Codex and Claude skill folders, but it does not provide a repo-local installer for target projects.",
+      "A target-project installer needs to copy committee-driven scripts, references, templates, and skill folders in one step while preserving target-specific loop state by default.",
+      "The highest-risk overwrite is .agent-loop/config.json because target repositories usually need their own validation commands, so config preservation must be the default behavior."
     ],
     "committee_feedback": [
-      "Product manager committee wants the selected scope rationale to appear automatically in both project data and reports, otherwise operators keep retyping and drifting the acceptance story.",
-      "Technical architect committee wants a single goal-aware review context helper so snapshot generation and report generation stay consistent about when persisted review data is safe to reuse.",
-      "User committee wants later operators to see the latest review-backed decision directly in generated artifacts, without reconstructing it from old reports or chat."
+      "Product manager committee wants installation into a target repo to be one command, otherwise the committee-driven loop remains too manual to adopt.",
+      "Technical architect committee wants the installer to update reusable kit assets but preserve repo-specific config, backlog, and state unless the operator explicitly asks to overwrite them.",
+      "User committee wants clear output about what was installed versus preserved, so they can trust the script in an existing repository."
     ],
     "committee_decision": [
-      "Add latest_review_state to collected project data, and make write-report.py reuse persisted review findings, feedback, decisions, and reflections only when they match the active goal."
+      "Add a repo-local install script that syncs the kit into a target project root, seeds missing top-level files, and preserves existing config/state/backlog unless overwrite flags are passed."
     ],
     "reflection_notes": [],
-    "goal_id": "iteration-13-reporting-and-project-data",
-    "goal_title": "Read committee review state back into project data and reports"
+    "goal_id": "iteration-14-project-installation-flow",
+    "goal_title": "Add a project installation script for the committee-driven kit"
   },
-  "last_report": "docs/reports/v13.md",
+  "last_report": "docs/reports/v14.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T04:02:32Z",
+    "ran_at": "2026-03-15T04:06:32Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] capture-review.py runs successfully\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] capture-review.py runs successfully\n[PASS] install-into-project.sh runs successfully\n[PASS] Project installer syncs .agents skill\n[PASS] Project installer syncs .claude skill\n[PASS] Project installer syncs loop scripts\n[PASS] Project installer preserves existing config by default\n[PASS] Project installer supports --overwrite-config\n[PASS] Project installer can replace config when requested\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -160,6 +160,14 @@
       "branch": "main",
       "published_at": "2026-03-15T04:03:28Z",
       "session_progress": "3/5"
+    },
+    {
+      "iteration": 14,
+      "goal": "Add a project installation script for the committee-driven kit",
+      "report": "docs/reports/v14.md",
+      "branch": "main",
+      "published_at": "2026-03-15T04:07:02Z",
+      "session_progress": "4/5"
     }
   ]
 }

@@ -39,7 +39,7 @@
     "id": "iteration-14-project-installation-flow",
     "title": "Add a project installation script for the committee-driven kit",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo contains a script that installs the loop kit into a target project root",
       "The installer copies committee-driven references and scripts without requiring manual file-by-file copying",

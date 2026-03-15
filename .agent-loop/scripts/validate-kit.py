@@ -6,6 +6,7 @@ import py_compile
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from common import validate_committee
@@ -65,6 +66,7 @@ def main() -> int:
         ROOT / "AGENTS.md",
         ROOT / "CLAUDE.md",
         ROOT / "PLANS.md",
+        ROOT / "scripts/install-into-project.sh",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".agent-loop/config.json",
@@ -191,6 +193,69 @@ def main() -> int:
         check=False,
     )
     check(review_capture.returncode == 0, "capture-review.py runs successfully", failures)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        (target / ".agent-loop").mkdir(parents=True, exist_ok=True)
+        preserved_config = {
+            "validation": {
+                "commands": [
+                    {
+                        "name": "custom-validation",
+                        "command": "echo custom",
+                        "required": True,
+                    }
+                ]
+            }
+        }
+        (target / ".agent-loop/config.json").write_text(json.dumps(preserved_config), encoding="utf-8")
+        installer = subprocess.run(
+            ["bash", "scripts/install-into-project.sh", "--target", str(target)],
+            cwd=str(ROOT),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(installer.returncode == 0, "install-into-project.sh runs successfully", failures)
+        check((target / ".agents/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .agents skill", failures)
+        check((target / ".claude/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .claude skill", failures)
+        check((target / ".agent-loop/scripts/collect-project-data.py").exists(), "Project installer syncs loop scripts", failures)
+        installed_config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        check(
+            installed_config.get("validation", {}).get("commands", [{}])[0].get("command") == "echo custom",
+            "Project installer preserves existing config by default",
+            failures,
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        (target / ".agent-loop").mkdir(parents=True, exist_ok=True)
+        preserved_config = {
+            "validation": {
+                "commands": [
+                    {
+                        "name": "custom-validation",
+                        "command": "echo custom",
+                        "required": True,
+                    }
+                ]
+            }
+        }
+        (target / ".agent-loop/config.json").write_text(json.dumps(preserved_config), encoding="utf-8")
+        installer = subprocess.run(
+            ["bash", "scripts/install-into-project.sh", "--target", str(target), "--overwrite-config"],
+            cwd=str(ROOT),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(installer.returncode == 0, "Project installer supports --overwrite-config", failures)
+        installed_config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        check(
+            any(".agent-loop/scripts/validate-kit.py" in item.get("command", "") for item in installed_config.get("validation", {}).get("commands", [])),
+            "Project installer can replace config when requested",
+            failures,
+        )
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)
