@@ -271,6 +271,106 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         check(readiness_attempt.returncode == 0, "assert-implementation-readiness.py accepts matching evaluator pass", failures)
 
 
+def validate_structured_committee_flow(failures: list[str]) -> None:
+    goal_id = "structured-committee-flow"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a structured-flow target", failures)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Structured-flow target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+
+        config_path = target / ".agent-loop/config.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "commit-only"
+        write_json(config_path, config)
+
+        state = seeded_state(goal_id, evaluator_result="pass")
+        state["current_goal"]["title"] = "Structured committee flow"
+        state["review_state"]["goal_title"] = "Structured committee flow"
+        state["review_state"]["research_gate"] = {
+            "status": "captured",
+            "summary": "Seeded research gate summary",
+            "evidence_refs": ["PLANS.md"],
+            "data_quality_score": 100,
+            "open_gaps": [],
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        capture = subprocess.run(
+            [
+                "python3",
+                ".agent-loop/scripts/capture-review.py",
+                "--product-summary",
+                "Seeded product council summary",
+                "--selected-goal",
+                "Structured committee flow",
+                "--why-selected",
+                "Seeded scope decision",
+                "--scope-in",
+                "Seeded scope in",
+                "--required-validation",
+                "Seeded validation",
+                "--rubric-version",
+                "iteration-readiness-v1",
+                "--score",
+                "goal_clarity=4.5",
+                "--weighted-score",
+                "4.5",
+                "--evaluation-result",
+                "pass",
+            ],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(capture.returncode == 0, "Structured-flow target captures committee review", failures)
+
+        readiness = subprocess.run(
+            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(readiness.returncode == 0, "Structured-flow target passes implementation readiness", failures)
+
+        report = subprocess.run(
+            [
+                "python3",
+                ".agent-loop/scripts/write-report.py",
+                "--analysis",
+                "Seeded structured flow analysis",
+                "--acceptance",
+                "Seeded structured flow acceptance",
+                "--delivered",
+                "Seeded structured flow delivery",
+                "--reflection",
+                "Seeded structured flow reflection",
+                "--next-goal",
+                "Seeded structured flow next goal",
+            ],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(report.returncode == 0, "Structured-flow target writes a report", failures)
+
+        publish = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(publish.returncode == 0, "Structured-flow target publishes with commit-only", failures)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -567,6 +667,7 @@ def main() -> int:
 
     validate_review_gate(failures)
     validate_evaluator_gate(failures)
+    validate_structured_committee_flow(failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)

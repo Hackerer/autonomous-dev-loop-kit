@@ -219,7 +219,7 @@
     "id": "iteration-29-committee-v2-validation",
     "title": "Extend validate-kit to exercise the structured committee V2 flow",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "validate-kit exercises council rendering, structured capture, evaluation capture, and gating behavior",
       "Validation checks stay fast and deterministic",
