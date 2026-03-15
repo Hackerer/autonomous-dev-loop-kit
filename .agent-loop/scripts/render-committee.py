@@ -6,11 +6,15 @@ import json
 import sys
 
 from common import (
+    council_summary,
     LoopError,
     committee_summary,
     discovery_config,
+    evaluator_summary,
     find_repo_root,
     load_config,
+    persona_catalog,
+    secretariat_summary,
     validate_committee,
 )
 
@@ -28,11 +32,18 @@ def main() -> int:
 
     discovery = discovery_config(config)
     roles = committee_summary(config)
+    councils = council_summary(config)
+    secretariat = secretariat_summary(config)
+    evaluator = evaluator_summary(config)
     payload = {
         "research_required": bool(discovery.get("require_research_before_goal_selection", False)),
         "minimum_research_inputs": int(discovery.get("minimum_research_inputs", 0) or 0),
         "committee_review_required": bool(discovery.get("require_committee_review", False)),
         "post_validation_reflection_required": bool(discovery.get("require_post_validation_reflection", False)),
+        "persona_catalog": list(persona_catalog(config).values()),
+        "councils": councils,
+        "secretariat": secretariat,
+        "evaluator": evaluator,
         "roles": roles,
     }
 
@@ -53,6 +64,24 @@ def main() -> int:
         members = ", ".join(role["members"]) if role["members"] else "no members configured"
         print(f"- {role['label']} ({role['member_count']} members): {role['responsibility']}")
         print(f"  Members: {members}")
+    if councils:
+        print("- V2 council brief:")
+        for council in councils:
+            print(f"  - {council['label']}: {council['responsibility']}")
+            for persona in council["personas"]:
+                outputs = ", ".join(persona["output_fields"]) if persona["output_fields"] else "no output fields configured"
+                print(f"    - {persona['label']}: {persona['focus']} | outputs: {outputs}")
+    if secretariat:
+        print("- Secretariat:")
+        for persona in secretariat:
+            outputs = ", ".join(persona["output_fields"]) if persona["output_fields"] else "no output fields configured"
+            print(f"  - {persona['label']}: {persona['responsibility']} | outputs: {outputs}")
+    if evaluator:
+        persona = evaluator.get("persona", {})
+        outputs = ", ".join(persona.get("output_fields", [])) if persona else "no output fields configured"
+        print(f"- Evaluator: {persona.get('label', 'unconfigured evaluator')}")
+        print(f"  Rubric: {evaluator.get('rubric_ref', '')}")
+        print(f"  Outputs: {outputs}")
     return 0
 
 

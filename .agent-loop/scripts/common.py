@@ -352,6 +352,81 @@ def committee_summary(config: dict[str, Any]) -> list[dict[str, Any]]:
     return summary
 
 
+def persona_catalog(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    committee = committee_config(config)
+    personas = committee.get("personas", {})
+    if not isinstance(personas, dict):
+        return {}
+    summary: dict[str, dict[str, Any]] = {}
+    for persona_id, persona in personas.items():
+        if not isinstance(persona, dict):
+            continue
+        output_fields = persona.get("output_fields", [])
+        if not isinstance(output_fields, list):
+            output_fields = []
+        summary[str(persona_id)] = {
+            "id": str(persona_id),
+            "label": str(persona.get("label", "") or persona_id),
+            "group": str(persona.get("group", "")),
+            "responsibility": str(persona.get("responsibility", "")),
+            "focus": str(persona.get("focus", "")),
+            "output_fields": [str(item) for item in output_fields if str(item).strip()],
+        }
+    return summary
+
+
+def council_summary(config: dict[str, Any]) -> list[dict[str, Any]]:
+    committee = committee_config(config)
+    councils = committee.get("councils", [])
+    personas = persona_catalog(config)
+    if not isinstance(councils, list):
+        return []
+    summary: list[dict[str, Any]] = []
+    for council in councils:
+        if not isinstance(council, dict):
+            continue
+        persona_ids = council.get("persona_ids", [])
+        if not isinstance(persona_ids, list):
+            persona_ids = []
+        resolved_personas = [personas[persona_id] for persona_id in persona_ids if str(persona_id) in personas]
+        summary.append(
+            {
+                "id": str(council.get("id", "")),
+                "label": str(council.get("label", "") or council.get("id", "council")),
+                "responsibility": str(council.get("responsibility", "")),
+                "persona_ids": [str(persona_id) for persona_id in persona_ids],
+                "personas": resolved_personas,
+            }
+        )
+    return summary
+
+
+def secretariat_summary(config: dict[str, Any]) -> list[dict[str, Any]]:
+    committee = committee_config(config)
+    secretariat = committee.get("secretariat", {})
+    personas = persona_catalog(config)
+    if not isinstance(secretariat, dict):
+        return []
+    persona_ids = secretariat.get("persona_ids", [])
+    if not isinstance(persona_ids, list):
+        return []
+    return [personas[persona_id] for persona_id in persona_ids if str(persona_id) in personas]
+
+
+def evaluator_summary(config: dict[str, Any]) -> dict[str, Any]:
+    committee = committee_config(config)
+    evaluator = committee.get("evaluator", {})
+    personas = persona_catalog(config)
+    if not isinstance(evaluator, dict):
+        return {}
+    persona_id = str(evaluator.get("persona_id", "")).strip()
+    return {
+        "persona": personas.get(persona_id, {}),
+        "rubric_ref": str(evaluator.get("rubric_ref", "")),
+        "result_thresholds": evaluator.get("result_thresholds", {}),
+    }
+
+
 def load_backlog(root: Path) -> list[dict[str, Any]]:
     path = root / ROOT_MARKER / BACKLOG_FILE
     backlog = load_json(path, default=[])

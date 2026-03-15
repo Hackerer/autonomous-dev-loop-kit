@@ -75,7 +75,7 @@
     "id": "iteration-17-render-committee-contracts",
     "title": "Render council responsibilities and output contracts from config",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "render-committee.py outputs council, secretariat, and evaluator responsibilities",
       "Rendered output includes expected fields instead of only names",

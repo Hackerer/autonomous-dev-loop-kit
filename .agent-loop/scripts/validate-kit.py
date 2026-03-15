@@ -323,6 +323,11 @@ def main() -> int:
         check=False,
     )
     check(committee_renderer.returncode == 0, "render-committee.py runs successfully", failures)
+    if committee_renderer.returncode == 0:
+        rendered = json.loads(committee_renderer.stdout)
+        check(isinstance(rendered.get("councils"), list) and len(rendered.get("councils", [])) >= 3, "Committee renderer exposes council summaries", failures)
+        check(isinstance(rendered.get("secretariat"), list) and len(rendered.get("secretariat", [])) >= 2, "Committee renderer exposes secretariat summaries", failures)
+        check(isinstance(rendered.get("evaluator"), dict) and isinstance(rendered.get("evaluator", {}).get("persona"), dict), "Committee renderer exposes evaluator summary", failures)
 
     review_capture = subprocess.run(
         [
