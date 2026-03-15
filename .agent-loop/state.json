@@ -1,17 +1,17 @@
 {
-  "iteration": 27,
+  "iteration": 28,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 20,
-    "completed_iterations": 12,
+    "completed_iterations": 13,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:24:52Z",
+    "last_collected_at": "2026-03-15T05:32:18Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,7 +21,7 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:23:53Z",
+    "captured_at": "2026-03-15T05:26:24Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
@@ -49,7 +49,10 @@
       "The evaluator gate should be goal-aware in the same way review-state capture is goal-aware, otherwise an earlier passing evaluation could accidentally authorize the wrong iteration.",
       "The committee V2 architecture now spans config, rendering, structured capture, readiness gating, reports, and project-data summaries, but validate-kit still proves these pieces mostly in isolation.",
       "The next step should add a compact end-to-end temp-repo scenario that exercises the structured path in order: capture, readiness, report, and publish-safe behavior.",
-      "The validation should stay deterministic and local, so the end-to-end flow should use commit-only publication in a temporary repo instead of depending on a network push."
+      "The validation should stay deterministic and local, so the end-to-end flow should use commit-only publication in a temporary repo instead of depending on a network push.",
+      "The implementation has moved well beyond the original three-role committee guide, but committee-driven-delivery.md still describes a much flatter model than the repo now actually runs.",
+      "The rewrite should document councils, secretariat, evaluator, scope decisions, dissent, and escalation in the lighter V2 language that the repo already implements.",
+      "The key risk is over-documenting: the guide should explain the stronger architecture without sounding like enterprise governance or requiring transcript-heavy process."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
@@ -78,7 +81,10 @@
       "Operator council wants a clear failing command that says the evaluator is missing or revise-fail, rather than leaving operators to infer that from raw state.",
       "Product council wants the stronger architecture to be demonstrably wired end to end, not only supported by separate unit-style checks.",
       "Architecture council wants the end-to-end validation to stay fast and local, which means exercising a temporary repo with commit-only publication rather than external network paths.",
-      "Operator council wants confidence that the documented V2 flow actually works in sequence when installed into a target repository."
+      "Operator council wants confidence that the documented V2 flow actually works in sequence when installed into a target repository.",
+      "Product council wants the guide to explain what each council and execution unit actually decides so the model feels purposeful rather than ceremonial.",
+      "Architecture council wants the docs to track the real repo contract: councils, structured review_state, evaluator gate, project-data summary, and temp-repo validation.",
+      "Operator council wants the rewritten guidance to stay compact and readable, because a committee system that needs a huge manual defeats the lightweight goal."
     ],
     "committee_decision": [
       "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
@@ -89,7 +95,8 @@
       "Teach write-report.py to read structured review_state blocks for research, scope decision, dissent, and evaluator outcome while preserving the existing report shape and compatibility fallbacks.",
       "Replace the verbose project-data latest_review_state block with a compact structured review summary that highlights readiness, scope decision, evaluation, and escalation status.",
       "Add a shared require_evaluator_pass helper, expose it through an assert-implementation-readiness.py script, and require evaluator pass for report and publish when the config enables that gate.",
-      "Extend validate-kit with a temp target-repo scenario that runs structured capture, readiness, report writing, and commit-only publication through the committee V2 path."
+      "Extend validate-kit with a temp target-repo scenario that runs structured capture, readiness, report writing, and commit-only publication through the committee V2 path.",
+      "Rewrite committee-driven-delivery.md around the lighter V2 architecture and align README references so the documented model matches the implemented system without governance bloat."
     ],
     "reflection_notes": [],
     "research_gate": {
@@ -197,13 +204,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-29-committee-v2-validation",
-    "goal_title": "Extend validate-kit to exercise the structured committee V2 flow"
+    "goal_id": "iteration-30-committee-v2-docs",
+    "goal_title": "Rewrite committee guidance around the lighter V2 architecture"
   },
-  "last_report": "docs/reports/v27.md",
+  "last_report": "docs/reports/v28.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:25:08Z",
+    "ran_at": "2026-03-15T05:32:20Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -433,6 +440,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:25:45Z",
       "session_progress": "12/20"
+    },
+    {
+      "iteration": 28,
+      "goal": "Rewrite committee guidance around the lighter V2 architecture",
+      "report": "docs/reports/v28.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:32:47Z",
+      "session_progress": "13/20"
     }
   ]
 }

@@ -24,16 +24,22 @@ or:
 Each iteration now enforces:
 
 - explicit research before goal selection
-- a requirement and review committee before implementation
+- a lightweight committee system before implementation
 - post-validation reflection before publication
 
-The default committee is split into three roles:
+The lightweight committee system is now split into:
 
-- product manager committee
-- technical architect committee
-- user committee
+- Product Council
+- Architecture Council
+- Operator Council
+- Secretariat
+- Independent Evaluator
 
-Each role ships with 3 named members of different styles in `.agent-loop/config.json`, and can be customized per project.
+The councils and evaluator are defined in `.agent-loop/config.json`. The repo also renders their responsibilities and output contracts with:
+
+```bash
+python3 .agent-loop/scripts/render-committee.py
+```
 
 ## What It Enforces
 
@@ -177,11 +183,12 @@ This kit now assumes a data-first loop:
 1. collect project data
 2. score project-data quality
 3. render the committee brief
-4. research and challenge the scope through the committee
-5. select the next scoped goal
-6. implement and validate
-7. reflect, refresh data if the repo changed materially
-8. report and publish
+4. research and challenge the scope through the councils
+5. capture the scope decision and evaluator result
+6. run implementation readiness
+7. implement and validate
+8. reflect, refresh data if the repo changed materially
+9. report and publish
 
 High-quality data does not require a package manager. Script-first repos can also reach `ready` if the snapshot captures direct automation signals such as `.agent-loop/scripts`, agent-skill directories, and the repo archetype.
 
@@ -191,6 +198,7 @@ Core commands:
 python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
 python3 .agent-loop/scripts/render-committee.py
+python3 .agent-loop/scripts/assert-implementation-readiness.py
 python3 .agent-loop/scripts/select-next-goal.py
 python3 .agent-loop/scripts/run-full-validation.py
 python3 .agent-loop/scripts/write-report.py
@@ -213,6 +221,7 @@ Key scripts:
 - `.agent-loop/scripts/collect-project-data.py`
 - `.agent-loop/scripts/score-data-quality.py`
 - `.agent-loop/scripts/render-committee.py`
+- `.agent-loop/scripts/assert-implementation-readiness.py`
 - `.agent-loop/scripts/select-next-goal.py`
 - `.agent-loop/scripts/run-full-validation.py`
 - `.agent-loop/scripts/write-report.py`

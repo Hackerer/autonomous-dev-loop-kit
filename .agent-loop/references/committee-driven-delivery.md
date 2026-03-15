@@ -4,77 +4,198 @@ Use this reference when the autonomous loop needs stronger pre-execution challen
 
 ## Purpose
 
-Before implementation starts, force the loop through three distinct lenses:
+This kit uses a lightweight committee architecture to improve scope quality without turning the repo into enterprise governance.
 
-1. Product manager committee
-2. Technical architect committee
-3. User committee
+The committee system exists to answer five practical questions before implementation starts:
 
-The goal is not role-play for style. The goal is to surface requirement gaps, architectural risks, and usability blind spots before code changes begin.
+1. Is this the right goal now?
+2. What is the smallest safe scope?
+3. What must stay out of scope?
+4. What evidence or objections still matter?
+5. Is the iteration ready to implement?
 
-## Required Behavior Per Iteration
+The output must be durable. Important decisions belong in `.agent-loop/state.json`, not only in chat or reports.
 
-Every iteration should include all of the following:
+## Lightweight V2 Structure
 
-1. Research
-   - Gather repo evidence, validation context, recent reports, and relevant product context.
-   - Meet or exceed the configured minimum research inputs in `.agent-loop/config.json`.
-2. Committee review
-   - Product manager committee challenges user value, acceptance criteria, and scope.
-   - Technical architect committee challenges design, interfaces, migration cost, and validation depth.
-   - User committee challenges clarity, trust, workflow fit, and real usage friction.
-3. Decision
-   - Narrow to one scoped goal only after the committee feedback is reconciled.
-4. Reflection
-   - After validation, reflect on what the research or committee got wrong, right, or missed.
+The committee system now has five logical units:
 
-## Committee Composition
+1. Product Council
+2. Architecture Council
+3. Operator Council
+4. Secretariat
+5. Independent Evaluator
 
-The default config requires three roles:
+This is intentionally lightweight:
 
-- `product-manager`
-- `technical-architect`
-- `user`
+- councils produce differentiated pressure
+- secretariat converges that pressure into a scope decision
+- evaluator scores readiness independently
+- reports and project-data snapshots expose the result in compact form
 
-Each role must define 3 to 5 named members with:
+## Council Roles
 
-- `name`
-- `style`
-- `focus`
+### Product Council
 
-This keeps the committee concrete enough to produce differentiated feedback instead of bland generic advice.
+Focus:
 
-## How To Use The Committees
+- goal selection
+- why now
+- scope discipline
+- user-facing value
 
-The committees should ask questions such as:
+Default personas:
 
-- Product managers:
-  - Is this the smallest high-value thing we can ship next?
-  - Are the acceptance criteria user-visible and testable?
-  - What should be cut from this version?
-- Technical architects:
-  - What is the least risky design that satisfies the goal?
-  - What breaks if this assumption is wrong?
-  - Are tests and rollback paths strong enough?
-- Users:
-  - Would this behavior be understandable under time pressure?
-  - What would feel confusing, noisy, or untrustworthy?
-  - What real workflow friction does this create or remove?
+- Outcome PM
+- Scope PM
+- User PM
 
-## Output Expectations
+### Architecture Council
 
-The loop should persist concise conclusions, not hidden reasoning dumps.
+Focus:
 
-Every report should record:
+- source-of-truth boundaries
+- protocol integrity
+- validation truthfulness
+- release safety
 
-- research findings that changed the plan
-- committee objections or endorsements that changed the scope
-- the final decision taken after reconciliation
-- post-validation reflection on what the committee missed
+Default personas:
+
+- Repo Architect
+- Protocol Architect
+- Quality & Safety Architect
+
+### Operator Council
+
+Focus:
+
+- solo-project usability
+- handoff quality
+- auditability
+- operator clarity
+
+Default personas:
+
+- Solo Builder
+- Team Maintainer
+- Security & Compliance User
+
+## Secretariat
+
+The secretariat is not another debate group. It is the convergence layer.
+
+### Delivery Secretary
+
+Converts committee pressure into an executable scope decision:
+
+- selected goal
+- scope in
+- scope out
+- assumptions
+- required validation
+- stop conditions
+- next action
+
+### Audit Secretary
+
+Converts the same decision into durable state:
+
+- research summary
+- evidence refs
+- council summaries
+- scope decision
+- dissent
+- open gaps
+- escalation reasons
+
+## Independent Evaluator
+
+The independent evaluator is a separate readiness gate.
+
+It should judge:
+
+- goal clarity
+- scope fitness
+- repo safety
+- validation readiness
+- state durability
+- publish safety
+
+The evaluator uses the rubric in:
+
+- `.agent-loop/references/iteration-readiness-rubric.json`
+
+When the evaluator gate is enabled, the loop requires a matching `pass` result before implementation readiness, reporting, and publication.
+
+## Durable State Model
+
+The committee system should populate these durable lanes in `review_state`:
+
+- `research_gate`
+- `councils`
+- `scope_decision`
+- `evaluation`
+- `escalation`
+
+The older flat fields remain for compatibility, but the structured blocks are now the higher-signal contract.
+
+## Expected Workflow
+
+The practical flow is:
+
+1. collect project data
+2. score data quality
+3. render the committee brief
+4. capture research-gate findings
+5. capture council summaries and dissent
+6. capture the scope decision
+7. capture evaluator result
+8. run `python3 .agent-loop/scripts/assert-implementation-readiness.py`
+9. implement
+10. validate
+11. report
+12. publish
+
+## Output Rules
+
+The committee system should produce concise structured artifacts, not transcripts.
+
+Prefer:
+
+- summaries
+- decisions
+- dissent bullets
+- open gaps
+- readiness scores
+
+Avoid:
+
+- narrative meeting minutes
+- long persona monologues
+- duplicated state across multiple files
+- free-form debate dumps
+
+## Dissent And Escalation
+
+The committee model does not require fake consensus.
+
+Keep:
+
+- dissent in council slots or scope decision
+- open gaps in research or reports
+- escalation reasons in `review_state.escalation`
+
+Escalation should stay deterministic and lightweight. Typical triggers include:
+
+- repeated evaluator revise or fail
+- repeated validation failure
+- unresolved scope churn
+- missing evidence that blocks safe selection
 
 ## Failure Modes This Prevents
 
-- shipping work that is technically clean but low-value
-- shipping work that sounds valuable but breaks architectural constraints
-- shipping work that passes tests but is confusing for real users
-- over-scoping an iteration because no one challenged the initial plan
+- shipping work with no durable scope boundary
+- mixing council advice with final readiness judgment
+- reporting a clean narrative without showing dissent or open gaps
+- letting an old evaluator pass authorize a new goal
+- making the process so heavy that solo or small-project usage collapses

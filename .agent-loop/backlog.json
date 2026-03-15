@@ -231,7 +231,7 @@
     "id": "iteration-30-committee-v2-docs",
     "title": "Rewrite committee guidance around the lighter V2 architecture",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "committee-driven-delivery.md documents councils, secretariat, evaluator, dissent, and escalation in lightweight terms",
       "README and wrapper guidance stay aligned with the upgraded architecture",
