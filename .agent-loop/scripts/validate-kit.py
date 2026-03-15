@@ -445,6 +445,103 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check(publish.returncode == 0, "Structured-flow target publishes with commit-only", failures)
 
 
+def validate_release_flow(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a bundled-release target", failures)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Bundled-release target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "commit-only"
+        write_json(target / ".agent-loop/config.json", config)
+
+        backlog = [
+            {"id": "goal-a", "title": "Goal A", "priority": "critical", "status": "pending", "acceptance": []},
+            {"id": "goal-b", "title": "Goal B", "priority": "high", "status": "pending", "acceptance": []},
+        ]
+        write_json(target / ".agent-loop/backlog.json", backlog)
+
+        started = subprocess.run(
+            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "1"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(started.returncode == 0, "Bundled-release target starts a release session", failures)
+
+        planned = subprocess.run(
+            ["python3", ".agent-loop/scripts/plan-release.py", "--goal-id", "goal-a", "--goal-id", "goal-b"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(planned.returncode == 0, "plan-release.py bundles multiple goals into one release", failures)
+
+        state = load_state(target)
+        state["release"]["status"] = "ready_to_release"
+        state["release"]["completed_goal_ids"] = ["goal-a", "goal-b"]
+        state["release"]["task_iterations"] = [
+            {"iteration": 1, "goal": "Goal A", "goal_id": "goal-a", "report": "docs/reports/v1.md", "published_at": "2026-03-15T00:00:00Z"},
+            {"iteration": 2, "goal": "Goal B", "goal_id": "goal-b", "report": "docs/reports/v2.md", "published_at": "2026-03-15T00:05:00Z"},
+        ]
+        state["last_validation"] = {
+            "status": "passed",
+            "ran_at": "2026-03-15T00:06:00Z",
+            "results": [
+                {
+                    "command": "python3 .agent-loop/scripts/validate-kit.py",
+                    "exit_code": 0,
+                    "stdout": "",
+                    "stderr": "",
+                    "name": "validate-kit",
+                    "required": True,
+                    "passed": True,
+                }
+            ],
+        }
+        write_json(target / ".agent-loop/state.json", state)
+        (target / "docs/reports").mkdir(parents=True, exist_ok=True)
+        (target / "docs/reports/v1.md").write_text(
+            "# Task Iteration v1 Report\n\n## Delivered\n- Delivered A\n\n## Full Validation\n- `python3 .agent-loop/scripts/validate-kit.py` -> PASS (exit 0)\n\n## Key Observations\n- Observation A\n",
+            encoding="utf-8",
+        )
+        (target / "docs/reports/v2.md").write_text(
+            "# Task Iteration v2 Report\n\n## Delivered\n- Delivered B\n\n## Full Validation\n- `python3 .agent-loop/scripts/validate-kit.py` -> PASS (exit 0)\n\n## Key Observations\n- Observation B\n",
+            encoding="utf-8",
+        )
+
+        release_report = subprocess.run(
+            ["python3", ".agent-loop/scripts/write-release-report.py", "--summary", "Ship bundled release R1"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(release_report.returncode == 0, "write-release-report.py aggregates the bundled release", failures)
+        release_report_content = (target / "docs/releases/R1.md").read_text(encoding="utf-8")
+        check("Delivered A" in release_report_content and "Delivered B" in release_report_content, "Bundled release report aggregates delivered scope", failures)
+        check("Technical Validation" in release_report_content, "Bundled release report includes validation status", failures)
+
+        published = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-release.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(published.returncode == 0, "publish-release.py publishes the bundled release with commit-only", failures)
+        updated_state = load_state(target)
+        check(updated_state.get("session", {}).get("completed_releases") == 1, "Bundled release publish increments completed releases", failures)
+        check(len(updated_state.get("release_history", [])) == 1, "Bundled release publish records release history", failures)
+
+
 def validate_goal_selection_readiness(failures: list[str]) -> None:
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"
@@ -465,10 +562,25 @@ def validate_goal_selection_readiness(failures: list[str]) -> None:
         state = load_state(target)
         state["session"] = {
             "status": "active",
+            "target_releases": 1,
+            "completed_releases": 0,
             "target_iterations": 1,
             "completed_iterations": 0,
             "started_at": "2026-03-15T00:00:00Z",
             "ended_at": None,
+        }
+        state["release"] = {
+            "number": 1,
+            "title": "R1 seeded quality blocker release",
+            "summary": "Seeded release for quality blocker validation",
+            "status": "planned",
+            "goal_ids": ["seeded-goal"],
+            "goal_titles": ["Seeded goal"],
+            "completed_goal_ids": [],
+            "task_iterations": [],
+            "selected_at": "2026-03-15T00:00:00Z",
+            "published_at": None,
+            "report_path": None,
         }
         state["project_data"]["quality_path"] = ".agent-loop/data/data-quality.json"
         state["project_data"]["last_quality_score"] = 45
@@ -497,10 +609,25 @@ def validate_goal_selection_readiness(failures: list[str]) -> None:
         state = load_state(target)
         state["session"] = {
             "status": "active",
+            "target_releases": 1,
+            "completed_releases": 0,
             "target_iterations": 1,
             "completed_iterations": 0,
             "started_at": "2026-03-15T00:00:00Z",
             "ended_at": None,
+        }
+        state["release"] = {
+            "number": 1,
+            "title": "R1 seeded research blocker release",
+            "summary": "Seeded release for research blocker validation",
+            "status": "planned",
+            "goal_ids": ["seeded-goal"],
+            "goal_titles": ["Seeded goal"],
+            "completed_goal_ids": [],
+            "task_iterations": [],
+            "selected_at": "2026-03-15T00:00:00Z",
+            "published_at": None,
+            "report_path": None,
         }
         state["review_state"]["status"] = "captured"
         state["review_state"]["captured_at"] = "2026-03-15T00:00:00Z"
@@ -734,6 +861,8 @@ def validate_session_continuation(failures: list[str]) -> None:
         state = load_state(target)
         state["session"] = {
             "status": "completed",
+            "target_releases": 2,
+            "completed_releases": 2,
             "target_iterations": 2,
             "completed_iterations": 2,
             "started_at": "2026-03-15T00:00:00Z",
@@ -752,8 +881,78 @@ def validate_session_continuation(failures: list[str]) -> None:
         check(continued.returncode == 0, "continue-loop-session.py extends a completed session", failures)
         if continued.returncode == 0:
             updated_state = load_state(target)
-            check(updated_state.get("session", {}).get("target_iterations") == 5, "continue-loop-session.py preserves completed progress while extending target", failures)
+            check(updated_state.get("session", {}).get("target_releases") == 5, "continue-loop-session.py preserves completed progress while extending target", failures)
             check(updated_state.get("session", {}).get("status") == "active", "continue-loop-session.py reopens the session as active", failures)
+
+
+def validate_usage_logging(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a usage-logging target", failures)
+
+        usage_log = target / ".agent-loop/data/usage-log.jsonl"
+        check(usage_log.exists(), "Project installer records an install usage event", failures)
+
+        started = subprocess.run(
+            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(started.returncode == 0, "set-loop-session.py records a session start on a usage-logging target", failures)
+
+        extended = subprocess.run(
+            ["python3", ".agent-loop/scripts/continue-loop-session.py", "--add", "1"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(extended.returncode == 0, "continue-loop-session.py records a session extension on a usage-logging target", failures)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "commit-only"
+        write_json(target / ".agent-loop/config.json", config)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Usage-logging target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+
+        state = seeded_state("usage-log-publish", evaluator_result="pass")
+        state["draft_iteration"] = 1
+        state["draft_report"] = "docs/reports/v1.md"
+        state["draft_goal"] = state["current_goal"]
+        write_json(target / ".agent-loop/state.json", state)
+        (target / "docs/reports").mkdir(parents=True, exist_ok=True)
+        (target / "docs/reports/v1.md").write_text("# Usage Log Test Report\n", encoding="utf-8")
+
+        publish = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(publish.returncode == 0, "publish-iteration.py records a publish usage event", failures)
+
+        analyzer = subprocess.run(
+            ["python3", ".agent-loop/scripts/analyze-usage-logs.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(analyzer.returncode == 0, "analyze-usage-logs.py runs successfully", failures)
+        if analyzer.returncode == 0:
+            payload = json.loads(analyzer.stdout)
+            events = payload.get("events_by_type", {})
+            check(events.get("kit_installed", 0) >= 1, "Usage-log analysis includes install events", failures)
+            check(events.get("session_started", 0) >= 1, "Usage-log analysis includes session start events", failures)
+            check(events.get("session_extended", 0) >= 1, "Usage-log analysis includes session extension events", failures)
+            check(events.get("iteration_published", 0) >= 1, "Usage-log analysis includes publish events", failures)
 
 
 def main() -> int:
@@ -768,8 +967,13 @@ def main() -> int:
         ROOT / ".agent-loop/scripts/assert-implementation-readiness.py",
         ROOT / ".agent-loop/scripts/assess-escalation.py",
         ROOT / ".agent-loop/scripts/continue-loop-session.py",
+        ROOT / ".agent-loop/scripts/plan-release.py",
+        ROOT / ".agent-loop/scripts/analyze-usage-logs.py",
+        ROOT / ".agent-loop/scripts/record-usage-event.py",
+        ROOT / ".agent-loop/scripts/publish-release.py",
         ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
         ROOT / ".agent-loop/scripts/score-evaluator-readiness.py",
+        ROOT / ".agent-loop/scripts/write-release-report.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".agent-loop/config.json",
@@ -816,6 +1020,14 @@ def main() -> int:
         "Planning max_iterations_per_session is a positive integer",
         failures,
     )
+    check(
+        is_positive_int(config.get("planning", {}).get("max_releases_per_session")),
+        "Planning max_releases_per_session is a positive integer",
+        failures,
+    )
+    usage_logging = config.get("usage_logging", {})
+    check(isinstance(usage_logging, dict), "Usage logging config is present", failures)
+    check(usage_logging.get("enabled") is True, "Usage logging defaults to enabled", failures)
     committee_errors = validate_committee(config)
     check(not committee_errors, "Committee config is valid", failures)
     if committee_errors:
@@ -1145,7 +1357,9 @@ def main() -> int:
     validate_escalation_policy(failures)
     validate_review_reset_on_goal_change(failures)
     validate_session_continuation(failures)
+    validate_usage_logging(failures)
     validate_structured_committee_flow(failures)
+    validate_release_flow(failures)
     helper = subprocess.run(
         [
             "python3",

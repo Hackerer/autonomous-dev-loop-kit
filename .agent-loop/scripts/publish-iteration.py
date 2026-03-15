@@ -5,8 +5,11 @@ import argparse
 import sys
 
 from common import (
+    active_release,
+    append_usage_log,
     LoopError,
     current_branch,
+    default_state,
     ensure_git_repo,
     find_repo_root,
     git,
@@ -20,6 +23,7 @@ from common import (
     require_evaluator_pass,
     require_green_validation,
     require_review_state,
+    release_summary,
     save_backlog,
     save_state,
     session_summary,
@@ -79,24 +83,22 @@ def main() -> int:
 
     published_at = utc_now()
     next_completed = session["completed_iterations"] + 1
-    target = session["target_iterations"]
+    target = session["target_releases"]
     goal_id = goal.get("id") if isinstance(goal, dict) else None
+    release = release_summary(state)
 
     state["iteration"] = int(iteration)
     state["last_report"] = report_path
     state["status"] = "published"
     state["session"]["completed_iterations"] = next_completed
-    if target is not None and next_completed >= int(target):
-        state["session"]["status"] = "completed"
-        state["session"]["ended_at"] = published_at
-        state["status"] = "session_completed"
-    else:
-        state["session"]["status"] = "active"
+    state["session"]["status"] = "active"
     state["history"].append(
         {
             "iteration": int(iteration),
             "goal": goal_label,
             "goal_id": goal_id,
+            "release_number": release.get("number"),
+            "release_title": release.get("title"),
             "evaluation_result": state.get("review_state", {}).get("evaluation", {}).get("result"),
             "validation_status": state.get("last_validation", {}).get("status"),
             "escalation_status": state.get("review_state", {}).get("escalation", {}).get("status"),
@@ -104,10 +106,33 @@ def main() -> int:
             "branch": branch_name,
             "published_at": published_at,
             "session_progress": (
-                None if target is None else f"{next_completed}/{int(target)}"
+                None if target is None else f"{state['session'].get('completed_releases', 0)}/{int(target)} releases"
             ),
         }
     )
+    if release.get("number") is not None and goal_id and goal_id in release.get("goal_ids", []):
+        completed_goal_ids = [str(item) for item in state["release"].get("completed_goal_ids", []) if str(item).strip()]
+        if goal_id not in completed_goal_ids:
+            completed_goal_ids.append(goal_id)
+        task_iterations = state["release"].get("task_iterations", [])
+        if not isinstance(task_iterations, list):
+            task_iterations = []
+        task_iterations.append(
+            {
+                "iteration": int(iteration),
+                "goal": goal_label,
+                "goal_id": goal_id,
+                "report": report_path,
+                "published_at": published_at,
+            }
+        )
+        state["release"]["completed_goal_ids"] = completed_goal_ids
+        state["release"]["task_iterations"] = task_iterations
+        state["release"]["status"] = (
+            "ready_to_release"
+            if len(completed_goal_ids) >= len(release.get("goal_ids", []))
+            else "in_progress"
+        )
     state["draft_iteration"] = None
     state["draft_report"] = None
     state["draft_goal"] = None
@@ -162,14 +187,37 @@ def main() -> int:
         if push_result.returncode != 0:
             raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
 
+    append_usage_log(
+        root,
+        config,
+        "iteration_published",
+        {
+            "iteration": int(iteration),
+            "goal": goal_label,
+            "goal_id": goal_id or "",
+            "release_number": release.get("number"),
+            "report": report_path,
+            "branch": branch_name,
+            "commit": commit_sha,
+            "session_progress": None if target is None else f"{state['session'].get('completed_releases', 0)}/{int(target)} releases",
+        },
+    )
+
     progress = session_summary(state)
-    if progress["target_iterations"] is not None:
+    release_suffix = ""
+    active = state.get("release", {})
+    if isinstance(active, dict) and active.get("number") is not None:
+        completed_goals = len(active.get("completed_goal_ids", [])) if isinstance(active.get("completed_goal_ids"), list) else 0
+        total_goals = len(active.get("goal_ids", [])) if isinstance(active.get("goal_ids"), list) else 0
+        release_suffix = f" (R{active.get('number')} tasks {completed_goals}/{total_goals})"
+    if progress["target_releases"] is not None:
         print(
             f"Published iteration v{iteration} on {branch_name} at {commit_sha} "
-            f"(session {progress['completed_iterations']}/{progress['target_iterations']})"
+            f"(session releases {progress['completed_releases']}/{progress['target_releases']}, "
+            f"task iterations {progress['completed_iterations']}){release_suffix}"
         )
     else:
-        print(f"Published iteration v{iteration} on {branch_name} at {commit_sha}")
+        print(f"Published iteration v{iteration} on {branch_name} at {commit_sha}{release_suffix}")
     return 0
 
 

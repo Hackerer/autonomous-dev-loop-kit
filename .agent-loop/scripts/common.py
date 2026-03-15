@@ -15,6 +15,7 @@ CONFIG_FILE = "config.json"
 STATE_FILE = "state.json"
 BACKLOG_FILE = "backlog.json"
 LAST_VALIDATION_FILE = "last-validation.json"
+DEFAULT_USAGE_LOG_PATH = ".agent-loop/data/usage-log.jsonl"
 EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
 EXPECTED_COUNCIL_IDS = ("product-council", "architecture-council", "operator-council")
 EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
@@ -67,6 +68,12 @@ def save_json(path: Path, data: Any) -> None:
         handle.write("\n")
 
 
+def append_jsonl(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=True) + "\n")
+
+
 def relpath(path: Path, root: Path) -> str:
     return str(path.resolve().relative_to(root.resolve()))
 
@@ -77,6 +84,8 @@ def default_state() -> dict[str, Any]:
         "status": "idle",
         "session": {
             "status": "not_configured",
+            "target_releases": None,
+            "completed_releases": 0,
             "target_iterations": None,
             "completed_iterations": 0,
             "started_at": None,
@@ -90,8 +99,22 @@ def default_state() -> dict[str, Any]:
             "last_quality_status": None,
         },
         "current_goal": None,
+        "release": {
+            "number": None,
+            "title": "",
+            "summary": "",
+            "status": "not_planned",
+            "goal_ids": [],
+            "goal_titles": [],
+            "completed_goal_ids": [],
+            "task_iterations": [],
+            "selected_at": None,
+            "published_at": None,
+            "report_path": None,
+        },
         "draft_iteration": None,
         "draft_report": None,
+        "draft_release_report": None,
         "draft_goal": None,
         "review_state": {
             "status": "not_started",
@@ -175,6 +198,7 @@ def default_state() -> dict[str, Any]:
         "last_validation": {"status": "not_run", "ran_at": None, "results": []},
         "consecutive_failures": 0,
         "history": [],
+        "release_history": [],
     }
 
 
@@ -192,6 +216,14 @@ def load_state(root: Path) -> dict[str, Any]:
     default_session = default_state()["session"]
     normalized_session = dict(default_session)
     normalized_session.update(session)
+    if normalized_session.get("target_releases") is None and normalized_session.get("target_iterations") is not None:
+        normalized_session["target_releases"] = normalized_session.get("target_iterations")
+    if (
+        int(normalized_session.get("completed_releases", 0) or 0) == 0
+        and int(normalized_session.get("completed_iterations", 0) or 0) > 0
+        and state.get("release_history") in (None, [])
+    ):
+        normalized_session["completed_releases"] = normalized_session.get("completed_iterations", 0)
     merged["session"] = normalized_session
 
     project_data = merged.get("project_data")
@@ -201,6 +233,18 @@ def load_state(root: Path) -> dict[str, Any]:
     normalized_project_data = dict(default_project_data)
     normalized_project_data.update(project_data)
     merged["project_data"] = normalized_project_data
+
+    release = merged.get("release")
+    if not isinstance(release, dict):
+        release = {}
+    default_release = default_state()["release"]
+    normalized_release = dict(default_release)
+    normalized_release.update(release)
+    for key in ("goal_ids", "goal_titles", "completed_goal_ids", "task_iterations"):
+        value = normalized_release.get(key)
+        if not isinstance(value, list):
+            normalized_release[key] = []
+    merged["release"] = normalized_release
 
     review_state = merged.get("review_state")
     if not isinstance(review_state, dict):
@@ -308,6 +352,16 @@ def load_state(root: Path) -> dict[str, Any]:
     normalized_validation = dict(default_validation)
     normalized_validation.update(last_validation)
     merged["last_validation"] = normalized_validation
+
+    history = merged.get("history")
+    if not isinstance(history, list):
+        history = []
+    merged["history"] = history
+
+    release_history = merged.get("release_history")
+    if not isinstance(release_history, list):
+        release_history = []
+    merged["release_history"] = release_history
     return merged
 
 
@@ -328,6 +382,38 @@ def planning_config(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(planning, dict):
         return {}
     return planning
+
+
+def release_planning_config(config: dict[str, Any]) -> dict[str, Any]:
+    planning = planning_config(config)
+    release_planning = planning.get("release", {})
+    if not isinstance(release_planning, dict):
+        release_planning = {}
+    min_goals = int(release_planning.get("min_goals_per_release", 2) or 2)
+    max_goals = int(release_planning.get("max_goals_per_release", 4) or 4)
+    default_goals = int(release_planning.get("default_goals_per_release", min_goals) or min_goals)
+    if max_goals < min_goals:
+        max_goals = min_goals
+    if default_goals < min_goals:
+        default_goals = min_goals
+    if default_goals > max_goals:
+        default_goals = max_goals
+    return {
+        "require_release_plan": bool(release_planning.get("require_release_plan", True)),
+        "min_goals_per_release": min_goals,
+        "max_goals_per_release": max_goals,
+        "default_goals_per_release": default_goals,
+    }
+
+
+def usage_logging_config(config: dict[str, Any]) -> dict[str, Any]:
+    usage_logging = config.get("usage_logging", {})
+    if not isinstance(usage_logging, dict):
+        usage_logging = {}
+    return {
+        "enabled": bool(usage_logging.get("enabled", True)),
+        "path": str(usage_logging.get("path", DEFAULT_USAGE_LOG_PATH) or DEFAULT_USAGE_LOG_PATH),
+    }
 
 
 def discovery_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -750,6 +836,13 @@ def current_branch(root: Path) -> str:
     return result.stdout.strip()
 
 
+def safe_current_branch(root: Path) -> str:
+    try:
+        return current_branch(root)
+    except LoopError:
+        return ""
+
+
 def remote_exists(root: Path, remote: str) -> bool:
     result = git(root, "remote")
     if result.returncode != 0:
@@ -773,6 +866,34 @@ def git_remotes(root: Path) -> dict[str, list[str]]:
         if url not in remotes[name]:
             remotes[name].append(url)
     return remotes
+
+
+def usage_log_path(root: Path, config: dict[str, Any]) -> Path:
+    usage_logging = usage_logging_config(config)
+    return root / usage_logging["path"]
+
+
+def append_usage_log(root: Path, config: dict[str, Any], event_type: str, payload: dict[str, Any] | None = None) -> Path | None:
+    usage_logging = usage_logging_config(config)
+    if not usage_logging["enabled"]:
+        return None
+
+    remotes = git_remotes(root) if (root / ".git").exists() else {}
+    record = {
+        "timestamp": utc_now(),
+        "event": str(event_type),
+        "repo": {
+            "root": str(root),
+            "name": root.name,
+            "current_branch": safe_current_branch(root),
+            "remotes": remotes,
+        },
+        "loop_mode": str(config.get("mode", "")),
+        "payload": payload if isinstance(payload, dict) else {},
+    }
+    path = usage_log_path(root, config)
+    append_jsonl(path, record)
+    return path
 
 
 def slugify(value: str, max_length: int = 40) -> str:
@@ -886,13 +1007,18 @@ def session_summary(state: dict[str, Any]) -> dict[str, Any]:
     session = state.get("session")
     if not isinstance(session, dict):
         session = {}
-    target = session.get("target_iterations")
-    completed = int(session.get("completed_iterations", 0) or 0)
+    target_releases = session.get("target_releases")
+    completed_releases = int(session.get("completed_releases", 0) or 0)
+    target_iterations = session.get("target_iterations")
+    completed_iterations = int(session.get("completed_iterations", 0) or 0)
     return {
         "status": session.get("status", "not_configured"),
-        "target_iterations": target,
-        "completed_iterations": completed,
-        "remaining_iterations": None if target is None else max(int(target) - completed, 0),
+        "target_releases": target_releases,
+        "completed_releases": completed_releases,
+        "remaining_releases": None if target_releases is None else max(int(target_releases) - completed_releases, 0),
+        "target_iterations": target_iterations,
+        "completed_iterations": completed_iterations,
+        "remaining_iterations": None if target_iterations is None else max(int(target_iterations) - completed_iterations, 0),
         "started_at": session.get("started_at"),
         "ended_at": session.get("ended_at"),
     }
@@ -902,23 +1028,76 @@ def require_session_capacity(config: dict[str, Any], state: dict[str, Any]) -> d
     planning = planning_config(config)
     session = session_summary(state)
     require_explicit = bool(planning.get("require_explicit_target_iterations", False))
-    target = session["target_iterations"]
-    completed = session["completed_iterations"]
+    target = session["target_releases"]
+    completed = session["completed_releases"]
 
     if target is None:
         if require_explicit:
             raise LoopError(
-                "Loop target is not configured. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before selecting the next goal."
+                "Release target is not configured. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before selecting the next goal."
             )
-        fallback_limit = planning.get("max_iterations_per_session")
+        fallback_limit = planning.get("max_releases_per_session", planning.get("max_iterations_per_session"))
         if fallback_limit is not None and completed >= int(fallback_limit):
-            raise LoopError(f"Loop limit reached for this session ({completed}/{int(fallback_limit)}).")
+            raise LoopError(f"Release limit reached for this session ({completed}/{int(fallback_limit)}).")
         return session
 
     target = int(target)
     if completed >= target:
-        raise LoopError(f"Loop limit reached for this session ({completed}/{target}).")
+        raise LoopError(f"Release limit reached for this session ({completed}/{target}).")
     return session
+
+
+def active_release(state: dict[str, Any]) -> dict[str, Any]:
+    release = state.get("release")
+    if not isinstance(release, dict):
+        return default_state()["release"]
+    return release
+
+
+def active_release_goal_ids(state: dict[str, Any]) -> list[str]:
+    release = active_release(state)
+    if str(release.get("status", "")).strip() in {"not_planned", "published"}:
+        return []
+    return [str(goal_id) for goal_id in release.get("goal_ids", []) if str(goal_id).strip()]
+
+
+def release_summary(state: dict[str, Any]) -> dict[str, Any]:
+    release = active_release(state)
+    goal_ids = [str(goal_id) for goal_id in release.get("goal_ids", []) if str(goal_id).strip()]
+    completed_goal_ids = [str(goal_id) for goal_id in release.get("completed_goal_ids", []) if str(goal_id).strip()]
+    number = release.get("number")
+    return {
+        "number": number,
+        "title": str(release.get("title", "")).strip(),
+        "summary": str(release.get("summary", "")).strip(),
+        "status": str(release.get("status", "not_planned")).strip() or "not_planned",
+        "goal_ids": goal_ids,
+        "goal_titles": [str(title) for title in release.get("goal_titles", []) if str(title).strip()],
+        "completed_goal_ids": completed_goal_ids,
+        "remaining_goal_ids": [goal_id for goal_id in goal_ids if goal_id not in completed_goal_ids],
+        "selected_at": release.get("selected_at"),
+        "published_at": release.get("published_at"),
+        "report_path": release.get("report_path"),
+        "task_iterations": release.get("task_iterations", []) if isinstance(release.get("task_iterations"), list) else [],
+    }
+
+
+def require_active_release(config: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:
+    release_cfg = release_planning_config(config)
+    release = release_summary(state)
+    if release_cfg["require_release_plan"] and release["status"] in {"not_planned", "published"}:
+        raise LoopError(
+            "No active release plan exists. Define the next bundled version first with `python3 .agent-loop/scripts/plan-release.py`."
+        )
+    return release
+
+
+def release_reporting_path(root: Path, config: dict[str, Any], release_number: int) -> Path:
+    reporting = config.get("reporting", {})
+    directory = reporting.get("release_directory", "docs/releases")
+    pattern = reporting.get("release_filename_pattern", "R{release}.md")
+    filename = pattern.format(release=release_number)
+    return root / directory / filename
 
 
 def goal_selection_blockers(config: dict[str, Any], state: dict[str, Any], quality_status: str | None, gaps: list[str]) -> list[str]:

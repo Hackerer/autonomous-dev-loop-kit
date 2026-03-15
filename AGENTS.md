@@ -20,7 +20,7 @@ Before the first iteration of a session, read:
 - `.agent-loop/references/protocol.md`
 - `.agent-loop/references/committee-driven-delivery.md`
 
-If the user specifies or implies a loop count, persist it with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before selecting the first goal.
+If the user specifies or implies a loop count, persist it with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before planning the first release.
 
 Treat a count-only request as a full autonomous loop launch in the current repo. Do not ask the user to restate the loop requirements unless repo setup is missing.
 
@@ -29,6 +29,8 @@ Interpret `ReAct` as the Shunyu Yao paper method, `Reason + Act`, not the fronte
 Within each iteration, require:
 
 - deep analysis before execution
+- explicit release definition before task selection
+- treat the user-provided loop count as bundled release count, not tiny task count
 - explicit research before goal selection
 - product-manager, technical-architect, and user committee review before implementation
 - explicit blocking when research says `need_more_context`
@@ -37,7 +39,8 @@ Within each iteration, require:
 - short reason -> act -> observe -> update cycles
 - post-validation reflection
 - escalation assessment when repeated review or validation failures appear
-- key observations from research, committee review, and execution written into the report
+- key observations from research, committee review, and execution written into the task report
+- a detailed bundled release report when the active release is complete
 
 Git publication must target the current project's own GitHub repository. If the current project's remote or publication target is unclear, stop and ask the user before publishing.
 

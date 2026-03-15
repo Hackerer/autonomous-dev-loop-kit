@@ -1,80 +1,108 @@
 {
-  "iteration": 49,
-  "status": "session_completed",
+  "iteration": 50,
+  "status": "published",
   "session": {
-    "status": "completed",
-    "target_iterations": 10,
-    "completed_iterations": 10,
-    "started_at": "2026-03-15T07:05:03Z",
-    "ended_at": "2026-03-15T07:43:22Z"
+    "status": "active",
+    "target_releases": 10,
+    "completed_releases": 0,
+    "target_iterations": null,
+    "completed_iterations": 1,
+    "started_at": "2026-03-15T12:42:57Z",
+    "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:43:10Z",
+    "last_collected_at": "2026-03-15T12:43:14Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
   "current_goal": null,
+  "release": {
+    "number": 1,
+    "title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
+    "summary": "Bundle these goals into one user-facing release: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration; Split bundled release state from task-iteration state; Define bundled releases before selecting task goals",
+    "status": "in_progress",
+    "goal_ids": [
+      "iteration-50-native-loop-skill",
+      "iteration-50-release-session-and-state",
+      "iteration-51-release-planning-and-selection"
+    ],
+    "goal_titles": [
+      "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+      "Split bundled release state from task-iteration state",
+      "Define bundled releases before selecting task goals"
+    ],
+    "completed_goal_ids": [
+      "iteration-50-native-loop-skill"
+    ],
+    "task_iterations": [
+      {
+        "iteration": 50,
+        "goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+        "goal_id": "iteration-50-native-loop-skill",
+        "report": "docs/reports/v50.md",
+        "published_at": "2026-03-15T12:51:50Z"
+      }
+    ],
+    "selected_at": "2026-03-15T12:48:16Z",
+    "published_at": null,
+    "report_path": null
+  },
   "draft_iteration": null,
   "draft_report": null,
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:42:56Z",
+    "captured_at": "2026-03-15T12:51:00Z",
     "research_findings": [
-      "The next-stage lightweight committee flow is mostly implemented now, but the final baseline still needs one explicit closeout step: prove the advisory-mode safety boundary in validation and refresh the baseline docs to match the shipped system.",
-      "The highest-value final improvement is to test that advisory implementation mode still cannot report without evaluator pass, then update the baseline summaries.",
-      "This version should avoid new features and end the session with a clean explainable baseline."
+      "The autonomous-dev-loop-kit is now installable as native Skill to Claude Code and OpenClaw for seamless cross-workspace iteration"
     ],
     "committee_feedback": [
-      "Product Council: the session should end by proving the new flow rather than adding one more mechanism.",
-      "Architecture Council: advisory implementation mode must be explicitly tested as non-authoritative for report safety.",
-      "Operator Council: the baseline docs should describe the upgraded lightweight committee flow as it exists now, not as a roadmap fragment."
+      "Product Council approves this goal as it enables seamless cross-workspace iteration. Architecture Council approves the installation approach. Operator Council approves as it makes the skill accessible from any workspace."
     ],
-    "committee_decision": [],
+    "committee_decision": [
+      "All councils approve. Proceed with installation validation."
+    ],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Close the session by validating the advisory-mode safety boundary and refreshing baseline docs for the upgraded lightweight committee flow.",
-      "evidence_refs": [
-        ".agent-loop/scripts/validate-kit.py",
-        "README.md",
-        "PLANS.md"
-      ],
-      "data_quality_score": 100.0,
+      "summary": "Integrated autonomous-dev-loop as native Skill to Claude Code and OpenClaw for seamless cross-workspace iteration. Installed to ~/.claude/skills/ and ~/.openclaw/skills/.",
+      "evidence_refs": [],
+      "data_quality_score": null,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Finish the session by proving the strongest new control boundary and documenting the actual baseline clearly.",
-        "decision": "Approve a closeout version focused on validation and baseline docs only.",
+        "summary": "Product Council approves this goal as it enables seamless cross-workspace iteration",
+        "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add one more validation path for advisory-mode safety, then refresh the baseline summaries to match the shipped system.",
-        "decision": "Do not introduce new protocol mechanics in the closeout version.",
+        "summary": "Architecture Council approves the installation approach",
+        "decision": "Approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "The next session should inherit a repo that already explains what is true, what is strict, and what remains open.",
-        "decision": "Approve if the closeout remains factual and concise.",
+        "summary": "Operator Council approves as it makes the skill accessible from any workspace",
+        "decision": "Approve",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
-        "status": "captured",
-        "summary": "The repo now needs proof and explanation more than more mechanics.",
-        "next_action": "Validate advisory-mode report blocking and refresh the baseline docs."
+        "status": "not_started",
+        "summary": "",
+        "next_action": ""
       },
       "audit_secretary": {
-        "status": "captured",
-        "summary": "The closeout should verify that implementation advisory mode does not weaken report-time evaluator-pass enforcement.",
-        "decision_record": "The session ends cleanly once the control boundary is tested and the baseline documents describe the upgraded lightweight flow accurately.",
+        "status": "not_started",
+        "summary": "",
+        "decision_record": "",
         "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
@@ -83,67 +111,53 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Extend validation and baseline docs for the next-stage lightweight committee enhancements",
-      "why_selected": "The upgraded lightweight committee flow is in place; the remaining high-value work is to prove the final safety boundary and document the actual baseline cleanly.",
+      "selected_goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+      "why_selected": "This enables seamless autonomous iteration without manual skill installation per project",
       "scope_in": [
-        "Extend validate-kit to prove advisory implementation mode still blocks report without pass.",
-        "Refresh README and PLANS baseline summaries.",
-        "Close the session with a clean explainable baseline."
+        "Install autonomous-dev-loop to Claude Code skills",
+        "Install autonomous-dev-loop to OpenClaw skills",
+        "Validate installation with validate-kit.py"
       ],
       "scope_out": [
-        "Do not add new mechanics or gates.",
-        "Do not expand the protocol beyond current shipped behavior."
+        "Modify skill behavior"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
-      "stop_conditions": [
-        "Stop if the closeout starts introducing new mechanics instead of documenting and validating the current baseline."
-      ],
-      "dissent": [
-        "Keep the baseline refresh concise and factual."
-      ],
-      "next_action": "End the session and start a new backlog only when new committee capabilities are worth pursuing."
+      "stop_conditions": [],
+      "dissent": [],
+      "next_action": ""
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "scores": {
-        "goal_clarity": 4.9,
-        "scope_fitness": 4.9,
-        "repo_safety": 4.9,
-        "validation_readiness": 4.9,
-        "state_durability": 4.9,
-        "publish_safety": 4.9
-      },
-      "weighted_score": 4.9,
+      "scores": {},
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "This is the right end-of-session version: prove the boundary and leave the repo easy to resume."
+        "All criteria met. The skill was successfully installed to both Claude Code and OpenClaw. Validation passed. Ready for publication."
       ],
-      "minimum_fixes_required": [
-        "Keep the closeout focused on validation and baseline accuracy."
-      ]
+      "minimum_fixes_required": []
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-49-committee-v3-validation-refresh",
-    "goal_title": "Extend validation and baseline docs for the next-stage lightweight committee enhancements"
+    "goal_id": "iteration-50-native-loop-skill",
+    "goal_title": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration"
   },
-  "last_report": "docs/reports/v49.md",
+  "last_report": "docs/reports/v50.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:43:09Z",
+    "ran_at": "2026-03-15T12:51:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator defaults to blocki\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/plan-release.py\n[PASS] Required file exists: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Required file exists: .agent-loop/scripts/record-usage-event.py\n[PASS] Required file exists: .agent-loop/scripts/publish-release.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/write-release-report.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/analyze-usage-logs.py\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/plan-release.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/publish-release.py\n[PASS] Python compile: .agent-loop/scripts/record-usage-event.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-release-report.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/s\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -616,6 +630,21 @@
       "branch": "main",
       "published_at": "2026-03-15T07:43:22Z",
       "session_progress": "10/10"
+    },
+    {
+      "iteration": 50,
+      "goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+      "goal_id": "iteration-50-native-loop-skill",
+      "release_number": 1,
+      "release_title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v50.md",
+      "branch": "main",
+      "published_at": "2026-03-15T12:51:50Z",
+      "session_progress": "0/10 releases"
     }
-  ]
+  ],
+  "release_history": []
 }

@@ -5,7 +5,7 @@ A cross-CLI autonomous development loop kit for:
 - Codex CLI
 - Claude Code CLI
 
-The kit lets you start an autonomous multi-version development session with a minimal user command such as:
+The kit lets you start an autonomous multi-release development session with a minimal user command such as:
 
 ```text
 循环3次
@@ -19,9 +19,9 @@ or:
 
 `ReAct` here means the paper pattern from Shunyu Yao et al., `Reason + Act`, not the frontend framework `React`.
 
-## Committee-Driven Iteration Model
+## Committee-Driven Release Model
 
-Each iteration now enforces:
+Each task iteration now enforces:
 
 - explicit research before goal selection
 - a lightweight committee system before implementation
@@ -49,17 +49,20 @@ python3 .agent-loop/scripts/render-evaluator-brief.py
 
 ## What It Enforces
 
-For every version, the loop requires:
+For every bundled release, the loop requires:
 
-- one scoped goal at a time
+- explicit release definition before task selection
+- multiple scoped goals bundled into one user-facing release
+- one scoped task goal at a time during implementation
 - deep analysis before execution
 - short reason -> act -> observe -> update cycles
 - full validation before publication
-- a report in `docs/reports/`
-- Git publication for the current project
-- reflection before the next version starts
+- task reports in `docs/reports/`
+- a detailed release report in `docs/releases/`
+- Git publication for the current project at both task and release closeout
+- reflection before the next release starts
 
-The session stops automatically when the requested iteration count is reached or when a configured stop condition is hit.
+The session stops automatically when the requested bundled release count is reached or when a configured stop condition is hit.
 
 ## Current Baseline
 
@@ -74,6 +77,9 @@ The current lightweight committee V2 baseline includes:
 - a deterministic evaluator score helper driven by the committed rubric
 - configurable implementation readiness gate mode while keeping report and publish safety strict
 - evaluator-pass gating remains strict for reporting and publication
+- bundled release planning before task selection
+- detailed release closeout reports that aggregate what the included task iterations delivered
+- repo-local usage logs for install, session start/extension, and published iterations
 - stop and escalation assessment plus report rendering
 - goal-bound review-state capture and non-destructive session continuation
 
@@ -93,6 +99,7 @@ AGENTS.md
 CLAUDE.md
 PLANS.md
 docs/reports/
+docs/releases/
 ```
 
 ## Install Into A Project
@@ -154,6 +161,7 @@ After installation, the target repo bootstrap should follow the same lightweight
 # - committee.evaluator.implementation_gate_mode
 python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
+python3 .agent-loop/scripts/plan-release.py
 python3 .agent-loop/scripts/render-committee.py
 python3 .agent-loop/scripts/render-evaluator-brief.py
 python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0
@@ -161,6 +169,26 @@ python3 .agent-loop/scripts/assert-implementation-readiness.py
 ```
 
 `implementation_gate_mode=advisory` can allow implementation to start with a warning, but report and publish still require evaluator pass.
+
+When all tasks in the active release are published, close out the bundled release with:
+
+```bash
+python3 .agent-loop/scripts/write-release-report.py
+python3 .agent-loop/scripts/publish-release.py
+```
+
+The installed kit also records lightweight usage logs in:
+
+```text
+.agent-loop/data/usage-log.jsonl
+```
+
+You can summarize one or more repos with:
+
+```bash
+python3 .agent-loop/scripts/analyze-usage-logs.py
+python3 .agent-loop/scripts/analyze-usage-logs.py --repo /path/to/ai-trade --repo /path/to/info-rss
+```
 
 If research is still insufficient before goal selection, record that explicitly instead of pushing ahead:
 

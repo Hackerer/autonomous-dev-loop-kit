@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 
 from common import (
+    active_release_goal_ids,
+    active_release,
     LoopError,
     find_repo_root,
     goal_selection_blockers,
@@ -15,6 +17,8 @@ from common import (
     load_config,
     load_json,
     load_state,
+    release_planning_config,
+    release_summary,
     require_session_capacity,
     save_state,
     session_summary,
@@ -65,7 +69,15 @@ def gap_priority(item: dict, quality_status: str | None, gaps: list[str]) -> int
 
 
 def pick_goal(root: Path, backlog: list[dict], state: dict) -> dict:
-    pending = [item for item in backlog if item.get("status", "pending") == "pending"]
+    release_goal_ids = set(active_release_goal_ids(state))
+    if release_goal_ids:
+        pending = [
+            item
+            for item in backlog
+            if item.get("status", "pending") == "pending" and str(item.get("id", "")) in release_goal_ids
+        ]
+    else:
+        pending = [item for item in backlog if item.get("status", "pending") == "pending"]
     if not pending:
         raise LoopError("No pending backlog items remain.")
     quality_status, gaps = load_quality_context(root, state)
@@ -89,6 +101,18 @@ def main() -> int:
     backlog = load_backlog(root)
     state = load_state(root)
     session = require_session_capacity(config, state)
+    release_cfg = release_planning_config(config)
+    release = release_summary(state)
+    if release_cfg["require_release_plan"] and release["status"] in {"not_planned", "published"}:
+        raise LoopError(
+            "No active release plan exists. Run `python3 .agent-loop/scripts/plan-release.py` before selecting the next task goal."
+        )
+    if release["goal_ids"] and not release["remaining_goal_ids"]:
+        raise LoopError(
+            "The active release has completed all planned goals. Write and publish the bundled release with "
+            "`python3 .agent-loop/scripts/write-release-report.py` and `python3 .agent-loop/scripts/publish-release.py` "
+            "before selecting a goal from the next release."
+        )
     quality_status, gaps = load_quality_context(root, state)
     blockers = goal_selection_blockers(config, state, quality_status, gaps)
     if blockers:
@@ -114,9 +138,15 @@ def main() -> int:
     else:
         progress = session_summary(state)
         suffix = ""
-        if progress["target_iterations"] is not None:
-            next_iteration = progress["completed_iterations"] + 1
-            suffix = f" (session {next_iteration}/{progress['target_iterations']})"
+        release_bits: list[str] = []
+        if progress["target_releases"] is not None:
+            release_bits.append(f"release {progress['completed_releases'] + 1}/{progress['target_releases']}")
+        if release["number"] is not None and release["goal_ids"]:
+            completed = len(release["completed_goal_ids"])
+            total = len(release["goal_ids"])
+            release_bits.append(f"tasks {completed + 1}/{total} in R{release['number']}")
+        if release_bits:
+            suffix = f" ({', '.join(release_bits)})"
         print(f"Selected goal: {goal_title(selected)}{suffix}")
     return 0
 

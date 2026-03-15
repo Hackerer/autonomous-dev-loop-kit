@@ -4,12 +4,12 @@ from __future__ import annotations
 import argparse
 import sys
 
-from common import LoopError, find_repo_root, load_config, load_state, planning_config, save_state, utc_now
+from common import append_usage_log, LoopError, find_repo_root, load_config, load_state, planning_config, save_state, utc_now
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Persist the requested loop count for the current autonomous session.")
-    parser.add_argument("--iterations", type=int, required=True, help="How many versions this autonomous session may publish.")
+    parser = argparse.ArgumentParser(description="Persist the requested release count for the current autonomous session.")
+    parser.add_argument("--iterations", type=int, required=True, help="How many bundled release versions this autonomous session may publish.")
     args = parser.parse_args()
 
     if args.iterations <= 0:
@@ -19,27 +19,51 @@ def main() -> int:
     config = load_config(root)
     state = load_state(root)
     planning = planning_config(config)
-    max_allowed = planning.get("max_iterations_per_session")
+    max_allowed = planning.get("max_releases_per_session", planning.get("max_iterations_per_session"))
     if max_allowed is not None and args.iterations > int(max_allowed):
         raise LoopError(
-            f"Requested {args.iterations} iterations but config planning.max_iterations_per_session only allows {int(max_allowed)}."
+            f"Requested {args.iterations} releases but config planning.max_releases_per_session only allows {int(max_allowed)}."
         )
 
     state["session"] = {
         "status": "active",
-        "target_iterations": int(args.iterations),
+        "target_releases": int(args.iterations),
+        "completed_releases": 0,
+        "target_iterations": None,
         "completed_iterations": 0,
         "started_at": utc_now(),
         "ended_at": None,
     }
     state["status"] = "session_configured"
     state["current_goal"] = None
+    state["release"] = {
+        "number": None,
+        "title": "",
+        "summary": "",
+        "status": "not_planned",
+        "goal_ids": [],
+        "goal_titles": [],
+        "completed_goal_ids": [],
+        "task_iterations": [],
+        "selected_at": None,
+        "published_at": None,
+        "report_path": None,
+    }
     state["draft_iteration"] = None
     state["draft_report"] = None
+    state["draft_release_report"] = None
     state["draft_goal"] = None
     save_state(root, state)
+    append_usage_log(
+        root,
+        config,
+        "session_started",
+        {
+            "target_releases": int(args.iterations),
+        },
+    )
 
-    print(f"Configured autonomous loop session for {args.iterations} iterations.")
+    print(f"Configured autonomous loop session for {args.iterations} release versions.")
     return 0
 
 

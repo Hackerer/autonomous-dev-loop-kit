@@ -5,7 +5,7 @@ description: Run a guarded autonomous software delivery loop with scoped version
 
 # Autonomous Dev Loop
 
-Use this skill to run a repo through repeated, test-gated versions. Keep durable state in files instead of relying on the conversation.
+Use this skill to run a repo through repeated, test-gated bundled releases. Keep durable state in files instead of relying on the conversation.
 
 This skill follows `ReAct` in the paper sense from Shunyu Yao et al.: `Reason + Act`, not the frontend framework `React`.
 
@@ -45,7 +45,7 @@ Do not start implementation until all of these are true:
 - .agent-loop/config.json contains a valid committee definition for product-manager, technical-architect, and user review.
 - The loop session target has been persisted with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` when the user provided or implied a count.
 - The repo has a valid Git publication strategy for this loop.
-- The next version can be completed and validated in one iteration.
+- The next bundled release has been defined before task selection, and each included task can still be completed and validated in one iteration.
 </entry_gate>
 
 <iteration_loop>
@@ -55,7 +55,7 @@ Run this order exactly:
 3. If project data is missing, stale, or low-quality, run `python3 .agent-loop/scripts/collect-project-data.py` and `python3 .agent-loop/scripts/score-data-quality.py`.
 4. Run `python3 .agent-loop/scripts/render-committee.py`, do explicit research, and challenge the candidate scope through the product-manager, technical-architect, and user committees.
 5. If research still says the repo lacks enough context, record that explicitly with `python3 .agent-loop/scripts/capture-review.py --research-status need_more_context ...` and stop goal selection until the missing context is gathered.
-6. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
+6. Define the next bundled release first with `python3 .agent-loop/scripts/plan-release.py`, then select one scoped task goal from that release with `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
 7. Capture the scope decision, render the independent evaluator input with `python3 .agent-loop/scripts/render-evaluator-brief.py`, then capture the evaluator result and run `python3 .agent-loop/scripts/assert-implementation-readiness.py`. Do not implement if it fails.
 8. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
 9. Implement the smallest coherent change set.
@@ -64,9 +64,10 @@ Run this order exactly:
 12. If validation fails, do not commit or push.
 13. Run `python3 .agent-loop/scripts/assess-escalation.py` when validation, evaluator review, or repeated goal churn suggests the loop may need to watch or escalate.
 14. Reflect on what the research and committee review got right, wrong, or incomplete.
-15. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings, committee observations, and stop/escalation signals.
+15. Refresh project data if the repo changed materially, then write the task-iteration report with `python3 .agent-loop/scripts/write-report.py`, including research findings, committee observations, and stop/escalation signals.
 16. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
-17. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
+17. When all planned tasks for the active release are published, write the bundled release report with `python3 .agent-loop/scripts/write-release-report.py` and publish it with `python3 .agent-loop/scripts/publish-release.py`.
+18. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another bundled release should start.
 </iteration_loop>
 
 <non_negotiable_rules>
@@ -74,12 +75,13 @@ Run this order exactly:
 - Think deeply before execution, especially before architectural changes, large edits, or high-cost commands.
 - Never skip research or committee review when the config requires them.
 - Never publish without a green full-validation run.
-- Never publish without a report in docs/reports/.
+- Never publish a task iteration without a report in docs/reports/.
+- Never publish a bundled release without a detailed release report in docs/releases/.
 - Never publish one project to another project's GitHub remote.
 - If the current project's GitHub target is missing or unclear, stop and ask the user before publishing.
 - Never broaden scope mid-iteration.
 - Never use chat history as the only state.
-- Never exceed the configured session iteration limit.
+- Never exceed the configured session release limit.
 - Never hard-code behavior just to pass current tests.
 - Stop and report when credentials, permissions, destructive actions, or conflicting requirements appear.
 </non_negotiable_rules>

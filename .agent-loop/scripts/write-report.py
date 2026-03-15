@@ -14,6 +14,7 @@ from common import (
     load_config,
     load_json,
     load_state,
+    release_summary,
     relpath,
     reporting_path,
     require_evaluator_pass,
@@ -47,7 +48,7 @@ def prefixed_lines(prefix: str, values: list[str]) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Write a version report for the next autonomous iteration.")
+    parser = argparse.ArgumentParser(description="Write a task-iteration report for the next autonomous loop step.")
     parser.add_argument("--analysis", action="append", default=[], help="Current-state analysis bullet.")
     parser.add_argument("--research", action="append", default=[], help="Research bullet gathered before goal selection.")
     parser.add_argument("--acceptance", action="append", default=[], help="Acceptance bullet for this version.")
@@ -66,6 +67,7 @@ def main() -> int:
     state = load_state(root)
     validation = require_green_validation(state)
     session = session_summary(state)
+    release = release_summary(state)
 
     iteration = int(state.get("iteration", 0)) + 1
     report_path = reporting_path(root, config, iteration)
@@ -251,15 +253,21 @@ def main() -> int:
             quality_lines.append(f"Blocking gaps: {', '.join(gaps)}")
 
     content = [
-        f"# v{iteration} Report",
+        f"# Task Iteration v{iteration} Report",
         "",
         f"Date: {today}",
         "",
         "## Session Progress",
         (
-            f"- Session progress: {session['completed_iterations'] + 1}/{session['target_iterations']}"
-            if session["target_iterations"] is not None
-            else "- Session progress: unbounded session"
+            f"- Release session progress: {session['completed_releases']}/{session['target_releases']}"
+            if session["target_releases"] is not None
+            else "- Release session progress: unbounded session"
+        ),
+        f"- Task iteration progress: {session['completed_iterations'] + 1}",
+        (
+            f"- Active release: R{release['number']} {release['title']}"
+            if release["number"] is not None
+            else "- Active release: no release planned"
         ),
         "",
         "## Current State Analysis",
@@ -274,24 +282,24 @@ def main() -> int:
         "## Secretariat",
         *bullet_lines(secretariat_lines, "Record the delivery and audit secretary outcome for this iteration."),
         "",
-        "## Version Goal",
+        "## Task Goal",
         f"- Goal: {goal_label}",
-        *bullet_lines(args.acceptance, "Document the acceptance criteria for this version."),
+        *bullet_lines(args.acceptance, "Document the acceptance criteria for this task iteration."),
         "",
         "## Scope Decision",
         *bullet_lines(scope_lines, "Record why this goal was selected, what is in scope, what is out of scope, and where the stop line sits."),
         "",
         "## Key Observations",
-        *bullet_lines(args.observation, "Capture the evidence or observation that most influenced this version."),
+        *bullet_lines(args.observation, "Capture the evidence or observation that most influenced this task iteration."),
         "",
         "## Evidence Sources",
-        *bullet_lines(evidence_sources, "List the repo files, commands, or generated artifacts used for this version."),
+        *bullet_lines(evidence_sources, "List the repo files, commands, or generated artifacts used for this task iteration."),
         "",
         "## Data Quality",
         *bullet_lines(quality_lines, "Record the latest project-data quality status or score."),
         "",
         "## Delivered",
-        *bullet_lines(args.delivered, "List the concrete changes delivered in this version."),
+        *bullet_lines(args.delivered, "List the concrete changes delivered in this task iteration."),
         "",
         "## Evaluation Readiness",
         *bullet_lines(evaluation_lines, "Record the evaluator outcome, weighted score, and minimum fixes when available."),
@@ -309,7 +317,7 @@ def main() -> int:
         *bullet_lines(merge_unique(args.reflection, review_reflection), "Reflect on requirement clarity and architectural impact."),
         "",
         "## Proposed Next Goal",
-        *bullet_lines(args.next_goal, "Propose the next highest-value small version."),
+        *bullet_lines(args.next_goal, "Propose the next highest-value task inside the current release or the next release theme."),
         "",
     ]
     report_path.write_text("\n".join(content), encoding="utf-8")

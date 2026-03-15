@@ -1,5 +1,53 @@
 [
   {
+    "id": "iteration-50-native-loop-skill",
+    "title": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "The autonomous-dev-loop-kit is installable as an OpenClaw native Skill",
+      "The Skill works across all configured workspaces (coding, research, analysis, ops)",
+      "The Skill supports minimal prompts like '\u5faa\u73afN\u6b21' from any channel"
+    ],
+    "notes": "This enables seamless autonomous iteration without manual skill installation per project."
+  },
+  {
+    "id": "iteration-51-intent-routing",
+    "title": "Implement Intent Routing layer for automatic Agent selection based on task type",
+    "priority": "high",
+    "status": "completed",
+    "acceptance": [
+      "Messages are classified by intent (coding, research, analysis, ops, finance)",
+      "The routing layer automatically selects the appropriate Agent",
+      "The routing rules are configurable and traceable"
+    ],
+    "notes": "This transforms OpenClaw from manual Agent selection to automatic dispatch."
+  },
+  {
+    "id": "iteration-52-unified-sandbox",
+    "title": "Unify Sandbox strategy across all Agents for consistent security boundaries",
+    "priority": "high",
+    "status": "completed",
+    "acceptance": [
+      "All Agents use consistent Sandbox mode (all vs off)",
+      "Security boundaries are clearly documented",
+      "Exceptions are explicitly whitelisted"
+    ],
+    "notes": "Current Sandbox inconsistency creates security blind spots."
+  },
+  {
+    "id": "iteration-53-memory-cross-agent",
+    "title": "Enhance memory cross-Agent capabilities for workflow continuity",
+    "priority": "medium",
+    "status": "completed",
+    "acceptance": [
+      "Key information flows across Agent boundaries when needed",
+      "Agent-specific memory namespaces are preserved",
+      "Cross-Agent memory sharing is opt-in and traceable"
+    ],
+    "notes": "Current memory separation loses context when tasks span multiple Agents."
+  },
+  {
     "id": "iteration-11-committee-foundation",
     "title": "Integrate the committee-driven loop model across config, scripts, templates, and references",
     "priority": "critical",
@@ -466,5 +514,65 @@
       "The repo ends the session with a clean, explainable next-stage baseline"
     ],
     "notes": "Finish the session by proving and documenting the new baseline rather than leaving it implicit."
+  },
+  {
+    "id": "iteration-50-release-session-and-state",
+    "title": "Split bundled release state from task-iteration state",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "The session target count represents bundled releases instead of tiny task iterations",
+      "State tracks the active bundled release separately from task iterations and release history",
+      "Existing task iteration scripts remain backward compatible enough to keep the loop usable"
+    ],
+    "notes": "This is the semantic foundation for treating a user-visible version as a package of multiple tasks."
+  },
+  {
+    "id": "iteration-51-release-planning-and-selection",
+    "title": "Define bundled releases before selecting task goals",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "The repo can bundle multiple pending goals into one active release",
+      "Task goal selection only draws from the active bundled release when release planning is required",
+      "The loop clearly blocks when a release is not yet defined or when a completed release has not been closed out"
+    ],
+    "notes": "Users should define the version first, then execute the tasks inside it."
+  },
+  {
+    "id": "iteration-52-release-reporting",
+    "title": "Generate detailed bundled release reports that aggregate task delivery",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "The repo can write a detailed release report in docs/releases",
+      "The release report explains what the demand delivered, whether technical validation passed, and the detailed outputs across bundled tasks",
+      "Task reports and release reports stay clearly differentiated"
+    ],
+    "notes": "The release report should read more like a C-end app release note than a single tiny diff summary."
+  },
+  {
+    "id": "iteration-53-release-publication-and-logging",
+    "title": "Publish bundled releases separately from task iterations and record release-level usage events",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Task iterations can still publish independently without being mistaken for user-visible versions",
+      "Bundled releases have their own publish step and durable release history",
+      "Usage logs capture release planning and release publication events for later analysis"
+    ],
+    "notes": "Git can stay task-granular while the user-visible version boundary becomes larger and clearer."
+  },
+  {
+    "id": "iteration-54-release-protocol-alignment",
+    "title": "Align protocol, skills, installer guidance, and validation with bundled release semantics",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "README, protocol, AGENTS, CLAUDE, and skills explain that loop count means bundled releases",
+      "Installer bootstrap guidance points to release planning and release closeout",
+      "validate-kit exercises the new release planning, release report, and release publish path"
+    ],
+    "notes": "The repo should not keep telling operators that every tiny iteration is the final version."
   }
 ]

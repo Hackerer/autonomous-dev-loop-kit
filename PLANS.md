@@ -20,9 +20,10 @@ Updated: 2026-03-15
 - The committee layer now also includes archetype-aware quality profiles, live review packets, explicit secretariat durability and visibility, evaluator score helpers, and configurable implementation readiness mode with strict report/publish safety.
 - The repo now supports non-destructive session continuation for longer autonomous runs.
 - The installer, example workflow, and entrypoint skills now point to the same research-gated, evaluator-aware lightweight committee V2 flow.
+- The repo now treats loop-count requests as bundled release counts while preserving smaller task-level iterations underneath each release.
 - Target repos still need repository-specific validation commands instead of the placeholder validation step when installed from this kit.
 - Published versions should continue to stay small, testable, and directly connected to better pre-execution data quality, committee review quality, or operator clarity.
-- The next session should deepen the lightweight baseline rather than replace it: improve context packing, make some quality gates archetype-aware, expose secretariat output more clearly, and keep readiness results easier to understand.
+- The lightweight baseline now includes bundled release planning, release reports, and release closeout as first-class protocol concepts.
 
 ## Non-Negotiable Constraints
 
@@ -55,6 +56,8 @@ Updated: 2026-03-15
 - 2026-03-15: Finish the lightweight committee V2 baseline with research blocking, evaluator briefs, escalation assessment, stop-and-escalation reporting, session continuation, aligned installer guidance, and goal-bound review resets.
 - 2026-03-15: Start the next committee session with a lighter-weight enhancement track focused on archetype-aware thresholds, richer review packets, explicit secretariat artifacts, and better evaluator ergonomics.
 - 2026-03-15: Extend the lightweight baseline with archetype-aware quality scoring, live review packets, explicit secretariat visibility, deterministic evaluator scoring, configurable implementation readiness mode, and aligned bootstrap guidance.
+- 2026-03-15: Start the bundled-release upgrade so user-requested loop counts represent larger user-visible versions rather than tiny single-task commits.
+- 2026-03-15: Finish the bundled-release upgrade with release planning, release reports, release publication, protocol alignment, and validator coverage.
 
 ## Backlog Notes
 
@@ -64,6 +67,7 @@ Updated: 2026-03-15
 - Preserve backward compatibility where practical so target repositories can adopt the stronger committee model incrementally.
 - Treat the current lightweight committee V2 baseline as the default starting point for future sessions rather than an experimental branch of the protocol.
 - Keep committee upgrades compact and explicit: prefer one new durable artifact or one new gate behavior per version over broad protocol rewrites.
+- Keep bundled-release upgrades practical: preserve task-level commits and validation while making the top-level version feel like a real packaged release.
 
 ## Open Questions
 
@@ -71,3 +75,21 @@ Updated: 2026-03-15
 - Which readiness gates should support advisory mode versus strict blocking mode by default?
 - How much evaluator scoring should be automated without obscuring operator judgment?
 - What is the right amount of secretariat detail to persist before the state becomes noisy?
+- How opinionated should automatic release bundling be before users need to name or curate the release explicitly?
+
+## Session 50-59: OpenClaw System Architecture Optimization
+
+### Target Outcome
+
+- Integrate autonomous-dev-loop-kit into OpenClaw as a native Skill for seamless cross-workspace iteration
+- Implement Intent Routing layer for automatic Agent selection based on task type
+- Unify Sandbox strategy across all Agents for consistent security boundaries
+- Enhance memory cross-domain capabilities for better context continuity
+
+### Optimization Focus
+
+Based on first principles analysis:
+1. **Agent Dispatcher Layer**: OpenClaw = Agent调度系统 + Channel连接系统
+2. **Native Loop Skill**: Convert autonomous-dev-loop-kit to OpenClaw native capability
+3. **Intent Routing**: Auto-select appropriate Agent based on task classification
+4. **Memory Enhancement**: Cross-Agent memory sharing for workflow continuity

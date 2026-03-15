@@ -419,13 +419,26 @@
   },
   "reporting": {
     "directory": "docs/reports",
-    "filename_pattern": "v{iteration}.md"
+    "filename_pattern": "v{iteration}.md",
+    "release_directory": "docs/releases",
+    "release_filename_pattern": "R{release}.md"
+  },
+  "usage_logging": {
+    "enabled": true,
+    "path": ".agent-loop/data/usage-log.jsonl"
   },
   "planning": {
     "require_explicit_target_iterations": true,
-    "max_iterations_per_session": 30,
+    "max_iterations_per_session": 200,
+    "max_releases_per_session": 30,
     "max_consecutive_failures": 2,
-    "goal_selection_policy": "highest-priority-pending"
+    "goal_selection_policy": "highest-priority-pending",
+    "release": {
+      "require_release_plan": true,
+      "min_goals_per_release": 2,
+      "max_goals_per_release": 5,
+      "default_goals_per_release": 3
+    }
   },
   "stop_conditions": [
     "requirements-conflict",

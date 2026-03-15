@@ -99,11 +99,12 @@ TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
 
 sync_dir ".agents"
 sync_dir ".claude"
+sync_dir "scripts"
 sync_dir ".agent-loop/scripts"
 sync_dir ".agent-loop/references"
 sync_dir ".agent-loop/templates"
 
-mkdir -p "${TARGET_DIR}/.agent-loop/data" "${TARGET_DIR}/docs/reports"
+mkdir -p "${TARGET_DIR}/.agent-loop/data" "${TARGET_DIR}/docs/reports" "${TARGET_DIR}/docs/releases"
 
 copy_file "${ROOT}/AGENTS.md" "${TARGET_DIR}/AGENTS.md" "$OVERWRITE_TOP_LEVEL" "AGENTS.md"
 copy_file "${ROOT}/CLAUDE.md" "${TARGET_DIR}/CLAUDE.md" "$OVERWRITE_TOP_LEVEL" "CLAUDE.md"
@@ -111,6 +112,15 @@ copy_file "${ROOT}/PLANS.md" "${TARGET_DIR}/PLANS.md" "$OVERWRITE_TOP_LEVEL" "PL
 copy_file "${ROOT}/.agent-loop/config.json" "${TARGET_DIR}/.agent-loop/config.json" "$OVERWRITE_CONFIG" ".agent-loop/config.json"
 copy_file "${ROOT}/.agent-loop/state.json" "${TARGET_DIR}/.agent-loop/state.json" "$OVERWRITE_STATE" ".agent-loop/state.json"
 copy_file "${ROOT}/.agent-loop/backlog.json" "${TARGET_DIR}/.agent-loop/backlog.json" "$OVERWRITE_BACKLOG" ".agent-loop/backlog.json"
+
+python3 "${ROOT}/.agent-loop/scripts/record-usage-event.py" \
+  --repo-root "${TARGET_DIR}" \
+  --event kit_installed \
+  --field "source_repo=${ROOT}" \
+  --field "overwrite_config=${OVERWRITE_CONFIG}" \
+  --field "overwrite_state=${OVERWRITE_STATE}" \
+  --field "overwrite_backlog=${OVERWRITE_BACKLOG}" \
+  --field "overwrite_top_level=${OVERWRITE_TOP_LEVEL}" >/dev/null
 
 printf 'Project installer finished for %s\n' "$TARGET_DIR"
 cat <<EOF
@@ -122,13 +132,20 @@ Next bootstrap steps:
   3. Collect and score project data:
      python3 .agent-loop/scripts/collect-project-data.py
      python3 .agent-loop/scripts/score-data-quality.py
-  4. Render the committee brief and do research:
+  4. Define the bundled release before selecting tasks:
+     python3 .agent-loop/scripts/plan-release.py
+  5. Render the committee brief and do research:
      python3 .agent-loop/scripts/render-committee.py
-  5. If research still lacks context, record:
+  6. If research still lacks context, record:
      python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."
-  6. After goal selection, render evaluator input and confirm readiness:
+  7. After goal selection, render evaluator input and confirm readiness:
      python3 .agent-loop/scripts/render-evaluator-brief.py
      python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0
      python3 .agent-loop/scripts/assert-implementation-readiness.py
      # advisory implementation mode may allow coding, but report and publish still require evaluator pass
+  8. When all tasks in the active release are published, write and publish the bundled release:
+     python3 .agent-loop/scripts/write-release-report.py
+     python3 .agent-loop/scripts/publish-release.py
+  9. Usage logs will accumulate in:
+     ${TARGET_DIR}/.agent-loop/data/usage-log.jsonl
 EOF

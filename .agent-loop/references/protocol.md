@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this protocol when the user wants repeated, self-directed software delivery instead of a single edit. The protocol is designed to maximize delivery quality by separating durable state from the chat and by making every version pass explicit gates.
+Use this protocol when the user wants repeated, self-directed software delivery instead of a single edit. The protocol is designed to maximize delivery quality by separating durable state from the chat and by making every bundled release pass explicit gates.
 
 This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason + Act`, not the frontend framework `React`.
 
@@ -18,6 +18,7 @@ This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason 
 - `.agent-loop/data/project-data.json` when collected
 - `.agent-loop/data/data-quality.json` when scored
 - `docs/reports/`
+- `docs/releases/`
 
 Do not rely on the conversation as the only source of truth.
 
@@ -29,16 +30,16 @@ Before the first autonomous iteration in a repo, confirm:
 
 1. `PLANS.md` explains the target outcome, constraints, and open risks.
 2. `.agent-loop/config.json` contains the real validation commands for this repo.
-3. The loop session has a persisted iteration limit. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
+3. The loop session has a persisted bundled-release limit. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
 4. The Git strategy is explicit: `push-branch`, `direct-push`, or `commit-only`.
 5. The discovery and committee settings in `.agent-loop/config.json` require research, committee review, and post-validation reflection.
-6. The next version goal is small enough to implement and validate in one iteration.
+6. The next bundled release has been defined before task selection, and each task inside it is still small enough to implement and validate in one iteration.
 
 If any condition is missing, create or update the artifacts before attempting autonomous delivery.
 
 ## State Machine
 
-Every version follows the same state machine:
+Every bundled release is delivered through repeated task iterations plus one release closeout:
 
 1. `analyze`
    - Review current repo state, recent reports, current branch, open risks, and remaining backlog.
@@ -62,16 +63,20 @@ Every version follows the same state machine:
    - Narrow or reject the candidate if the committee exposes unclear value, design risk, or user friction.
    - Persist concise research findings, committee feedback, and scope decisions with `python3 .agent-loop/scripts/capture-review.py`.
    - Treat the persisted review state as goal-aware: later steps may reuse it automatically only when the captured goal matches the active goal.
-4. `select`
-   - Choose exactly one scoped goal.
+4. `release-plan`
+   - Define the next bundled release before selecting tasks.
+   - Use `python3 .agent-loop/scripts/plan-release.py` to bundle multiple pending goals into one user-facing release.
+   - The loop count provided by the user refers to bundled releases, not tiny task commits.
+5. `select`
+   - Choose exactly one scoped task goal from the active bundled release.
    - Favor the smallest task that materially advances the target while remaining fully testable.
    - Refuse goal selection when project-data quality is insufficient or when the research gate explicitly says more context is required.
-   - Refuse to start a new version if the configured session limit has already been reached.
-5. `implementation-readiness`
+   - Refuse to start a new bundled release if the configured session limit has already been reached.
+6. `implementation-readiness`
    - Record the scope decision and evaluator result in durable state.
    - Run `python3 .agent-loop/scripts/assert-implementation-readiness.py`.
    - Refuse to start implementation if committee review is required but the active goal lacks a matching passing evaluator result.
-6. `implement`
+7. `implement`
    - Use short ReAct cycles inside implementation:
      - reason from the current evidence
      - take one concrete action
@@ -79,42 +84,47 @@ Every version follows the same state machine:
      - update the next action
    - Make the minimum coherent code change.
    - Update or add tests for the real behavior.
-7. `validate`
+8. `validate`
    - Run the full configured validation suite.
    - No publish step is allowed if validation is red.
-8. `reflect`
+9. `reflect`
    - Reflect on what the research and committee review got right, wrong, or incomplete after seeing validation results.
    - Update the next-step recommendation based on the new evidence.
-9. `report`
-   - Write a version report in `docs/reports/`.
+10. `report`
+   - Write a task-iteration report in `docs/reports/`.
    - Prefer the durable review state in `.agent-loop/state.json` for research, committee feedback, decisions, and reflection when it matches the active goal.
    - Refuse to write the report if committee review is required but no matching recorded review state exists yet.
    - Refuse to write the report if evaluator pass is required but no matching passing evaluator result exists yet.
    - Surface open gaps, stop conditions, and escalation status from durable state so a later operator can see why the loop stopped, would stop, or should escalate.
-   - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
-10. `publish`
-   - Commit the complete version.
+   - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next task.
+11. `publish`
+   - Commit the complete task iteration.
    - Refuse to publish if committee review is required but no matching recorded review state exists for the draft goal.
    - Refuse to publish if evaluator pass is required but no matching passing evaluator result exists for the draft goal.
    - Push or otherwise publish according to config.
-11. `loop-reflect`
+12. `release-closeout`
+   - When every planned task in the active bundled release is published, write a detailed release report in `docs/releases/`.
+   - The release report must explain what the bundled demand delivered, whether technical validation passed, and the detailed output across the included task iterations.
+   - Publish the bundled release with `python3 .agent-loop/scripts/publish-release.py`.
+13. `loop-reflect`
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
    - Decide whether the next version should start or whether the loop should stop.
 
-## Version Gate
+## Release Gate
 
-A version is publishable only if all of these are true:
+A bundled release is publishable only if all of these are true:
 
 - The scoped goal is completed or explicitly narrowed and explained in the report.
 - A recorded `review_state` exists for the active goal when committee review is required.
 - A passing evaluator result exists for the active goal when evaluator pass is required.
 - The configured full-validation suite passes.
-- A report file exists in `docs/reports/`.
+- Task reports exist in `docs/reports/` for the included task iterations.
+- A bundled release report exists in `docs/releases/`.
 - The worktree state being published is intentional and understood.
 
 ## Report Requirements
 
-Every report must include:
+Every task report must include:
 
 - Iteration number
 - Date
@@ -128,7 +138,17 @@ Every report must include:
 - Delivered behavior
 - Full validation evidence
 - Reflection on requirements and architecture
-- Proposed next goal
+- Proposed next task
+
+Every bundled release report must include:
+
+- Release number
+- Release title and summary
+- The bundled goals or features included in the release
+- What the demand specifically delivered
+- Technical validation status
+- Detailed output notes across the included task iterations
+- Traceability back to the task reports
 
 Keep the report factual. Do not hide regressions or open risks. Store concise conclusions and observations, not verbose hidden reasoning traces.
 
@@ -160,7 +180,7 @@ Stop and report instead of continuing when any of the following is true:
 - Credentials, secrets, or external access are missing
 - The next action is destructive or high-risk
 - Validation has failed repeatedly and the root cause is not yet understood
-- The configured session iteration limit has been reached
+- The configured session release limit has been reached
 - The current project's GitHub publication target is unclear
 - No remaining task has a clear, high-value, testable scope
 
