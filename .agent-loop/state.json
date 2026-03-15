@@ -1,19 +1,19 @@
 {
-  "iteration": 50,
+  "iteration": 51,
   "status": "published",
   "session": {
     "status": "active",
     "target_releases": 10,
-    "completed_releases": 0,
+    "completed_releases": 1,
     "target_iterations": null,
-    "completed_iterations": 1,
+    "completed_iterations": 2,
     "started_at": "2026-03-15T12:42:57Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T12:43:14Z",
+    "last_collected_at": "2026-03-15T12:52:32Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -34,7 +34,8 @@
       "Define bundled releases before selecting task goals"
     ],
     "completed_goal_ids": [
-      "iteration-50-native-loop-skill"
+      "iteration-50-native-loop-skill",
+      "iteration-51-release-planning-and-selection"
     ],
     "task_iterations": [
       {
@@ -43,6 +44,13 @@
         "goal_id": "iteration-50-native-loop-skill",
         "report": "docs/reports/v50.md",
         "published_at": "2026-03-15T12:51:50Z"
+      },
+      {
+        "iteration": 51,
+        "goal": "Define bundled releases before selecting task goals",
+        "goal_id": "iteration-51-release-planning-and-selection",
+        "report": "docs/reports/v51.md",
+        "published_at": "2026-03-15T12:54:08Z"
       }
     ],
     "selected_at": "2026-03-15T12:48:16Z",
@@ -55,20 +63,16 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T12:51:00Z",
+    "captured_at": "2026-03-15T12:53:37Z",
     "research_findings": [
-      "The autonomous-dev-loop-kit is now installable as native Skill to Claude Code and OpenClaw for seamless cross-workspace iteration"
+      "Current session already has bundled release semantics: target_releases=10, release planning is available, and session tracks releases separately from task iterations"
     ],
-    "committee_feedback": [
-      "Product Council approves this goal as it enables seamless cross-workspace iteration. Architecture Council approves the installation approach. Operator Council approves as it makes the skill accessible from any workspace."
-    ],
-    "committee_decision": [
-      "All councils approve. Proceed with installation validation."
-    ],
+    "committee_feedback": [],
+    "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Integrated autonomous-dev-loop as native Skill to Claude Code and OpenClaw for seamless cross-workspace iteration. Installed to ~/.claude/skills/ and ~/.openclaw/skills/.",
+      "summary": "",
       "evidence_refs": [],
       "data_quality_score": null,
       "open_gaps": []
@@ -76,19 +80,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Product Council approves this goal as it enables seamless cross-workspace iteration",
+        "summary": "Product Council: Bundled releases help users see meaningful version numbers instead of tiny commits",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Architecture Council approves the installation approach",
+        "summary": "Architecture Council: Release state model is already in place, just needs completion",
         "decision": "Approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operator Council approves as it makes the skill accessible from any workspace",
+        "summary": "Operator Council: Clear release boundaries help with handoff",
         "decision": "Approve",
         "dissent": []
       }
@@ -111,15 +115,15 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
-      "why_selected": "This enables seamless autonomous iteration without manual skill installation per project",
+      "selected_goal": "Define bundled releases before selecting task goals",
+      "why_selected": "This ensures users define what they want before the loop executes tasks",
       "scope_in": [
-        "Install autonomous-dev-loop to Claude Code skills",
-        "Install autonomous-dev-loop to OpenClaw skills",
-        "Validate installation with validate-kit.py"
+        "Complete release state model",
+        "Add release planning script",
+        "Ensure release selection blocks without a plan"
       ],
       "scope_out": [
-        "Modify skill behavior"
+        "Modify validation behavior"
       ],
       "assumptions": [],
       "risks": [],
@@ -134,10 +138,10 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 4.8,
+      "weighted_score": 4.5,
       "result": "pass",
       "critique": [
-        "All criteria met. The skill was successfully installed to both Claude Code and OpenClaw. Validation passed. Ready for publication."
+        "Release planning semantics are in place. Ready to complete the bundled release workflow."
       ],
       "minimum_fixes_required": []
     },
@@ -146,13 +150,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-50-native-loop-skill",
-    "goal_title": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration"
+    "goal_id": "iteration-51-release-planning-and-selection",
+    "goal_title": "Define bundled releases before selecting task goals"
   },
-  "last_report": "docs/reports/v50.md",
+  "last_report": "docs/reports/v51.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T12:51:25Z",
+    "ran_at": "2026-03-15T12:54:08Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -644,6 +648,20 @@
       "branch": "main",
       "published_at": "2026-03-15T12:51:50Z",
       "session_progress": "0/10 releases"
+    },
+    {
+      "iteration": 51,
+      "goal": "Define bundled releases before selecting task goals",
+      "goal_id": "iteration-51-release-planning-and-selection",
+      "release_number": 1,
+      "release_title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v51.md",
+      "branch": "main",
+      "published_at": "2026-03-15T12:54:08Z",
+      "session_progress": "1/10 releases"
     }
   ],
   "release_history": []

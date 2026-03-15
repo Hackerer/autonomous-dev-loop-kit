@@ -531,7 +531,7 @@
     "id": "iteration-51-release-planning-and-selection",
     "title": "Define bundled releases before selecting task goals",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo can bundle multiple pending goals into one active release",
       "Task goal selection only draws from the active bundled release when release planning is required",
