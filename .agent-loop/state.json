@@ -1,11 +1,11 @@
 {
   "iteration": 62,
-  "status": "published",
+  "status": "release_published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
-    "completed_releases": 0,
+    "completed_releases": 1,
     "target_iterations": null,
     "completed_iterations": 1,
     "started_at": "2026-03-15T18:59:11Z",
@@ -20,61 +20,28 @@
   },
   "current_goal": null,
   "release": {
-    "number": 1,
-    "title": "R1: Make publish transactions persist committed loop state without dirty post-publish drift",
-    "summary": "Ship the single high-priority goal `Make publish transactions persist committed loop state without dirty post-publish drift` as a standalone bundled release.",
-    "status": "ready_to_release",
+    "number": null,
+    "title": "",
+    "summary": "",
+    "status": "not_planned",
     "brief": {
-      "archetype": "workflow",
-      "objective": "Make publish transactions durable and deterministic so successful publishes leave no dirty runtime state behind.",
-      "target_user_value": "Operators can trust that a published task or release leaves the repo in a clean, auditable state and that failed publish attempts do not silently consume work.",
-      "why_now": "Publish ordering is the highest-risk review finding because it can corrupt session progress and release history at the exact moment the kit claims a version has shipped.",
-      "packaging_rationale": "Iteration publish ordering, release closeout ordering, and validator coverage belong in one release because they are all part of the same publish transaction contract.",
-      "packaging_signals": [
-        "Archetype: workflow",
-        "Matched keywords: release",
-        "Shared theme: without",
-        "Bundled goals: 1"
-      ],
-      "scope_in": [
-        "Preflight publish targets before mutating loop state or backlog.",
-        "Persist successful iteration and release closeout state inside the committed artifact.",
-        "Extend validator coverage for clean post-publish state and failed publish rollback expectations."
-      ],
-      "scope_out": [
-        "Do not change release planning semantics or committee structure."
-      ],
-      "release_acceptance": [
-        "publish-iteration.py does not consume a goal before publish-target validation succeeds.",
-        "publish-release.py leaves a clean worktree after a successful release publish.",
-        "validate-kit.py proves both guarantees."
-      ],
-      "launch_story": "This release makes the loop trustworthy at the final moment that matters most: when a version is being published.",
-      "deferred_items": [
-        "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
-        "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
-        "Expand validator coverage for reliability fixes and publish a final remediation review"
-      ]
+      "archetype": "",
+      "objective": "",
+      "target_user_value": "",
+      "why_now": "",
+      "packaging_rationale": "",
+      "packaging_signals": [],
+      "scope_in": [],
+      "scope_out": [],
+      "release_acceptance": [],
+      "launch_story": "",
+      "deferred_items": []
     },
-    "goal_ids": [
-      "iteration-63-publish-transaction-correctness"
-    ],
-    "goal_titles": [
-      "Make publish transactions persist committed loop state without dirty post-publish drift"
-    ],
-    "completed_goal_ids": [
-      "iteration-63-publish-transaction-correctness"
-    ],
-    "task_iterations": [
-      {
-        "iteration": 62,
-        "goal": "Make publish transactions persist committed loop state without dirty post-publish drift",
-        "goal_id": "iteration-63-publish-transaction-correctness",
-        "report": "docs/reports/v62.md",
-        "published_at": "2026-03-15T19:03:10Z"
-      }
-    ],
-    "selected_at": "2026-03-15T19:01:55Z",
+    "goal_ids": [],
+    "goal_titles": [],
+    "completed_goal_ids": [],
+    "task_iterations": [],
+    "selected_at": null,
     "published_at": null,
     "report_path": null
   },
@@ -1064,6 +1031,29 @@
       "report": "docs/releases/R5.md",
       "published_at": "2026-03-15T17:00:23Z",
       "commit": "feaf3266ace45d43d4e33e750b4046111e6b05af"
+    },
+    {
+      "number": 1,
+      "session_id": "session-20260315-185911",
+      "title": "R1: Make publish transactions persist committed loop state without dirty post-publish drift",
+      "summary": "Ship the single high-priority goal `Make publish transactions persist committed loop state without dirty post-publish drift` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-63-publish-transaction-correctness"
+      ],
+      "goal_titles": [
+        "Make publish transactions persist committed loop state without dirty post-publish drift"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 62,
+          "goal": "Make publish transactions persist committed loop state without dirty post-publish drift",
+          "goal_id": "iteration-63-publish-transaction-correctness",
+          "report": "docs/reports/v62.md",
+          "published_at": "2026-03-15T19:03:10Z"
+        }
+      ],
+      "report": "docs/releases/R1.md",
+      "published_at": "2026-03-15T19:03:28Z"
     }
   ]
 }
