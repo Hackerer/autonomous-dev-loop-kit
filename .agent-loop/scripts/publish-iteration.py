@@ -120,6 +120,7 @@ def main() -> int:
     state["session"]["status"] = "active"
     state["history"].append(
         {
+            "session_id": session.get("id"),
             "iteration": int(iteration),
             "goal": goal_label,
             "goal_id": goal_id,

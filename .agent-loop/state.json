@@ -1,13 +1,13 @@
 {
-  "iteration": 62,
-  "status": "release_published",
+  "iteration": 63,
+  "status": "published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
     "completed_releases": 1,
     "target_iterations": null,
-    "completed_iterations": 1,
+    "completed_iterations": 2,
     "started_at": "2026-03-15T18:59:11Z",
     "ended_at": null
   },
@@ -20,28 +20,60 @@
   },
   "current_goal": null,
   "release": {
-    "number": null,
-    "title": "",
-    "summary": "",
-    "status": "not_planned",
+    "number": 2,
+    "title": "R2: Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+    "summary": "Ship the single high-priority goal `Reset new sessions cleanly and accept structured review-state artifacts as valid gate input` as a standalone bundled release.",
+    "status": "ready_to_release",
     "brief": {
-      "archetype": "",
-      "objective": "",
-      "target_user_value": "",
-      "why_now": "",
-      "packaging_rationale": "",
-      "packaging_signals": [],
-      "scope_in": [],
-      "scope_out": [],
-      "release_acceptance": [],
-      "launch_story": "",
-      "deferred_items": []
+      "archetype": "workflow",
+      "objective": "Make every new session start cleanly and let the real structured review schema satisfy loop gates.",
+      "target_user_value": "Operators can start a fresh remediation run without inherited failure pressure, and structured committee artifacts work without needing legacy flat review fields.",
+      "why_now": "After publish ordering is fixed, the next biggest trust issue is stale review and failure state leaking into fresh sessions and gates.",
+      "packaging_rationale": "Session reset, history scoping, and structured review-content checks belong together because they all define what the loop considers active state for the current session.",
+      "packaging_signals": [
+        "Archetype: workflow",
+        "Matched keywords: release",
+        "Shared theme: valid",
+        "Bundled goals: 1"
+      ],
+      "scope_in": [
+        "Reset transient review and failure state when starting a fresh session.",
+        "Scope escalation history to the current session.",
+        "Treat structured research, council, secretariat, scope, and evaluator fields as valid review content."
+      ],
+      "scope_out": [
+        "Do not redesign escalation policy or release planning semantics."
+      ],
+      "release_acceptance": [
+        "A fresh session clears transient review and failure pressure.",
+        "Structured review-state content satisfies readiness and reporting gates without legacy flat lists.",
+        "validate-kit.py covers both behaviors."
+      ],
+      "launch_story": "This release makes a new loop session actually feel new, while keeping the stronger structured committee model first-class.",
+      "deferred_items": [
+        "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+        "Expand validator coverage for reliability fixes and publish a final remediation review"
+      ]
     },
-    "goal_ids": [],
-    "goal_titles": [],
-    "completed_goal_ids": [],
-    "task_iterations": [],
-    "selected_at": null,
+    "goal_ids": [
+      "iteration-64-session-reset-and-review-compatibility"
+    ],
+    "goal_titles": [
+      "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input"
+    ],
+    "completed_goal_ids": [
+      "iteration-64-session-reset-and-review-compatibility"
+    ],
+    "task_iterations": [
+      {
+        "iteration": 63,
+        "goal": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+        "goal_id": "iteration-64-session-reset-and-review-compatibility",
+        "report": "docs/reports/v63.md",
+        "published_at": "2026-03-15T19:14:04Z"
+      }
+    ],
+    "selected_at": "2026-03-15T19:12:41Z",
     "published_at": null,
     "report_path": null
   },
@@ -51,47 +83,46 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T19:02:40Z",
+    "captured_at": "2026-03-15T19:13:03Z",
     "research_findings": [
-      "Code review and reproductions showed that publish-release.py left state and usage logs dirty after a successful publish, while publish-iteration.py could consume a goal before remote validation failed.",
-      "Remote preflight belongs before save_state so direct-push and push-branch failures cannot consume the active goal."
+      "The previous gate logic still privileged legacy flat review arrays, and new sessions could inherit stale failure pressure because escalation counted old state."
     ],
     "committee_feedback": [
-      "The committee aligned on keeping the fix minimal and deterministic instead of adding a new publish state machine."
+      "The committee aligned on preserving long-term history while making session-scoped behavior deterministic."
     ],
     "committee_decision": [
-      "Approve the release once validator coverage proves both successful and failed publish paths."
+      "Approve the release once validator coverage proves clean session reset and structured review compatibility."
     ],
     "reflection_notes": [
-      "This fix should prioritize state correctness over retaining every previous usage-log payload detail."
+      "The strongest repair was to scope active logic to the current session rather than trying to erase all historical data."
     ],
     "research_gate": {
       "status": "captured",
-      "summary": "The publish transaction boundary was wrong: remote checks and durable-state writes were not ordered to preserve a clean, auditable post-publish repo state.",
+      "summary": "The loop needed a cleaner definition of current-session state: fresh sessions must reset transient pressure, and gate checks must honor the structured review schema that the kit now persists.",
       "evidence_refs": [
-        ".agent-loop/scripts/publish-iteration.py",
-        ".agent-loop/scripts/publish-release.py",
+        ".agent-loop/scripts/common.py",
+        ".agent-loop/scripts/set-loop-session.py",
         ".agent-loop/scripts/validate-kit.py"
       ],
-      "data_quality_score": 4.9,
+      "data_quality_score": 4.8,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Fixing publish transaction correctness is the highest-value reliability improvement because it directly affects whether shipped versions can be trusted.",
+        "summary": "A fresh session that still behaves like the previous one is a trust break for operators, so session reset correctness is product-critical.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "The safest repair is to preflight publish targets before mutating durable state, then commit the resulting state in the same artifact that represents the successful publish.",
+        "summary": "The correct fix is to reset transient review state on session start while preserving long-term history, and to scope escalation counters to the current session id.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operators need publish failures to fail cleanly and successful publishes to leave the repo ready for the next step without manual state cleanup.",
+        "summary": "Operators should not need to manually clear stale review state, nor should they have to duplicate structured review content into legacy flat fields.",
         "decision": "approve",
         "dissent": []
       }
@@ -99,13 +130,13 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Repair iteration and release publish ordering together and prove the behavior with validator coverage.",
-        "next_action": "Run full validation, then publish the task and bundled release if the transaction checks stay green."
+        "summary": "Reset transient session state, honor structured review content, and cover both behaviors in validator fixtures.",
+        "next_action": "Run full validation and publish the release if the new session and review-content paths stay green."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "The fix is evidence-backed by direct repros and should be accepted only if validator coverage proves clean success and clean failure behavior.",
-        "decision_record": "Approve the publish transaction remediation release with scope limited to ordering, state durability, and validator coverage.",
+        "summary": "The behavior is now easy to audit: fresh session state is explicit, and structured review artifacts are accepted directly instead of through backwards-compatibility hacks.",
+        "decision_record": "Approve the session reset and structured review compatibility release with scope limited to active-session semantics and gate compatibility.",
         "evidence_refs": [
           ".agent-loop/scripts/validate-kit.py"
         ],
@@ -116,66 +147,66 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "iteration-63-publish-transaction-correctness",
-      "why_selected": "This is the most severe open finding because it can corrupt release history and session progress at publish time.",
+      "selected_goal": "iteration-64-session-reset-and-review-compatibility",
+      "why_selected": "This is the next most important trust issue because stale state can make a supposedly fresh run act unpredictably.",
       "scope_in": [
-        "Preflight remote requirements before mutating iteration or release state.",
-        "Commit successful publish state inside the published artifact instead of leaving runtime state dirty afterward.",
-        "Add validator checks for clean post-publish state and failed-publish non-consumption."
+        "Reset transient review_state and consecutive_failures when starting a fresh session.",
+        "Track escalation history against the current session id.",
+        "Accept structured research, council, secretariat, scope, and evaluator artifacts as valid review content."
       ],
       "scope_out": [
-        "Do not change release planning semantics or committee structure."
+        "Do not redesign escalation policy thresholds or release planning semantics."
       ],
       "assumptions": [
-        "Recording the final publish state in the committed artifact matters more than preserving commit SHA inside state."
+        "Long-term history can remain durable as long as current-session escalation logic scopes itself correctly."
       ],
       "risks": [
-        "Publish event payloads may need to drop the commit SHA from pre-commit usage logging to keep the transaction clean."
+        "Session scoping could accidentally weaken current-session escalation if new history entries do not record session ids."
       ],
       "required_validation": [
-        "validate-kit.py must prove successful release publish leaves a clean worktree.",
-        "validate-kit.py must prove failed iteration publish leaves goal and backlog state untouched."
+        "validate-kit.py must prove fresh sessions clear review pressure.",
+        "validate-kit.py must prove structured review-state content satisfies readiness gates."
       ],
       "stop_conditions": [
-        "Stop if the fix requires destructive rollback of user-authored commits."
+        "Stop if the fix requires deleting durable release history rather than scoping current-session logic correctly."
       ],
       "dissent": [
-        "Do not introduce heavy transactional machinery that changes the loop protocol just to preserve a self-referential commit field."
+        "Keep backward compatibility lightweight; do not reintroduce heavy dual-write requirements for flat and structured review fields."
       ],
-      "next_action": "Run validate-kit.py and publish the remediation release if the transactional ordering remains green."
+      "next_action": "Run validate-kit.py and publish the remediation release if both new fixtures remain green."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.9,
+        "goal_clarity": 4.8,
         "scope_fitness": 4.8,
-        "repo_safety": 4.9,
+        "repo_safety": 4.8,
         "validation_readiness": 4.9,
         "state_durability": 4.9,
-        "publish_safety": 4.9
+        "publish_safety": 4.8
       },
-      "weighted_score": 4.9,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "The remediation scope is narrow, testable, and directly tied to the most severe review finding."
+        "The release is narrow and fixes a real mismatch between the stored schema and the enforced gates."
       ],
       "minimum_fixes_required": [
-        "Keep the fix deterministic and validator-backed."
+        "Ensure validator fixtures cover both fresh-session reset and structured review content."
       ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": "Proceed to validation and publish if the transaction tests remain green."
+      "recommended_action": "Proceed to validation and publish if the session-reset and gate-compatibility fixtures remain green."
     },
-    "goal_id": "iteration-63-publish-transaction-correctness",
-    "goal_title": "Make publish transactions persist committed loop state without dirty post-publish drift"
+    "goal_id": "iteration-64-session-reset-and-review-compatibility",
+    "goal_title": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input"
   },
-  "last_report": "docs/reports/v62.md",
+  "last_report": "docs/reports/v63.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T19:02:55Z",
+    "ran_at": "2026-03-15T19:13:47Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -835,6 +866,21 @@
       "branch": "main",
       "published_at": "2026-03-15T19:03:10Z",
       "session_progress": "0/4 releases"
+    },
+    {
+      "session_id": "session-20260315-185911",
+      "iteration": 63,
+      "goal": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+      "goal_id": "iteration-64-session-reset-and-review-compatibility",
+      "release_number": 2,
+      "release_title": "R2: Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v63.md",
+      "branch": "main",
+      "published_at": "2026-03-15T19:14:04Z",
+      "session_progress": "1/4 releases"
     }
   ],
   "release_history": [

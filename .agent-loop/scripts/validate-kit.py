@@ -922,6 +922,7 @@ def validate_escalation_policy(failures: list[str]) -> None:
         state = seeded_state("review-escalation-test")
         state["history"] = [
             {
+                "session_id": "session-20260315-000000",
                 "iteration": 1,
                 "goal": "Review escalation test",
                 "evaluation_result": "revise",
@@ -1047,6 +1048,83 @@ def validate_session_continuation(failures: list[str]) -> None:
             updated_state = load_state(target)
             check(updated_state.get("session", {}).get("target_releases") == 5, "continue-loop-session.py preserves completed progress while extending target", failures)
             check(updated_state.get("session", {}).get("status") == "active", "continue-loop-session.py reopens the session as active", failures)
+
+
+def validate_session_reset_and_structured_review_content(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a session-reset target", failures)
+
+        state = load_state(target)
+        state["current_goal"] = {"id": "legacy-goal", "title": "Legacy Goal", "selected_at": "2026-03-15T00:00:00Z", "source": ".agent-loop/backlog.json"}
+        state["review_state"] = {
+            "status": "captured",
+            "goal_id": "legacy-goal",
+            "goal_title": "Legacy Goal",
+            "research_findings": ["Legacy research"],
+            "committee_feedback": ["Legacy feedback"],
+            "committee_decision": ["Legacy decision"],
+            "reflection_notes": [],
+            "evaluation": {"status": "captured", "result": "fail", "rubric_version": "iteration-readiness-v1", "scores": {}, "weighted_score": 1.0, "critique": [], "minimum_fixes_required": []},
+        }
+        state["consecutive_failures"] = 2
+        write_json(target / ".agent-loop/state.json", state)
+
+        started = subprocess.run(
+            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(started.returncode == 0, "set-loop-session.py starts a fresh remediation session", failures)
+        if started.returncode == 0:
+            updated_state = load_state(target)
+            check(updated_state.get("review_state", {}).get("status") == "not_started", "set-loop-session.py resets review_state for a fresh session", failures)
+            check(updated_state.get("consecutive_failures") == 0, "set-loop-session.py resets consecutive failure count", failures)
+            check(updated_state.get("current_goal") is None, "set-loop-session.py clears the active goal", failures)
+            check(updated_state.get("release", {}).get("status") == "not_planned", "set-loop-session.py resets the active release shape", failures)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a structured-review-content target", failures)
+
+        structured_state = seeded_state("structured-review", evaluator_result="pass")
+        structured_state["review_state"]["research_findings"] = []
+        structured_state["review_state"]["committee_feedback"] = []
+        structured_state["review_state"]["committee_decision"] = []
+        structured_state["review_state"]["research_gate"] = {
+            "status": "captured",
+            "summary": "Structured review summary",
+            "evidence_refs": [],
+            "data_quality_score": 100,
+            "open_gaps": [],
+        }
+        structured_state["review_state"]["scope_decision"] = {
+            "status": "captured",
+            "selected_goal": "structured-review",
+            "why_selected": "Structured review content should satisfy the gate.",
+            "scope_in": ["Structured scope in"],
+            "scope_out": [],
+            "assumptions": [],
+            "risks": [],
+            "required_validation": [],
+            "stop_conditions": [],
+            "dissent": [],
+            "next_action": "",
+        }
+        write_json(target / ".agent-loop/state.json", structured_state)
+
+        readiness_attempt = subprocess.run(
+            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(readiness_attempt.returncode == 0, "Structured review-state content satisfies the readiness gate without legacy flat fields", failures)
 
 
 def validate_usage_logging(failures: list[str]) -> None:
@@ -1584,6 +1662,7 @@ def main() -> int:
     validate_escalation_policy(failures)
     validate_review_reset_on_goal_change(failures)
     validate_session_continuation(failures)
+    validate_session_reset_and_structured_review_content(failures)
     validate_usage_logging(failures)
     validate_operator_recovery_tools(failures)
     validate_structured_committee_flow(failures)

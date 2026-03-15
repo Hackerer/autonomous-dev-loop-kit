@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from common import append_usage_log, LoopError, find_repo_root, load_config, load_state, planning_config, save_state, utc_now
+from common import append_usage_log, default_state, LoopError, find_repo_root, load_config, load_state, planning_config, save_state, utc_now
 
 
 def main() -> int:
@@ -39,23 +39,13 @@ def main() -> int:
     }
     state["status"] = "session_configured"
     state["current_goal"] = None
-    state["release"] = {
-        "number": None,
-        "title": "",
-        "summary": "",
-        "status": "not_planned",
-        "goal_ids": [],
-        "goal_titles": [],
-        "completed_goal_ids": [],
-        "task_iterations": [],
-        "selected_at": None,
-        "published_at": None,
-        "report_path": None,
-    }
+    state["release"] = default_state()["release"]
     state["draft_iteration"] = None
     state["draft_report"] = None
     state["draft_release_report"] = None
     state["draft_goal"] = None
+    state["review_state"] = default_state()["review_state"]
+    state["consecutive_failures"] = 0
     save_state(root, state)
     append_usage_log(
         root,

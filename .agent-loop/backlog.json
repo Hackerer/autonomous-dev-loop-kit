@@ -691,7 +691,7 @@
     "id": "iteration-64-session-reset-and-review-compatibility",
     "title": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "set-loop-session.py resets transient review, escalation, and failure state for a fresh session while preserving intended long-term history",
       "require_review_state accepts structured research, council, secretariat, scope, and evaluation artifacts as non-empty review content",

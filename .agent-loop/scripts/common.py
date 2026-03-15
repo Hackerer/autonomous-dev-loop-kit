@@ -1097,6 +1097,89 @@ def review_state_matches_goal(review_state: Any, goal: Any) -> bool:
     return not review_goal_id and not review_goal_title
 
 
+def review_state_has_content(review_state: Any) -> bool:
+    if not isinstance(review_state, dict):
+        return False
+
+    for key in ("research_findings", "committee_feedback", "committee_decision", "reflection_notes"):
+        value = review_state.get(key)
+        if isinstance(value, list) and any(str(item).strip() for item in value):
+            return True
+
+    research_gate = review_state.get("research_gate")
+    if isinstance(research_gate, dict):
+        if str(research_gate.get("summary", "")).strip():
+            return True
+        for key in ("evidence_refs", "open_gaps"):
+            value = research_gate.get(key)
+            if isinstance(value, list) and any(str(item).strip() for item in value):
+                return True
+        if research_gate.get("data_quality_score") is not None:
+            return True
+
+    councils = review_state.get("councils")
+    if isinstance(councils, dict):
+        for council in councils.values():
+            if not isinstance(council, dict):
+                continue
+            if str(council.get("summary", "")).strip() or str(council.get("decision", "")).strip():
+                return True
+            dissent = council.get("dissent")
+            if isinstance(dissent, list) and any(str(item).strip() for item in dissent):
+                return True
+
+    secretariat = review_state.get("secretariat")
+    if isinstance(secretariat, dict):
+        for secretary in secretariat.values():
+            if not isinstance(secretary, dict):
+                continue
+            for key in ("summary", "next_action", "decision_record"):
+                if str(secretary.get(key, "")).strip():
+                    return True
+            for key in ("evidence_refs", "open_gaps", "dissent_record"):
+                value = secretary.get(key)
+                if isinstance(value, list) and any(str(item).strip() for item in value):
+                    return True
+
+    scope_decision = review_state.get("scope_decision")
+    if isinstance(scope_decision, dict):
+        for key in ("selected_goal", "why_selected", "next_action"):
+            if str(scope_decision.get(key, "")).strip():
+                return True
+        for key in ("scope_in", "scope_out", "assumptions", "risks", "required_validation", "stop_conditions", "dissent"):
+            value = scope_decision.get(key)
+            if isinstance(value, list) and any(str(item).strip() for item in value):
+                return True
+
+    evaluation = review_state.get("evaluation")
+    if isinstance(evaluation, dict):
+        if str(evaluation.get("rubric_version", "")).strip() or str(evaluation.get("result", "")).strip() not in {"", "pending"}:
+            return True
+        if evaluation.get("weighted_score") is not None:
+            return True
+        scores = evaluation.get("scores")
+        if isinstance(scores, dict) and any(str(key).strip() for key in scores):
+            return True
+        for key in ("critique", "minimum_fixes_required"):
+            value = evaluation.get(key)
+            if isinstance(value, list) and any(str(item).strip() for item in value):
+                return True
+
+    escalation = review_state.get("escalation")
+    if isinstance(escalation, dict):
+        for key in ("reason", "recommended_action"):
+            if str(escalation.get(key, "")).strip():
+                return True
+        if str(escalation.get("status", "")).strip() not in {"", "not_needed"}:
+            return True
+
+    tensions = review_state.get("cross_committee_tensions")
+    if isinstance(tensions, list) and any(str(item).strip() for item in tensions):
+        return True
+
+    return False
+
+
 def require_review_state(config: dict[str, Any], state: dict[str, Any], goal: Any) -> dict[str, Any]:
     discovery = discovery_config(config)
     if not discovery.get("require_committee_review", False):
@@ -1109,11 +1192,7 @@ def require_review_state(config: dict[str, Any], state: dict[str, Any], goal: An
             "Recorded review state is missing or does not match the active goal. Run `python3 .agent-loop/scripts/capture-review.py ...` before reporting or publishing."
         )
 
-    has_content = any(
-        review_state.get(key)
-        for key in ("research_findings", "committee_feedback", "committee_decision", "reflection_notes")
-    )
-    if not has_content:
+    if not review_state_has_content(review_state):
         raise LoopError(
             "Recorded review state is empty for the active goal. Capture research, committee feedback, or a decision before reporting or publishing."
         )
@@ -1328,12 +1407,16 @@ def current_evaluation_result(state: dict[str, Any]) -> str:
 
 def consecutive_review_blocks(state: dict[str, Any]) -> int:
     total = 0
+    session_id = session_summary(state).get("id")
     current = current_evaluation_result(state)
     if current in {"revise", "fail"}:
         total += 1
     for item in reversed(state.get("history", [])):
         if not isinstance(item, dict):
             break
+        item_session_id = str(item.get("session_id", "")).strip()
+        if session_id and item_session_id != session_id:
+            continue
         result = str(item.get("evaluation_result", "")).strip()
         if result in {"revise", "fail"}:
             total += 1
@@ -1350,9 +1433,13 @@ def consecutive_goal_churn(state: dict[str, Any]) -> int:
     if not current or current == "unspecified goal":
         return 0
     total = 0
+    session_id = session_summary(state).get("id")
     for item in reversed(state.get("history", [])):
         if not isinstance(item, dict):
             break
+        item_session_id = str(item.get("session_id", "")).strip()
+        if session_id and item_session_id != session_id:
+            continue
         if str(item.get("goal", "")).strip() == current:
             total += 1
             continue
