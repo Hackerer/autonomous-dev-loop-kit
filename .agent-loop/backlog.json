@@ -555,7 +555,7 @@
     "id": "iteration-53-release-publication-and-logging",
     "title": "Publish bundled releases separately from task iterations and record release-level usage events",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Task iterations can still publish independently without being mistaken for user-visible versions",
       "Bundled releases have their own publish step and durable release history",

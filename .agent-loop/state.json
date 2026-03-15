@@ -1,12 +1,12 @@
 {
-  "iteration": 52,
+  "iteration": 53,
   "status": "published",
   "session": {
     "status": "active",
     "target_releases": 15,
     "completed_releases": 2,
     "target_iterations": null,
-    "completed_iterations": 3,
+    "completed_iterations": 4,
     "started_at": "2026-03-15T12:42:57Z",
     "ended_at": null
   },
@@ -45,7 +45,8 @@
       "Align protocol, skills, installer guidance, and validation with bundled release semantics"
     ],
     "completed_goal_ids": [
-      "iteration-52-release-reporting"
+      "iteration-52-release-reporting",
+      "iteration-53-release-publication-and-logging"
     ],
     "task_iterations": [
       {
@@ -54,6 +55,13 @@
         "goal_id": "iteration-52-release-reporting",
         "report": "docs/reports/v52.md",
         "published_at": "2026-03-15T13:01:18Z"
+      },
+      {
+        "iteration": 53,
+        "goal": "Publish bundled releases separately from task iterations and record release-level usage events",
+        "goal_id": "iteration-53-release-publication-and-logging",
+        "report": "docs/reports/v53.md",
+        "published_at": "2026-03-15T13:02:22Z"
       }
     ],
     "selected_at": "2026-03-15T12:59:26Z",
@@ -66,9 +74,9 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T13:00:44Z",
+    "captured_at": "2026-03-15T13:01:54Z",
     "research_findings": [
-      "Release reports help aggregate task delivery into user-facing version summaries"
+      "Publishing releases separately helps track user-facing versions"
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -83,19 +91,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Product Council: Release reports provide clear user-facing summaries",
+        "summary": "Approve",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Architecture Council: Report structure supports aggregation",
+        "summary": "Approve",
         "decision": "Approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operator Council: Clear reporting helps handoff",
+        "summary": "Approve",
         "decision": "Approve",
         "dissent": []
       }
@@ -118,14 +126,14 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Generate detailed bundled release reports that aggregate task delivery",
-      "why_selected": "Users need clear summaries of what was delivered",
+      "selected_goal": "Publish bundled releases separately from task iterations and record release-level usage events",
+      "why_selected": "Clear separation helps version tracking",
       "scope_in": [
-        "Add release report generation",
-        "Aggregate task iteration outputs"
+        "Separate release publishing",
+        "Add release usage logging"
       ],
       "scope_out": [
-        "Modify individual task reports"
+        "Modify task iteration publishing"
       ],
       "assumptions": [],
       "risks": [],
@@ -142,9 +150,7 @@
       "scores": {},
       "weighted_score": 4.5,
       "result": "pass",
-      "critique": [
-        "Release report generation is in place"
-      ],
+      "critique": [],
       "minimum_fixes_required": []
     },
     "escalation": {
@@ -152,13 +158,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-52-release-reporting",
-    "goal_title": "Generate detailed bundled release reports that aggregate task delivery"
+    "goal_id": "iteration-53-release-publication-and-logging",
+    "goal_title": "Publish bundled releases separately from task iterations and record release-level usage events"
   },
-  "last_report": "docs/reports/v52.md",
+  "last_report": "docs/reports/v53.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T13:01:18Z",
+    "ran_at": "2026-03-15T13:02:22Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -677,6 +683,20 @@
       "report": "docs/reports/v52.md",
       "branch": "main",
       "published_at": "2026-03-15T13:01:18Z",
+      "session_progress": "2/15 releases"
+    },
+    {
+      "iteration": 53,
+      "goal": "Publish bundled releases separately from task iterations and record release-level usage events",
+      "goal_id": "iteration-53-release-publication-and-logging",
+      "release_number": 3,
+      "release_title": "R3: Generate detailed bundled release reports that aggregate task delivery + 2 more bundled goals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v53.md",
+      "branch": "main",
+      "published_at": "2026-03-15T13:02:22Z",
       "session_progress": "2/15 releases"
     }
   ],
