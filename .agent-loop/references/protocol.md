@@ -13,6 +13,7 @@ This protocol uses `ReAct` in the sense of the Shunyu Yao et al. paper, `Reason 
 - `.agent-loop/state.json`
 - `.agent-loop/backlog.json`
 - `.agent-loop/references/data-quality-acquisition.md`
+- `.agent-loop/references/committee-driven-delivery.md`
 - `.agent-loop/templates/project-data-template.json`
 - `.agent-loop/data/project-data.json` when collected
 - `.agent-loop/data/data-quality.json` when scored
@@ -30,7 +31,8 @@ Before the first autonomous iteration in a repo, confirm:
 2. `.agent-loop/config.json` contains the real validation commands for this repo.
 3. The loop session has a persisted iteration limit. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
 4. The Git strategy is explicit: `push-branch`, `direct-push`, or `commit-only`.
-5. The next version goal is small enough to implement and validate in one iteration.
+5. The discovery and committee settings in `.agent-loop/config.json` require research, committee review, and post-validation reflection.
+6. The next version goal is small enough to implement and validate in one iteration.
 
 If any condition is missing, create or update the artifacts before attempting autonomous delivery.
 
@@ -47,11 +49,22 @@ Every version follows the same state machine:
    - If project data is missing, stale, or low-confidence, run:
      - `python3 .agent-loop/scripts/collect-project-data.py`
      - `python3 .agent-loop/scripts/score-data-quality.py`
-2. `select`
+2. `research`
+   - Perform explicit pre-goal research using repo files, tests, generated artifacts, recent reports, and product context.
+   - Meet the configured minimum research inputs before choosing a goal.
+   - Capture only concise research conclusions that materially affect scope or risk.
+3. `committee-review`
+   - Run `python3 .agent-loop/scripts/render-committee.py` to restate the configured committees.
+   - Challenge the candidate version through all configured roles:
+     - product manager committee
+     - technical architect committee
+     - user committee
+   - Narrow or reject the candidate if the committee exposes unclear value, design risk, or user friction.
+4. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
    - Refuse to start a new version if the configured session limit has already been reached.
-3. `implement`
+5. `implement`
    - Use short ReAct cycles inside implementation:
      - reason from the current evidence
      - take one concrete action
@@ -59,16 +72,19 @@ Every version follows the same state machine:
      - update the next action
    - Make the minimum coherent code change.
    - Update or add tests for the real behavior.
-4. `validate`
+6. `validate`
    - Run the full configured validation suite.
    - No publish step is allowed if validation is red.
-5. `report`
+7. `reflect`
+   - Reflect on what the research and committee review got right, wrong, or incomplete after seeing validation results.
+   - Update the next-step recommendation based on the new evidence.
+8. `report`
    - Write a version report in `docs/reports/`.
-   - Record the goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
-6. `publish`
+   - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
+9. `publish`
    - Commit the complete version.
    - Push or otherwise publish according to config.
-7. `reflect`
+10. `loop-reflect`
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
    - Decide whether the next version should start or whether the loop should stop.
 
@@ -88,6 +104,8 @@ Every report must include:
 - Iteration number
 - Date
 - Current state analysis
+- Research performed before goal selection
+- Committee feedback and decision
 - Version goal
 - Key observations from execution
 - Evidence sources
@@ -147,6 +165,7 @@ Autonomous loops degrade when scope expands inside the same version.
 - If observations contradict the prior plan, revise the plan before taking the next action.
 - Prefer many small evidence-backed actions over one large speculative rewrite.
 - Use the evidence hierarchy and freshness rules in `.agent-loop/references/data-quality-acquisition.md` when deciding whether current project data is good enough.
+- Use `.agent-loop/references/committee-driven-delivery.md` when reconciling product, architecture, and user objections before implementation.
 
 ## Cross-CLI Notes
 

@@ -15,6 +15,7 @@ CONFIG_FILE = "config.json"
 STATE_FILE = "state.json"
 BACKLOG_FILE = "backlog.json"
 LAST_VALIDATION_FILE = "last-validation.json"
+EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
 
 
 class LoopError(RuntimeError):
@@ -133,6 +134,102 @@ def planning_config(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(planning, dict):
         return {}
     return planning
+
+
+def discovery_config(config: dict[str, Any]) -> dict[str, Any]:
+    discovery = config.get("discovery", {})
+    if not isinstance(discovery, dict):
+        return {}
+    return discovery
+
+
+def committee_config(config: dict[str, Any]) -> dict[str, Any]:
+    committee = config.get("committee", {})
+    if not isinstance(committee, dict):
+        return {}
+    return committee
+
+
+def validate_committee(config: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    discovery = discovery_config(config)
+    committee = committee_config(config)
+    enabled = bool(committee.get("enabled", False))
+    roles = committee.get("roles", [])
+
+    if discovery.get("require_research_before_goal_selection", False):
+        minimum_inputs = int(discovery.get("minimum_research_inputs", 0) or 0)
+        if minimum_inputs < 1:
+            errors.append("discovery.minimum_research_inputs must be >= 1 when research is required")
+
+    if discovery.get("require_committee_review", False) and not enabled:
+        errors.append("committee.enabled must be true when discovery.require_committee_review is true")
+
+    if not enabled:
+        return errors
+
+    if not isinstance(roles, list):
+        errors.append("committee.roles must be a list")
+        return errors
+
+    role_map: dict[str, Any] = {}
+    for role in roles:
+        if not isinstance(role, dict):
+            errors.append("committee.roles entries must be objects")
+            continue
+        role_id = str(role.get("id", "")).strip()
+        if not role_id:
+            errors.append("committee.roles entries must include an id")
+            continue
+        role_map[role_id] = role
+
+    missing_roles = [role_id for role_id in EXPECTED_COMMITTEE_ROLE_IDS if role_id not in role_map]
+    if missing_roles:
+        errors.append(f"committee.roles is missing required role ids: {', '.join(missing_roles)}")
+
+    for role_id, role in role_map.items():
+        members = role.get("members", [])
+        if not str(role.get("label", "")).strip():
+            errors.append(f"committee role '{role_id}' is missing label")
+        if not str(role.get("responsibility", "")).strip():
+            errors.append(f"committee role '{role_id}' is missing responsibility")
+        if not isinstance(members, list):
+            errors.append(f"committee role '{role_id}' members must be a list")
+            continue
+        if not 3 <= len(members) <= 5:
+            errors.append(f"committee role '{role_id}' must define between 3 and 5 members")
+        for index, member in enumerate(members, start=1):
+            if not isinstance(member, dict):
+                errors.append(f"committee role '{role_id}' member {index} must be an object")
+                continue
+            for key in ("name", "style", "focus"):
+                if not str(member.get(key, "")).strip():
+                    errors.append(f"committee role '{role_id}' member {index} is missing {key}")
+    return errors
+
+
+def committee_summary(config: dict[str, Any]) -> list[dict[str, Any]]:
+    committee = committee_config(config)
+    roles = committee.get("roles", [])
+    if not isinstance(roles, list):
+        return []
+    summary: list[dict[str, Any]] = []
+    for role in roles:
+        if not isinstance(role, dict):
+            continue
+        members = role.get("members", [])
+        if not isinstance(members, list):
+            members = []
+        summary.append(
+            {
+                "id": str(role.get("id", "")),
+                "label": str(role.get("label", "") or role.get("id", "committee role")),
+                "responsibility": str(role.get("responsibility", "")),
+                "member_count": len(members),
+                "members": [str(member.get("name", "")) for member in members if isinstance(member, dict)],
+            }
+        )
+    return summary
 
 
 def load_backlog(root: Path) -> list[dict[str, Any]]:

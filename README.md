@@ -19,6 +19,22 @@ or:
 
 `ReAct` here means the paper pattern from Shunyu Yao et al., `Reason + Act`, not the frontend framework `React`.
 
+## Committee-Driven Iteration Model
+
+Each iteration now enforces:
+
+- explicit research before goal selection
+- a requirement and review committee before implementation
+- post-validation reflection before publication
+
+The default committee is split into three roles:
+
+- product manager committee
+- technical architect committee
+- user committee
+
+Each role ships with 3 named members of different styles in `.agent-loop/config.json`, and can be customized per project.
+
 ## What It Enforces
 
 For every version, the loop requires:
@@ -73,6 +89,27 @@ Then replace the placeholder validation command in `.agent-loop/config.json` wit
 
 Do not leave the placeholder validation step in place for real use.
 
+Also customize the committee members in `.agent-loop/config.json` if the default product-manager, technical-architect, and user personas do not match the target project.
+
+## Install Into Local CLI Skill Directories
+
+To install this kit into your user-level Codex and Claude Code skill folders, run:
+
+```bash
+./scripts/install-to-clis.sh
+```
+
+Optional flags:
+
+- `--codex-only`
+- `--claude-only`
+- `--name custom-bundle-name`
+
+The installer copies the full kit into:
+
+- `~/.codex/skills/<bundle-name>/`
+- `~/.claude/skills/<bundle-name>/`
+
 ## Minimal Launch
 
 Once installed in a project, the user can launch the loop with a count-only prompt:
@@ -97,10 +134,12 @@ This kit now assumes a data-first loop:
 
 1. collect project data
 2. score project-data quality
-3. select the next scoped goal
-4. implement and validate
-5. refresh data if the repo changed materially
-6. report and publish
+3. render the committee brief
+4. research and challenge the scope through the committee
+5. select the next scoped goal
+6. implement and validate
+7. reflect, refresh data if the repo changed materially
+8. report and publish
 
 High-quality data does not require a package manager. Script-first repos can also reach `ready` if the snapshot captures direct automation signals such as `.agent-loop/scripts`, agent-skill directories, and the repo archetype.
 
@@ -109,6 +148,7 @@ Core commands:
 ```text
 python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
+python3 .agent-loop/scripts/render-committee.py
 python3 .agent-loop/scripts/select-next-goal.py
 python3 .agent-loop/scripts/run-full-validation.py
 python3 .agent-loop/scripts/write-report.py
@@ -130,6 +170,7 @@ Key scripts:
 - `.agent-loop/scripts/set-loop-session.py`
 - `.agent-loop/scripts/collect-project-data.py`
 - `.agent-loop/scripts/score-data-quality.py`
+- `.agent-loop/scripts/render-committee.py`
 - `.agent-loop/scripts/select-next-goal.py`
 - `.agent-loop/scripts/run-full-validation.py`
 - `.agent-loop/scripts/write-report.py`

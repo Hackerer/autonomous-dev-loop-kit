@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 
 from common import (
+    committee_summary,
+    discovery_config,
     current_branch,
     find_repo_root,
     git,
@@ -217,6 +219,15 @@ def main() -> int:
         "configured_commands": config.get("validation", {}).get("commands", []),
         "blocking_gates": [item.get("name") for item in config.get("validation", {}).get("commands", []) if item.get("required", True)],
         "confidence": "direct",
+    }
+    discovery = discovery_config(config)
+    snapshot["execution_model"] = {
+        "react_cycle_required": True,
+        "research_required": bool(discovery.get("require_research_before_goal_selection", False)),
+        "minimum_research_inputs": int(discovery.get("minimum_research_inputs", 0) or 0),
+        "committee_review_required": bool(discovery.get("require_committee_review", False)),
+        "post_validation_reflection_required": bool(discovery.get("require_post_validation_reflection", False)),
+        "committee_roles": committee_summary(config),
     }
     snapshot["product_context"] = {
         "target_outcome": parse_target_outcome(root),

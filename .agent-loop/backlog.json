@@ -1,113 +1,62 @@
 [
   {
-    "id": "iteration-01-validation-baseline",
-    "title": "Add a real repository validation script and use it as the publish gate",
+    "id": "iteration-11-committee-foundation",
+    "title": "Integrate the committee-driven loop model across config, scripts, templates, and references",
     "priority": "critical",
     "status": "completed",
     "acceptance": [
-      "The repo contains a deterministic validation script for this kit",
-      "Validation checks the loop JSON files, Python scripts, and skill metadata without placeholder commands",
-      "The version can be published with the new validation gate"
+      "The loop config defines research and committee requirements",
+      "The default committee defines product-manager, technical-architect, and user roles with 3 to 5 members each",
+      "The kit includes reference, script, and template support for the committee-driven loop model"
     ],
-    "notes": "This calibrates the repo for the rest of the loop."
+    "notes": "This establishes the first end-to-end committee-driven version before later iterations deepen durability and installer support."
   },
   {
-    "id": "iteration-02-publish-state-integrity",
-    "title": "Fix publish ordering so loop state and backlog updates are committed in the same version",
+    "id": "iteration-12-committee-validation-rendering",
+    "title": "Persist research and committee review conclusions into loop state",
     "priority": "critical",
-    "status": "completed",
+    "status": "pending",
     "acceptance": [
-      "Publishing a version does not leave dirty tracked state files behind",
-      "State and backlog updates for a published version are included in the same commit"
+      "The state model can store research findings, committee notes, and review decisions for the active iteration",
+      "The repo includes a script that records review findings into durable state",
+      "The stored review data remains concise and machine-readable"
     ],
-    "notes": "A dirty worktree after publish undermines loop reliability."
+    "notes": "Committee review should survive context loss instead of living only in reports or chat."
   },
   {
-    "id": "iteration-03-data-quality-reference",
-    "title": "Add a reference that defines what high-quality project data means for the loop",
+    "id": "iteration-13-reporting-and-project-data",
+    "title": "Read committee review state back into project data and reports",
     "priority": "high",
-    "status": "completed",
+    "status": "pending",
     "acceptance": [
-      "A new reference file defines required data sources, freshness, confidence, and evidence hierarchy",
-      "The protocol points to that reference when data quality matters"
+      "Collected project data includes the latest recorded review state",
+      "Reports can render research findings and committee decisions from durable state with minimal manual flags",
+      "The data model stays consistent across state, project data, and report generation"
     ],
-    "notes": "This defines the target standard before adding scripts."
+    "notes": "The loop should not require manual copy-paste of committee conclusions."
   },
   {
-    "id": "iteration-04-data-schema",
-    "title": "Add a structured schema for project data snapshots and evidence",
+    "id": "iteration-14-project-installation-flow",
+    "title": "Add a project installation script for the committee-driven kit",
     "priority": "high",
-    "status": "completed",
+    "status": "pending",
     "acceptance": [
-      "The repo contains a durable JSON schema or template for collected project data",
-      "The schema can represent repo facts, commands, risks, and evidence quality"
+      "The repo contains a script that installs the loop kit into a target project root",
+      "The installer copies committee-driven references and scripts without requiring manual file-by-file copying",
+      "The installer avoids overwriting target-project-specific validation config unless explicitly requested"
     ],
-    "notes": "The loop needs a concrete shape for collected data."
+    "notes": "This makes the upgraded committee loop easier to adopt in real projects."
   },
   {
-    "id": "iteration-05-collect-project-data",
-    "title": "Add a script that collects first-pass project data into a snapshot file",
+    "id": "iteration-15-wrapper-protocol-alignment",
+    "title": "Require recorded review state before reporting and publication",
     "priority": "high",
-    "status": "completed",
+    "status": "pending",
     "acceptance": [
-      "A script can collect basic repo and git signals into a machine-readable artifact",
-      "The artifact is suitable for later scoring and reporting"
+      "The loop refuses to report or publish when required review-state artifacts are missing",
+      "Validation can detect missing durable review-state support",
+      "Protocol and README explain the new gate clearly"
     ],
-    "notes": "This turns data acquisition into an explicit step."
-  },
-  {
-    "id": "iteration-06-score-data-quality",
-    "title": "Add a script that scores whether the collected project data is good enough to act on",
-    "priority": "high",
-    "status": "completed",
-    "acceptance": [
-      "The repo contains a scoring or checklist script for snapshot quality",
-      "The scoring output highlights missing signals or stale data"
-    ],
-    "notes": "The loop should know whether it has enough context."
-  },
-  {
-    "id": "iteration-07-state-integration",
-    "title": "Integrate data snapshot and quality state into the loop's durable state model",
-    "priority": "medium",
-    "status": "completed",
-    "acceptance": [
-      "State or related artifacts can record where the latest data snapshot lives",
-      "The protocol explains when to refresh data before acting"
-    ],
-    "notes": "Collected data should survive context loss."
-  },
-  {
-    "id": "iteration-08-reporting-evidence",
-    "title": "Extend reports to include evidence sources and data quality observations",
-    "priority": "medium",
-    "status": "completed",
-    "acceptance": [
-      "The report template captures data sources and evidence quality",
-      "Write-report workflow can record these observations cleanly"
-    ],
-    "notes": "Reports should explain why the loop trusted its context."
-  },
-  {
-    "id": "iteration-09-goal-selection-from-data",
-    "title": "Improve next-goal selection using data quality gaps and evidence gaps",
-    "priority": "medium",
-    "status": "completed",
-    "acceptance": [
-      "Goal selection can favor tasks that close the biggest data or evidence gaps",
-      "The logic stays deterministic and understandable"
-    ],
-    "notes": "This links collected data to planning quality."
-  },
-  {
-    "id": "iteration-10-polish-and-alignment",
-    "title": "Align wrappers, protocol, README, and examples around high-quality project data acquisition",
-    "priority": "medium",
-    "status": "completed",
-    "acceptance": [
-      "Public docs, wrappers, and examples consistently describe the data acquisition flow",
-      "The repo defaults are coherent after the first nine iterations"
-    ],
-    "notes": "Finish with consistency, docs, and example polish."
+    "notes": "This closes the gap between committee guidance and enforceable release gates."
   }
 ]

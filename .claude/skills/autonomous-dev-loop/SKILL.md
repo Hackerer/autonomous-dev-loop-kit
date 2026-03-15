@@ -32,7 +32,8 @@ Read these files before starting or resuming a loop:
 6. ../../../.agent-loop/references/prompting-guidelines.md
 7. ../../../.agent-loop/references/react-reasoning-acting.md
 8. ../../../.agent-loop/references/data-quality-acquisition.md
-9. ../../../.agent-loop/references/example-data-acquisition-workflow.md
+9. ../../../.agent-loop/references/committee-driven-delivery.md
+10. ../../../.agent-loop/references/example-data-acquisition-workflow.md
 </load_order>
 
 Run `.agent-loop` state scripts sequentially. Do not parallelize goal selection, validation, report writing, or publishing.
@@ -41,6 +42,7 @@ Run `.agent-loop` state scripts sequentially. Do not parallelize goal selection,
 Do not start implementation until all of these are true:
 - PLANS.md states the current target, constraints, and open risks.
 - .agent-loop/config.json contains real validation commands. The placeholder failing command must be replaced.
+- .agent-loop/config.json contains a valid committee definition for product-manager, technical-architect, and user review.
 - The loop session target has been persisted with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` when the user provided or implied a count.
 - The repo has a valid Git publication strategy for this loop.
 - The next version can be completed and validated in one iteration.
@@ -51,20 +53,23 @@ Run this order exactly:
 1. Analyze current state, target, recent reports, and backlog. Think deeply before acting.
 2. If the user provided or implied a loop count and the session is not configured yet, run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
 3. If project data is missing, stale, or low-quality, run `python3 .agent-loop/scripts/collect-project-data.py` and `python3 .agent-loop/scripts/score-data-quality.py`.
-4. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
-5. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
-6. Implement the smallest coherent change set.
-7. Add or update tests for the real behavior.
-8. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
-9. If validation fails, do not commit or push.
-10. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including key observations.
-11. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
-12. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
+4. Run `python3 .agent-loop/scripts/render-committee.py`, do explicit research, and challenge the candidate scope through the product-manager, technical-architect, and user committees.
+5. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
+6. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
+7. Implement the smallest coherent change set.
+8. Add or update tests for the real behavior.
+9. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
+10. If validation fails, do not commit or push.
+11. Reflect on what the research and committee review got right, wrong, or incomplete.
+12. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings and committee observations.
+13. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
+14. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
 </iteration_loop>
 
 <non_negotiable_rules>
 - Unless the user says otherwise, interpret a count-only launch as permission to run the full autonomous loop in the current repo.
 - Think deeply before execution, especially before architectural changes, large edits, or high-cost commands.
+- Never skip research or committee review when the config requires them.
 - Never publish without a green full-validation run.
 - Never publish without a report in docs/reports/.
 - Never publish one project to another project's GitHub remote.
@@ -88,6 +93,7 @@ Run this order exactly:
 - Prompting guidance: ../../../.agent-loop/references/prompting-guidelines.md
 - ReAct guide: ../../../.agent-loop/references/react-reasoning-acting.md
 - Data quality guide: ../../../.agent-loop/references/data-quality-acquisition.md
+- Committee guide: ../../../.agent-loop/references/committee-driven-delivery.md
 - Example workflow: ../../../.agent-loop/references/example-data-acquisition-workflow.md
 - Project data template: ../../../.agent-loop/templates/project-data-template.json
 - Report template: ../../../.agent-loop/templates/report-template.md

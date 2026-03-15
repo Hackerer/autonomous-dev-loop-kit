@@ -18,6 +18,7 @@ Before the first iteration of a session, read:
 - `.agent-loop/state.json`
 - `.agent-loop/backlog.json`
 - `.agent-loop/references/protocol.md`
+- `.agent-loop/references/committee-driven-delivery.md`
 
 If the user specifies or implies a loop count, persist it with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before selecting the first goal.
 
@@ -28,8 +29,11 @@ Interpret `ReAct` as the Shunyu Yao paper method, `Reason + Act`, not the fronte
 Within each iteration, require:
 
 - deep analysis before execution
+- explicit research before goal selection
+- product-manager, technical-architect, and user committee review before implementation
 - short reason -> act -> observe -> update cycles
-- key observations written into the report
+- post-validation reflection
+- key observations from research, committee review, and execution written into the report
 
 Git publication must target the current project's own GitHub repository. If the current project's remote or publication target is unclear, stop and ask the user before publishing.
 

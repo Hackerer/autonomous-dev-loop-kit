@@ -20,6 +20,84 @@
       }
     ]
   },
+  "discovery": {
+    "require_research_before_goal_selection": true,
+    "minimum_research_inputs": 3,
+    "require_committee_review": true,
+    "require_post_validation_reflection": true
+  },
+  "committee": {
+    "enabled": true,
+    "review_mode": "requirements-and-review-council",
+    "roles": [
+      {
+        "id": "product-manager",
+        "label": "Product Manager Committee",
+        "responsibility": "Challenge user value, scope discipline, sequencing, and acceptance criteria before implementation starts.",
+        "members": [
+          {
+            "name": "Maya Chen",
+            "style": "growth-oriented pragmatist",
+            "focus": "user value, scope trimming, launch readiness"
+          },
+          {
+            "name": "Idris Kapoor",
+            "style": "metrics-driven operator",
+            "focus": "success metrics, acceptance clarity, feedback loops"
+          },
+          {
+            "name": "Elena Park",
+            "style": "support-conscious product lead",
+            "focus": "operational burden, rollout risk, edge-case clarity"
+          }
+        ]
+      },
+      {
+        "id": "technical-architect",
+        "label": "Technical Architect Committee",
+        "responsibility": "Challenge architecture, interfaces, migration cost, validation strategy, and operational safety.",
+        "members": [
+          {
+            "name": "Victor Hale",
+            "style": "simplicity-first systems architect",
+            "focus": "failure isolation, minimal surface area, clean boundaries"
+          },
+          {
+            "name": "Priya Raman",
+            "style": "testability-focused platform architect",
+            "focus": "interface contracts, migration paths, validation depth"
+          },
+          {
+            "name": "Jonas Meyer",
+            "style": "reliability and observability specialist",
+            "focus": "runtime safety, instrumentation, rollback posture"
+          }
+        ]
+      },
+      {
+        "id": "user",
+        "label": "User Committee",
+        "responsibility": "Challenge the plan from concrete usage scenarios, day-to-day friction, trust, and clarity.",
+        "members": [
+          {
+            "name": "Leo Zhang",
+            "style": "time-starved mobile user",
+            "focus": "speed to value, simple outputs, low interaction cost"
+          },
+          {
+            "name": "Sofia Martinez",
+            "style": "risk-averse careful operator",
+            "focus": "explainability, guardrails, confidence before action"
+          },
+          {
+            "name": "Ben Carter",
+            "style": "power user and workflow optimizer",
+            "focus": "control, configurability, useful edge-case behavior"
+          }
+        ]
+      }
+    ]
+  },
   "reporting": {
     "directory": "docs/reports",
     "filename_pattern": "v{iteration}.md"

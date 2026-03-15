@@ -22,6 +22,14 @@
     "blocking_gates": [],
     "confidence": "direct"
   },
+  "execution_model": {
+    "react_cycle_required": true,
+    "research_required": false,
+    "minimum_research_inputs": 0,
+    "committee_review_required": false,
+    "post_validation_reflection_required": false,
+    "committee_roles": []
+  },
   "product_context": {
     "target_outcome": "",
     "constraints": [],

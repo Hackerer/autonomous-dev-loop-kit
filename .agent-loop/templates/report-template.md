@@ -11,6 +11,18 @@ Date: {date}
 - What is true in the repo before this version starts?
 - What gap is this version closing?
 
+## Research
+
+- Which repo, product, user, and architecture signals were researched before goal selection?
+- What did the research change about the intended scope or risk posture?
+
+## Committee Review
+
+- What did the product manager committee push on?
+- What did the technical architect committee push on?
+- What did the user committee push on?
+- What committee decision or narrowed scope came out of review?
+
 ## Version Goal
 
 - Goal:
@@ -40,6 +52,8 @@ Date: {date}
 
 ## Reflection
 
+- Research reflection:
+- Committee reflection:
 - Requirement reflection:
 - Architecture reflection:
 

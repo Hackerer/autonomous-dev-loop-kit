@@ -13,6 +13,8 @@ Use a thin prompt and a thick protocol.
 - Make real validation, report writing, and publication mandatory artifacts.
 - Persist the requested loop count before the first iteration so the model does not have to remember it from chat.
 - Require deep analysis before execution, but keep that reasoning mostly implicit and store only concise conclusions.
+- Require explicit research before goal selection and explicit reflection after validation.
+- Use a configured committee of product managers, architects, and users to challenge scope before code changes.
 - Treat GitHub publication as project-local. If the target repo for the current project is unclear, ask before pushing.
 
 If the user launches with only a count, such as `循环3次`, treat that as a full loop start command. The protocol supplies the missing requirements.
@@ -26,6 +28,7 @@ If the user launches with only a count, such as `循环3次`, treat that as a fu
 - Report-driven reflection after each version
 - ReAct-style evidence gathering before code edits
 - A clear definition of what counts as high-quality project data
+- A committee-driven requirement and review pass before implementation starts
 
 ## What Lowers Quality
 
@@ -35,6 +38,7 @@ If the user launches with only a count, such as `循环3次`, treat that as a fu
 - Relying on chat context for memory
 - Passing tests by hard-coding edge cases
 - Making large edits before inspecting the relevant code, architecture, and test surface
+- Letting one internal viewpoint pick scope without product, architecture, and user challenge
 
 ## ReAct Pattern
 
@@ -46,6 +50,16 @@ Within each iteration, use this cadence:
 4. Update the next step.
 
 The model should think deeply before executing, especially before architectural changes, destructive actions, or expensive refactors. Do not force long chain-of-thought in chat. Persist only concise conclusions, observations, and decisions.
+
+## Committee Pattern
+
+Within each iteration, after research and before implementation:
+
+1. Restate the configured committee from `.agent-loop/config.json`.
+2. Let the product manager committee challenge user value and scope.
+3. Let the technical architect committee challenge design and validation depth.
+4. Let the user committee challenge usability, trust, and workflow fit.
+5. Reconcile the objections into one smaller, clearer version goal.
 
 ## Codex Wrapper Style
 
@@ -73,8 +87,9 @@ The highest-signal pattern for this workflow is:
 1. Define the target outcome.
 2. Define non-negotiable gates.
 3. Define the iteration state machine.
-4. Define stop conditions.
-5. Define the files that hold durable state.
+4. Define the research and committee challenge model.
+5. Define stop conditions.
+6. Define the files that hold durable state.
 
 Anything beyond that should be justified by a real failure mode.
 
@@ -88,6 +103,7 @@ Expected interpretation:
   - start the autonomous loop in the current repo
   - persist the session with 3 iterations
   - use ReAct reasoning-plus-action cadence inside each iteration
+  - require research and committee review before implementation
   - run one scoped version at a time
   - require full validation before publication
   - require a report for every version

@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 
 from common import (
+    committee_summary,
     LoopError,
     find_repo_root,
     goal_title,
@@ -29,7 +30,10 @@ def bullet_lines(values: list[str], fallback: str) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Write a version report for the next autonomous iteration.")
     parser.add_argument("--analysis", action="append", default=[], help="Current-state analysis bullet.")
+    parser.add_argument("--research", action="append", default=[], help="Research bullet gathered before goal selection.")
     parser.add_argument("--acceptance", action="append", default=[], help="Acceptance bullet for this version.")
+    parser.add_argument("--committee-feedback", action="append", default=[], help="Committee feedback bullet.")
+    parser.add_argument("--committee-decision", action="append", default=[], help="Committee decision bullet.")
     parser.add_argument("--observation", action="append", default=[], help="Key observation bullet from the ReAct cycle.")
     parser.add_argument("--source", action="append", default=[], help="Evidence source bullet for this version.")
     parser.add_argument("--quality-note", action="append", default=[], help="Data-quality bullet for this version.")
@@ -52,6 +56,12 @@ def main() -> int:
     goal_label = goal_title(goal)
     today = datetime.now().date().isoformat()
     project_data = state.get("project_data", {})
+    committee_lines = []
+    for role in committee_summary(config):
+        members = ", ".join(role["members"]) if role["members"] else "no named members"
+        committee_lines.append(f"{role['label']}: {role['responsibility']} Members: {members}")
+    committee_lines.extend(args.committee_feedback)
+    committee_lines.extend(args.committee_decision)
 
     validation_lines = []
     for result in validation.get("results", []):
@@ -92,6 +102,12 @@ def main() -> int:
         "",
         "## Current State Analysis",
         *bullet_lines(args.analysis, "Summarize the current repo state before this version."),
+        "",
+        "## Research",
+        *bullet_lines(args.research, "Summarize the repo, product, user, and architecture research completed before selecting this version."),
+        "",
+        "## Committee Review",
+        *bullet_lines(committee_lines, "Record the requirement and review feedback from the product, architecture, and user committee."),
         "",
         "## Version Goal",
         f"- Goal: {goal_label}",

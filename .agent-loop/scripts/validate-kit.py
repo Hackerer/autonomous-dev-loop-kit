@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from common import validate_committee
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -18,6 +20,10 @@ def check(condition: bool, message: str, failures: list[str]) -> None:
     else:
         print(f"[FAIL] {message}")
         failures.append(message)
+
+
+def is_positive_int(value: object) -> bool:
+    return isinstance(value, int) and value > 0
 
 
 def validate_json(path: Path, failures: list[str]) -> None:
@@ -68,6 +74,7 @@ def main() -> int:
         ROOT / ".agent-loop/references/prompting-guidelines.md",
         ROOT / ".agent-loop/references/react-reasoning-acting.md",
         ROOT / ".agent-loop/references/data-quality-acquisition.md",
+        ROOT / ".agent-loop/references/committee-driven-delivery.md",
         ROOT / ".agent-loop/references/example-data-acquisition-workflow.md",
         ROOT / ".agent-loop/templates/project-data-template.json",
         ROOT / ".agent-loop/templates/report-template.md",
@@ -97,8 +104,30 @@ def main() -> int:
         failures,
     )
     check(
-        config.get("planning", {}).get("max_iterations_per_session") == 10,
-        "Planning max_iterations_per_session is set to 10",
+        is_positive_int(config.get("planning", {}).get("max_iterations_per_session")),
+        "Planning max_iterations_per_session is a positive integer",
+        failures,
+    )
+    committee_errors = validate_committee(config)
+    check(not committee_errors, "Committee config is valid", failures)
+    if committee_errors:
+        for message in committee_errors:
+            print(f"[FAIL] Committee config detail: {message}")
+            failures.append(message)
+    discovery = config.get("discovery", {})
+    check(
+        discovery.get("require_research_before_goal_selection") is True,
+        "Discovery requires research before goal selection",
+        failures,
+    )
+    check(
+        discovery.get("require_committee_review") is True,
+        "Discovery requires committee review",
+        failures,
+    )
+    check(
+        discovery.get("require_post_validation_reflection") is True,
+        "Discovery requires post-validation reflection",
         failures,
     )
 
@@ -133,6 +162,15 @@ def main() -> int:
     check(scorer.returncode == 0, "score-data-quality.py runs successfully", failures)
     if scorer.returncode == 0:
         validate_json(generated_quality, failures)
+
+    committee_renderer = subprocess.run(
+        ["python3", ".agent-loop/scripts/render-committee.py", "--json"],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    check(committee_renderer.returncode == 0, "render-committee.py runs successfully", failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)
