@@ -1,13 +1,13 @@
 {
-  "iteration": 59,
-  "status": "release_report_written",
+  "iteration": 60,
+  "status": "published",
   "session": {
     "id": "session-20260315-152645",
     "status": "active",
     "target_releases": 5,
-    "completed_releases": 2,
+    "completed_releases": 3,
     "target_iterations": null,
-    "completed_iterations": 3,
+    "completed_iterations": 4,
     "started_at": "2026-03-15T15:26:45Z",
     "ended_at": null
   },
@@ -20,79 +20,83 @@
   },
   "current_goal": null,
   "release": {
-    "number": 3,
-    "title": "R3: Turn task and release reports into trustworthy publish artifacts",
-    "summary": "Ship the single high-priority goal `Turn task and release reports into trustworthy publish artifacts` as a standalone bundled release.",
+    "number": 4,
+    "title": "R4: Strengthen PM release planning with archetypes and better packaging signals",
+    "summary": "Ship the single high-priority goal `Strengthen PM release planning with archetypes and better packaging signals` as a standalone bundled release.",
     "status": "ready_to_release",
     "brief": {
-      "objective": "Make published task and release reports trustworthy by construction.",
-      "target_user_value": "Operators can trust that anything published to docs/reports and docs/releases is concrete, not template filler.",
-      "why_now": "The loop now produces better telemetry and state history, so the next trust gap is report content quality.",
-      "packaging_rationale": "Placeholder blocking and better release aggregation belong together because both determine whether the top-level release artifact is believable.",
+      "archetype": "workflow",
+      "objective": "Make bundled release planning read like product planning instead of generic bundling.",
+      "target_user_value": "Operators get clearer version themes, stronger user-value framing, and better default release stories without hand-writing every field.",
+      "why_now": "After telemetry, state trust, and report trust are in place, the next UX gap is that release planning still sounds too generic.",
+      "packaging_rationale": "Archetype-aware planning and stronger packaging signals belong together because they both improve why-this-version and why-these-goals-now.",
+      "packaging_signals": [
+        "Archetype: workflow",
+        "Matched keywords: planning, release, workflow",
+        "Shared theme: strengthen",
+        "Bundled goals: 1"
+      ],
       "scope_in": [
-        "Detect placeholder content in task and release reports",
-        "Block publish when placeholders remain",
-        "Filter placeholder lines out of release-report aggregation"
+        "Add release archetypes to planning config",
+        "Auto-detect a likely archetype from goal titles, notes, and acceptance criteria",
+        "Persist packaging signals into the release brief and release report"
       ],
       "scope_out": [
-        "PM release archetypes",
-        "Status and doctor tooling"
+        "Status and doctor commands"
       ],
       "release_acceptance": [
-        "Task publish fails if the report still contains placeholder guidance text",
-        "Release publish fails if the release report or bundled task reports still contain placeholders",
-        "Release aggregation keeps real delivered and observation lines while dropping template filler"
+        "Planner records an archetype for each release",
+        "Planner uses archetype templates to improve objective, user value, and launch story defaults",
+        "Release reports expose packaging signals that justify the bundle"
       ],
-      "launch_story": "This release turns the reporting layer into a real trust boundary: if a report is published, it contains real content.",
+      "launch_story": "This release upgrades the planner from task bundling to product-style version framing, so each bundled release has a clearer theme and story.",
       "deferred_items": [
-        "Strengthen PM release planning with archetypes and better packaging signals",
         "Add operator-facing status and doctor tooling for loop recovery"
       ]
     },
     "goal_ids": [
-      "iteration-60-report-trust-gates"
+      "iteration-61-pm-release-planning-quality"
     ],
     "goal_titles": [
-      "Turn task and release reports into trustworthy publish artifacts"
+      "Strengthen PM release planning with archetypes and better packaging signals"
     ],
     "completed_goal_ids": [
-      "iteration-60-report-trust-gates"
+      "iteration-61-pm-release-planning-quality"
     ],
     "task_iterations": [
       {
-        "iteration": 59,
-        "goal": "Turn task and release reports into trustworthy publish artifacts",
-        "goal_id": "iteration-60-report-trust-gates",
-        "report": "docs/reports/v59.md",
-        "published_at": "2026-03-15T16:22:09Z"
+        "iteration": 60,
+        "goal": "Strengthen PM release planning with archetypes and better packaging signals",
+        "goal_id": "iteration-61-pm-release-planning-quality",
+        "report": "docs/reports/v60.md",
+        "published_at": "2026-03-15T16:42:08Z"
       }
     ],
-    "selected_at": "2026-03-15T16:18:45Z",
+    "selected_at": "2026-03-15T16:38:34Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R3.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T16:19:11Z",
+    "captured_at": "2026-03-15T16:41:38Z",
     "research_findings": [
-      "Existing release reports can still preserve template guidance text when task reports or release-closeout inputs are incomplete.",
-      "A publish gate is the right enforcement point because it protects Git history without making report drafting unusable.",
-      "Release aggregation also needs to skip placeholder lines, otherwise reports can look populated while still containing empty template guidance."
+      "Current planner output is coherent but often generic, with phrases like 'around X' that do not feel like real product release framing.",
+      "Release archetypes can provide stronger defaults for objective, target user value, packaging rationale, and launch story without making the planner heavyweight.",
+      "Packaging signals help operators understand why the planner grouped a release the way it did, which improves trust and later refinement."
     ],
     "committee_feedback": [],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Report trust now needs hard gates so published artifacts cannot contain template filler.",
+      "summary": "The planner now needs better version semantics, not just better gating, so release briefs read like intentional product packaging.",
       "evidence_refs": [
-        "docs/releases/R1.md",
-        "docs/releases/R3.md",
-        ".agent-loop/scripts/write-release-report.py"
+        ".agent-loop/scripts/plan-release.py",
+        "docs/releases/R1.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -100,19 +104,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve: published reports are user-facing artifacts, so placeholder content is a direct trust failure.",
+        "summary": "Approve: clearer version themes are the next UX upgrade because the planner still sounds too generic for user-visible releases.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve: a shared placeholder detector in common.py creates one consistent gate for task and release publication.",
+        "summary": "Approve: archetype templates and packaging signals fit naturally into config-driven release planning and durable release briefs.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Approve: operators should fail fast with a clear explanation instead of noticing bad release notes after publish.",
+        "summary": "Approve: operators need to understand why a bundle exists, not just which tasks were selected.",
         "decision": "approve",
         "dissent": []
       }
@@ -120,16 +124,15 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Detect placeholder content centrally, enforce it in publish gates, and strip placeholder lines out of release aggregation.",
-        "next_action": "Run validation and then publish the report hardening release."
+        "summary": "Add archetype-aware release planning with reusable templates and package the strongest bundle signals into the release brief.",
+        "next_action": "Validate the new planning defaults and publish the PM-planning upgrade."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Observed release reports prove that report-level placeholder text can currently leak into durable artifacts.",
-        "decision_record": "Proceed with placeholder gating plus aggregation cleanup as one bundled release.",
+        "summary": "Release planning currently lacks enough structured evidence to explain why a version theme was chosen.",
+        "decision_record": "Proceed with archetype-aware PM release planning as the next bundled release.",
         "evidence_refs": [
-          "docs/releases/R1.md",
-          "docs/releases/R3.md"
+          ".agent-loop/scripts/plan-release.py"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -138,16 +141,15 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Turn task and release reports into trustworthy publish artifacts",
-      "why_selected": "The release experience still breaks if the top-level artifact reads like a template instead of a real release note.",
+      "selected_goal": "Strengthen PM release planning with archetypes and better packaging signals",
+      "why_selected": "The loop now needs stronger version definition quality so bundled releases feel intentional to real operators.",
       "scope_in": [
-        "Detect known placeholder guidance text in reports",
-        "Block task and release publish when placeholders remain",
-        "Ignore placeholder lines when aggregating release delivery and output sections"
+        "Define release archetypes and templates in config",
+        "Auto-detect an archetype from goal evidence",
+        "Persist packaging signals into the release brief and release report"
       ],
       "scope_out": [
-        "Do not change release planning prompts yet",
-        "Do not add status or doctor commands yet"
+        "Do not add recovery tooling yet"
       ],
       "assumptions": [],
       "risks": [],
@@ -155,7 +157,7 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if placeholder gating breaks seeded validator flows or blocks concrete reports"
+        "Stop if archetype-aware planning makes release planning less deterministic or breaks existing release-flow validation"
       ],
       "dissent": [],
       "next_action": ""
@@ -174,8 +176,8 @@
       "weighted_score": 5.0,
       "result": "pass",
       "critique": [
-        "This release protects a user-visible quality boundary without widening scope into planning or recovery UX.",
-        "The gate is deterministic because it relies on explicit placeholder markers instead of subjective heuristics."
+        "This release improves version-definition quality without disturbing the stronger gates added in earlier releases.",
+        "Config-driven archetypes keep the planner explainable and portable across repos."
       ],
       "minimum_fixes_required": []
     },
@@ -184,13 +186,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-60-report-trust-gates",
-    "goal_title": "Turn task and release reports into trustworthy publish artifacts"
+    "goal_id": "iteration-61-pm-release-planning-quality",
+    "goal_title": "Strengthen PM release planning with archetypes and better packaging signals"
   },
-  "last_report": "docs/reports/v59.md",
+  "last_report": "docs/reports/v60.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T16:19:26Z",
+    "ran_at": "2026-03-15T16:41:51Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -808,6 +810,20 @@
       "branch": "main",
       "published_at": "2026-03-15T16:22:09Z",
       "session_progress": "2/5 releases"
+    },
+    {
+      "iteration": 60,
+      "goal": "Strengthen PM release planning with archetypes and better packaging signals",
+      "goal_id": "iteration-61-pm-release-planning-quality",
+      "release_number": 4,
+      "release_title": "R4: Strengthen PM release planning with archetypes and better packaging signals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v60.md",
+      "branch": "main",
+      "published_at": "2026-03-15T16:42:08Z",
+      "session_progress": "3/5 releases"
     }
   ],
   "release_history": [
@@ -932,6 +948,30 @@
       "report": "docs/releases/R2.md",
       "published_at": "2026-03-15T16:08:32Z",
       "commit": "55e060c05d75db99750bfeb3e2fdf2c68a72f3bf"
+    },
+    {
+      "number": 3,
+      "session_id": "session-20260315-152645",
+      "title": "R3: Turn task and release reports into trustworthy publish artifacts",
+      "summary": "Ship the single high-priority goal `Turn task and release reports into trustworthy publish artifacts` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-60-report-trust-gates"
+      ],
+      "goal_titles": [
+        "Turn task and release reports into trustworthy publish artifacts"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 59,
+          "goal": "Turn task and release reports into trustworthy publish artifacts",
+          "goal_id": "iteration-60-report-trust-gates",
+          "report": "docs/reports/v59.md",
+          "published_at": "2026-03-15T16:22:09Z"
+        }
+      ],
+      "report": "docs/releases/R3.md",
+      "published_at": "2026-03-15T16:26:42Z",
+      "commit": "a6cef794579ff079c5464010f68fb79ed41465df"
     }
   ]
 }

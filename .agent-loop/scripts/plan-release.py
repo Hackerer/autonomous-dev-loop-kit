@@ -127,18 +127,102 @@ def aggregate_acceptance(goals: list[dict], limit: int = 6) -> list[str]:
     return lines
 
 
-def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: list[dict]) -> dict:
+def release_archetypes(config: dict) -> dict[str, dict]:
+    planning = config.get("planning", {})
+    if not isinstance(planning, dict):
+        return {}
+    release = planning.get("release", {})
+    if not isinstance(release, dict):
+        return {}
+    archetypes = release.get("archetypes", {})
+    if not isinstance(archetypes, dict):
+        return {}
+    return {str(key): value for key, value in archetypes.items() if isinstance(value, dict)}
+
+
+def detect_archetype(goals: list[dict], archetypes: dict[str, dict], explicit: str | None = None) -> str:
+    if explicit and explicit in archetypes:
+        return explicit
+    haystack_parts: list[str] = []
+    for goal in goals:
+        haystack_parts.extend(
+            [
+                str(goal.get("id", "")),
+                str(goal.get("title", "")),
+                str(goal.get("notes", "")),
+                " ".join(str(item) for item in goal.get("acceptance", [])),
+            ]
+        )
+    haystack = " ".join(haystack_parts).lower()
+    best_label = "workflow"
+    best_score = -1
+    for archetype, details in archetypes.items():
+        keywords = details.get("keywords", [])
+        score = 0
+        if isinstance(keywords, list):
+            for keyword in keywords:
+                token = str(keyword).strip().lower()
+                if token and token in haystack:
+                    score += 1
+        if score > best_score:
+            best_score = score
+            best_label = archetype
+    return best_label if best_label in archetypes else next(iter(archetypes.keys()), "workflow")
+
+
+def packaging_signals(goals: list[dict], theme: str, archetype: str, archetypes: dict[str, dict]) -> list[str]:
+    signals = [f"Archetype: {archetype}"]
+    keywords = archetypes.get(archetype, {}).get("keywords", [])
+    if isinstance(keywords, list):
+        matched = []
+        haystack = " ".join(
+            [str(goal.get("title", "")) + " " + str(goal.get("notes", "")) + " " + " ".join(goal.get("acceptance", [])) for goal in goals]
+        ).lower()
+        for keyword in keywords:
+            token = str(keyword).strip().lower()
+            if token and token in haystack:
+                matched.append(token)
+        if matched:
+            signals.append("Matched keywords: " + ", ".join(sorted(set(matched))[:5]))
+    signals.append(f"Shared theme: {theme}")
+    signals.append(f"Bundled goals: {len(goals)}")
+    return signals
+
+
+def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: list[dict], config: dict) -> dict:
     titles = [goal_title(goal) for goal in goals]
     theme = common_theme(goals)
+    archetypes = release_archetypes(config)
+    archetype = detect_archetype(goals, archetypes, explicit=str(args.archetype or "").strip() or None)
+    archetype_details = archetypes.get(archetype, {})
     selected_goal_ids = [str(goal.get("id", "")).strip() for goal in goals]
     deferred = [str(item).strip() for item in args.deferred_item if str(item).strip()] or pending_titles(backlog, selected_goal_ids)
     release_acceptance = [str(item).strip() for item in args.release_acceptance if str(item).strip()] or aggregate_acceptance(goals)
     scope_in = [str(item).strip() for item in args.scope_in if str(item).strip()] or titles
     scope_out = [str(item).strip() for item in args.scope_out if str(item).strip()] or deferred
-    objective = str(args.objective or f"Ship a coherent release around {theme}.").strip()
+    objective_template = str(archetype_details.get("objective_template", f"Ship a coherent release around {theme}.")).strip()
+    target_value_template = str(
+        archetype_details.get(
+            "target_user_value_template",
+            "Users should experience one packaged improvement with a clear story instead of several disconnected tiny task commits.",
+        )
+    ).strip()
+    packaging_template = str(
+        archetype_details.get(
+            "packaging_rationale_template",
+            f"These goals all strengthen the same release theme around {theme}, so shipping them together creates a clearer user-visible version.",
+        )
+    ).strip()
+    launch_template = str(
+        archetype_details.get(
+            "launch_story_template",
+            f"This release tells one simple story: Ship a coherent release around {theme}. It packages {len(titles)} aligned improvements into a single version.",
+        )
+    ).strip()
+    objective = str(args.objective or objective_template.format(theme=theme)).strip()
     target_user_value = str(
         args.target_user_value
-        or "Users should experience one packaged improvement with a clear story instead of several disconnected tiny task commits."
+        or target_value_template.format(theme=theme)
     ).strip()
     why_now = str(
         args.why_now
@@ -146,17 +230,19 @@ def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: li
     ).strip()
     packaging_rationale = str(
         args.packaging_rationale
-        or f"These goals all strengthen the same release theme around {theme}, so shipping them together creates a clearer user-visible version."
+        or packaging_template.format(theme=theme)
     ).strip()
     launch_story = str(
         args.launch_story
-        or f"This release tells one simple story: {objective} It packages {len(titles)} aligned improvements into a single version."
+        or launch_template.format(theme=theme)
     ).strip()
     return {
+        "archetype": archetype,
         "objective": objective,
         "target_user_value": target_user_value,
         "why_now": why_now,
         "packaging_rationale": packaging_rationale,
+        "packaging_signals": packaging_signals(goals, theme, archetype, archetypes),
         "scope_in": scope_in,
         "scope_out": scope_out,
         "release_acceptance": release_acceptance,
@@ -175,6 +261,7 @@ def main() -> int:
     parser.add_argument("--target-user-value", help="What user-visible value this release should create.")
     parser.add_argument("--why-now", help="Why this bundled release should happen now.")
     parser.add_argument("--packaging-rationale", help="Why these goals belong in one bundled release.")
+    parser.add_argument("--archetype", help="Explicit release archetype such as integration, stability, workflow, or observability.")
     parser.add_argument("--scope-in", action="append", default=[], help="Explicit in-scope item for the bundled release. Repeat as needed.")
     parser.add_argument("--scope-out", action="append", default=[], help="Explicit out-of-scope item for the bundled release. Repeat as needed.")
     parser.add_argument("--release-acceptance", action="append", default=[], help="Release-level acceptance item. Repeat as needed.")
@@ -210,7 +297,7 @@ def main() -> int:
 
     goals = resolve_goals(backlog, [str(goal_id) for goal_id in args.goal_id], count)
     release_number = next_release_number(state)
-    brief = build_release_brief(args, goals, backlog)
+    brief = build_release_brief(args, goals, backlog, config)
     release_payload = {
         "number": release_number,
         "title": str(args.title or auto_title(release_number, goals)).strip(),
@@ -251,6 +338,7 @@ def main() -> int:
     else:
         print(f"Planned release R{release_number}: {release_payload['title']}")
         print(f"- Objective: {brief['objective']}")
+        print(f"- Archetype: {brief['archetype']}")
         print(f"- User value: {brief['target_user_value']}")
         print(f"- Why now: {brief['why_now']}")
         print(f"- Packaging rationale: {brief['packaging_rationale']}")

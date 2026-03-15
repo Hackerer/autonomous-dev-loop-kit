@@ -122,6 +122,7 @@ def main() -> int:
         "## PM Release Brief",
         *bulletize(
             [
+                f"Archetype: {brief.get('archetype', '')}",
                 f"Objective: {brief.get('objective', '')}",
                 f"Target user value: {brief.get('target_user_value', '')}",
                 f"Why now: {brief.get('why_now', '')}",
@@ -130,6 +131,7 @@ def main() -> int:
             ],
             "Record the PM release objective, user value, why-now logic, packaging rationale, and launch story.",
         ),
+        *bulletize([f"Packaging signal: {item}" for item in brief.get("packaging_signals", [])], "Record the strongest signals that justify this release bundle."),
         "",
         "## Included Scope",
         *bulletize(release["goal_titles"], "List the bundled goals included in this release."),

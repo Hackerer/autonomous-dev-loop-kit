@@ -653,7 +653,7 @@
     "id": "iteration-61-pm-release-planning-quality",
     "title": "Strengthen PM release planning with archetypes and better packaging signals",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Release planning supports archetypes such as integration, stability, workflow, and observability",
       "Each archetype shapes objective, target user value, packaging rationale, and launch story generation",

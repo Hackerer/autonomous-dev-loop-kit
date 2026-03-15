@@ -454,7 +454,67 @@
       "require_release_plan": true,
       "min_goals_per_release": 2,
       "max_goals_per_release": 5,
-      "default_goals_per_release": 3
+      "default_goals_per_release": 3,
+      "archetypes": {
+        "integration": {
+          "keywords": [
+            "adapter",
+            "api",
+            "integration",
+            "connect",
+            "bridge",
+            "client"
+          ],
+          "objective_template": "Ship an integration-focused release around {theme}.",
+          "target_user_value_template": "Operators can connect a meaningful new capability without stitching together multiple low-level changes by hand.",
+          "packaging_rationale_template": "These goals all improve the same integration story around {theme}, so they belong in one bundled release.",
+          "launch_story_template": "This release packages one integration story around {theme} so the user gets a complete connection path in a single version."
+        },
+        "stability": {
+          "keywords": [
+            "validation",
+            "guard",
+            "hardening",
+            "safety",
+            "reliability",
+            "consistency",
+            "fix"
+          ],
+          "objective_template": "Ship a stability-focused release around {theme}.",
+          "target_user_value_template": "Operators can trust the loop more because this release removes failure modes and makes behavior more predictable.",
+          "packaging_rationale_template": "These goals reinforce the same stability theme around {theme}, so shipping them together creates one clear hardening release.",
+          "launch_story_template": "This release hardens the loop around {theme}, turning fragile edges into predictable behavior."
+        },
+        "workflow": {
+          "keywords": [
+            "workflow",
+            "planning",
+            "release",
+            "ux",
+            "operator",
+            "experience"
+          ],
+          "objective_template": "Ship a workflow-focused release around {theme}.",
+          "target_user_value_template": "Operators can move through the loop with less ambiguity and less manual coordination.",
+          "packaging_rationale_template": "These goals improve the same workflow narrative around {theme}, so they should land together as one packaged release.",
+          "launch_story_template": "This release makes the loop easier to drive around {theme}, reducing friction across the whole version flow."
+        },
+        "observability": {
+          "keywords": [
+            "telemetry",
+            "log",
+            "trace",
+            "status",
+            "doctor",
+            "report",
+            "audit"
+          ],
+          "objective_template": "Ship an observability-focused release around {theme}.",
+          "target_user_value_template": "Operators can see what the loop is doing, where it failed, and what to do next without digging through raw state.",
+          "packaging_rationale_template": "These goals all improve observability around {theme}, so combining them creates one clear diagnostic release.",
+          "launch_story_template": "This release shines light on the loop around {theme}, making behavior and recovery paths more visible in one version."
+        }
+      }
     }
   },
   "stop_conditions": [

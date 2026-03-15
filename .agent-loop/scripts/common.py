@@ -153,10 +153,12 @@ def default_state() -> dict[str, Any]:
             "summary": "",
             "status": "not_planned",
             "brief": {
+                "archetype": "",
                 "objective": "",
                 "target_user_value": "",
                 "why_now": "",
                 "packaging_rationale": "",
+                "packaging_signals": [],
                 "scope_in": [],
                 "scope_out": [],
                 "release_acceptance": [],
@@ -306,7 +308,7 @@ def load_state(root: Path) -> dict[str, Any]:
     default_brief = default_release["brief"]
     normalized_brief = dict(default_brief)
     normalized_brief.update(brief)
-    for key in ("scope_in", "scope_out", "release_acceptance", "deferred_items"):
+    for key in ("packaging_signals", "scope_in", "scope_out", "release_acceptance", "deferred_items"):
         value = normalized_brief.get(key)
         if not isinstance(value, list):
             normalized_brief[key] = []
