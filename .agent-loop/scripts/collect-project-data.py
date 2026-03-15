@@ -11,10 +11,12 @@ from common import (
     current_branch,
     find_repo_root,
     git,
+    goal_title,
     load_config,
     load_json,
     load_state,
     relpath,
+    review_state_matches_goal,
     save_json,
     save_state,
     utc_now,
@@ -194,6 +196,8 @@ def main() -> int:
     template = load_json(root / ".agent-loop/templates/project-data-template.json")
     config = load_config(root)
     state = load_state(root)
+    current_goal = state.get("current_goal")
+    review_state = state.get("review_state", {})
 
     snapshot = json.loads(json.dumps(template))
     languages = detect_languages(root)
@@ -233,6 +237,19 @@ def main() -> int:
         "target_outcome": parse_target_outcome(root),
         "constraints": parse_constraints(root),
         "open_risks": parse_open_risks(root),
+    }
+    snapshot["latest_review_state"] = {
+        "status": review_state.get("status", "not_started"),
+        "captured_at": review_state.get("captured_at"),
+        "research_findings": list(review_state.get("research_findings", [])),
+        "committee_feedback": list(review_state.get("committee_feedback", [])),
+        "committee_decision": list(review_state.get("committee_decision", [])),
+        "reflection_notes": list(review_state.get("reflection_notes", [])),
+        "goal_id": review_state.get("goal_id"),
+        "goal_title": review_state.get("goal_title"),
+        "matches_current_goal": review_state_matches_goal(review_state, current_goal),
+        "current_goal_id": current_goal.get("id") if isinstance(current_goal, dict) else None,
+        "current_goal_title": goal_title(current_goal) if current_goal else None,
     }
     snapshot["evidence"] = {
         "sources": [

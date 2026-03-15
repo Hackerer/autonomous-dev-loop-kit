@@ -1,6 +1,6 @@
 # Autonomous Loop Plan
 
-Updated: 2026-03-14
+Updated: 2026-03-15
 
 ## Target Outcome
 
@@ -12,7 +12,7 @@ Updated: 2026-03-14
 
 - The repo already contains Codex and Claude wrappers, loop scripts, ReAct guidance, committee-driven review config, and a public README.
 - The repo now has explicit project-data acquisition, evidence schema, scoring, and committee configuration for pre-implementation challenge.
-- The loop still needs durable state for research findings and committee review decisions so later steps can reuse them without manual re-entry.
+- The loop now stores research and committee review conclusions in durable state and can flow that review context back into collected project data and report generation.
 - The repo still needs repository-specific validation commands instead of the placeholder validation step when installed into a target project.
 - The repo should keep each published version small, testable, and directly connected to better pre-execution data quality and committee review.
 
@@ -40,6 +40,7 @@ Updated: 2026-03-14
 - 2026-03-14: Interpret "high-quality data acquisition" as higher-quality project and evidence gathering before code changes and publication decisions.
 - 2026-03-15: Add committee-driven research and review using product-manager, technical-architect, and user councils.
 - 2026-03-15: Start storing research and committee review conclusions as durable loop state instead of report-only output.
+- 2026-03-15: Reuse goal-matched review state automatically in project snapshots and version reports.
 
 ## Backlog Notes
 

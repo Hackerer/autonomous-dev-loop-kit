@@ -61,6 +61,7 @@ Every version follows the same state machine:
      - user committee
    - Narrow or reject the candidate if the committee exposes unclear value, design risk, or user friction.
    - Persist concise research findings, committee feedback, and scope decisions with `python3 .agent-loop/scripts/capture-review.py`.
+   - Treat the persisted review state as goal-aware: later steps may reuse it automatically only when the captured goal matches the active goal.
 4. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.
@@ -81,6 +82,7 @@ Every version follows the same state machine:
    - Update the next-step recommendation based on the new evidence.
 8. `report`
    - Write a version report in `docs/reports/`.
+   - Prefer the durable review state in `.agent-loop/state.json` for research, committee feedback, decisions, and reflection when it matches the active goal.
    - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next goal.
 9. `publish`
    - Commit the complete version.

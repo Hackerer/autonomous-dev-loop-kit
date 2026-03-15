@@ -1,17 +1,17 @@
 {
-  "iteration": 12,
+  "iteration": 13,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 5,
-    "completed_iterations": 2,
+    "completed_iterations": 3,
     "started_at": "2026-03-15T00:20:54Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T00:21:02Z",
+    "last_collected_at": "2026-03-15T04:02:32Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,28 +21,28 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T00:38:08Z",
+    "captured_at": "2026-03-15T04:00:46Z",
     "research_findings": [
-      "The current state model has durable session and validation data but no machine-readable slot for research or committee conclusions.",
-      "The reporting flow currently requires committee findings to be retyped into write-report flags, which risks drift from the actual scope decision.",
-      "validate-kit can exercise a new capture script without mutating state by using a no-state path."
+      "The project-data snapshot currently omits review_state, so later tools cannot inspect the latest committee-backed rationale from the collected data artifact.",
+      "write-report.py only renders research and committee sections from CLI flags today, which forces manual duplication after capture-review.py has already persisted the same conclusions.",
+      "The loop also needs goal-aware reuse so a previous iteration's review_state cannot leak into a new iteration's report when goals differ."
     ],
     "committee_feedback": [
-      "Product manager committee wants review conclusions stored once and reused, so scope rationale does not get lost between select, implement, and report.",
-      "Technical architect committee wants the review artifact to stay small and JSON-shaped, not a long transcript or free-form blob.",
-      "User committee wants future operators to understand what was challenged without scanning old chat logs or hand-written notes."
+      "Product manager committee wants the selected scope rationale to appear automatically in both project data and reports, otherwise operators keep retyping and drifting the acceptance story.",
+      "Technical architect committee wants a single goal-aware review context helper so snapshot generation and report generation stay consistent about when persisted review data is safe to reuse.",
+      "User committee wants later operators to see the latest review-backed decision directly in generated artifacts, without reconstructing it from old reports or chat."
     ],
     "committee_decision": [
-      "Add a concise review_state object to loop state and a capture-review.py script that records research, committee feedback, and final decisions."
+      "Add latest_review_state to collected project data, and make write-report.py reuse persisted review findings, feedback, decisions, and reflections only when they match the active goal."
     ],
     "reflection_notes": [],
-    "goal_id": "iteration-12-committee-validation-rendering",
-    "goal_title": "Persist research and committee review conclusions into loop state"
+    "goal_id": "iteration-13-reporting-and-project-data",
+    "goal_title": "Read committee review state back into project data and reports"
   },
-  "last_report": "docs/reports/v12.md",
+  "last_report": "docs/reports/v13.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T00:38:25Z",
+    "ran_at": "2026-03-15T04:02:32Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -152,6 +152,14 @@
       "branch": "main",
       "published_at": "2026-03-15T00:39:30Z",
       "session_progress": "2/5"
+    },
+    {
+      "iteration": 13,
+      "goal": "Read committee review state back into project data and reports",
+      "report": "docs/reports/v13.md",
+      "branch": "main",
+      "published_at": "2026-03-15T04:03:28Z",
+      "session_progress": "3/5"
     }
   ]
 }

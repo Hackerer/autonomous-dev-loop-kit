@@ -15,6 +15,7 @@ from common import (
     load_state,
     relpath,
     reporting_path,
+    review_state_matches_goal,
     require_green_validation,
     save_state,
     session_summary,
@@ -25,6 +26,18 @@ def bullet_lines(values: list[str], fallback: str) -> list[str]:
     if not values:
         return [f"- {fallback}"]
     return [f"- {value}" for value in values]
+
+
+def merge_unique(primary: list[str], secondary: list[str]) -> list[str]:
+    merged: list[str] = []
+    seen: set[str] = set()
+    for value in [*primary, *secondary]:
+        item = value.strip()
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        merged.append(item)
+    return merged
 
 
 def main() -> int:
@@ -56,12 +69,20 @@ def main() -> int:
     goal_label = goal_title(goal)
     today = datetime.now().date().isoformat()
     project_data = state.get("project_data", {})
+    review_state = state.get("review_state", {})
+    review_matches_goal = review_state_matches_goal(review_state, goal)
+    review_research = list(review_state.get("research_findings", [])) if review_matches_goal else []
+    review_feedback = list(review_state.get("committee_feedback", [])) if review_matches_goal else []
+    review_decision = list(review_state.get("committee_decision", [])) if review_matches_goal else []
+    review_reflection = list(review_state.get("reflection_notes", [])) if review_matches_goal else []
+
+    research_lines = merge_unique(args.research, review_research)
     committee_lines = []
     for role in committee_summary(config):
         members = ", ".join(role["members"]) if role["members"] else "no named members"
         committee_lines.append(f"{role['label']}: {role['responsibility']} Members: {members}")
-    committee_lines.extend(args.committee_feedback)
-    committee_lines.extend(args.committee_decision)
+    committee_lines.extend(merge_unique(args.committee_feedback, review_feedback))
+    committee_lines.extend(merge_unique(args.committee_decision, review_decision))
 
     validation_lines = []
     for result in validation.get("results", []):
@@ -73,10 +94,13 @@ def main() -> int:
     evidence_sources = list(args.source)
     snapshot_path = project_data.get("snapshot_path")
     quality_path = project_data.get("quality_path")
+    if review_matches_goal:
+        evidence_sources.append("Durable review state: `.agent-loop/state.json`")
     if snapshot_path:
         evidence_sources.append(f"Project data snapshot: `{snapshot_path}`")
     if quality_path:
         evidence_sources.append(f"Project data quality: `{quality_path}`")
+    evidence_sources = merge_unique(evidence_sources, [])
 
     quality_lines = list(args.quality_note)
     if quality_path:
@@ -104,7 +128,7 @@ def main() -> int:
         *bullet_lines(args.analysis, "Summarize the current repo state before this version."),
         "",
         "## Research",
-        *bullet_lines(args.research, "Summarize the repo, product, user, and architecture research completed before selecting this version."),
+        *bullet_lines(research_lines, "Summarize the repo, product, user, and architecture research completed before selecting this version."),
         "",
         "## Committee Review",
         *bullet_lines(committee_lines, "Record the requirement and review feedback from the product, architecture, and user committee."),
@@ -129,7 +153,7 @@ def main() -> int:
         *validation_lines,
         "",
         "## Reflection",
-        *bullet_lines(args.reflection, "Reflect on requirement clarity and architectural impact."),
+        *bullet_lines(merge_unique(args.reflection, review_reflection), "Reflect on requirement clarity and architectural impact."),
         "",
         "## Proposed Next Goal",
         *bullet_lines(args.next_goal, "Propose the next highest-value small version."),

@@ -349,6 +349,31 @@ def goal_title(goal: Any) -> str:
     return "unspecified goal"
 
 
+def review_state_matches_goal(review_state: Any, goal: Any) -> bool:
+    if not isinstance(review_state, dict):
+        return False
+    if review_state.get("status") != "captured":
+        return False
+    if goal is None:
+        return True
+
+    review_goal_id = str(review_state.get("goal_id") or "").strip()
+    review_goal_title = str(review_state.get("goal_title") or "").strip()
+
+    if isinstance(goal, dict):
+        goal_id = str(goal.get("id") or "").strip()
+        goal_name = str(goal.get("title") or goal.get("id") or "").strip()
+    else:
+        goal_id = ""
+        goal_name = str(goal or "").strip()
+
+    if goal_id and review_goal_id:
+        return goal_id == review_goal_id
+    if goal_name and review_goal_title:
+        return goal_name == review_goal_title
+    return not review_goal_id and not review_goal_title
+
+
 def session_summary(state: dict[str, Any]) -> dict[str, Any]:
     session = state.get("session")
     if not isinstance(session, dict):

@@ -15,6 +15,7 @@ Date: {date}
 
 - Which repo, product, user, and architecture signals were researched before goal selection?
 - What did the research change about the intended scope or risk posture?
+- If `capture-review.py` already persisted research findings for this goal, they should render here without retyping them.
 
 ## Committee Review
 
@@ -22,6 +23,7 @@ Date: {date}
 - What did the technical architect committee push on?
 - What did the user committee push on?
 - What committee decision or narrowed scope came out of review?
+- If the persisted review state matches the active goal, it should be reused here automatically.
 
 ## Version Goal
 

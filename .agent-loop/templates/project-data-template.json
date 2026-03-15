@@ -35,6 +35,19 @@
     "constraints": [],
     "open_risks": []
   },
+  "latest_review_state": {
+    "status": "not_started",
+    "captured_at": null,
+    "research_findings": [],
+    "committee_feedback": [],
+    "committee_decision": [],
+    "reflection_notes": [],
+    "goal_id": null,
+    "goal_title": null,
+    "matches_current_goal": null,
+    "current_goal_id": null,
+    "current_goal_title": null
+  },
   "evidence": {
     "sources": [],
     "freshness": "stale",

@@ -27,7 +27,7 @@
     "id": "iteration-13-reporting-and-project-data",
     "title": "Read committee review state back into project data and reports",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Collected project data includes the latest recorded review state",
       "Reports can render research findings and committee decisions from durable state with minimal manual flags",
