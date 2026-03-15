@@ -77,19 +77,21 @@ Updated: 2026-03-15
 - What is the right amount of secretariat detail to persist before the state becomes noisy?
 - How opinionated should automatic release bundling be before users need to name or curate the release explicitly?
 
-## Session 50-59: OpenClaw System Architecture Optimization
+## Session 58-67: Usage-Driven Release UX Hardening
 
 ### Target Outcome
 
-- Integrate autonomous-dev-loop-kit into OpenClaw as a native Skill for seamless cross-workspace iteration
-- Implement Intent Routing layer for automatic Agent selection based on task type
-- Unify Sandbox strategy across all Agents for consistent security boundaries
-- Enhance memory cross-domain capabilities for better context continuity
+- Make usage logs explain how operators actually use the loop, not just that an event happened.
+- Eliminate release-state drift such as skipped release numbers, orphan task iterations, and misleading progress strings.
+- Turn release reports into trustworthy publish artifacts by blocking placeholder content and requiring real aggregated output.
+- Strengthen PM release planning so bundled releases have clearer themes, user value, and packaging rationale.
+- Add operator-facing status and doctor tooling so users can see where the loop is stuck and how to recover.
 
 ### Optimization Focus
 
-Based on first principles analysis:
-1. **Agent Dispatcher Layer**: OpenClaw = Agent调度系统 + Channel连接系统
-2. **Native Loop Skill**: Convert autonomous-dev-loop-kit to OpenClaw native capability
-3. **Intent Routing**: Auto-select appropriate Agent based on task classification
-4. **Memory Enhancement**: Cross-Agent memory sharing for workflow continuity
+Based on the observed `ai-trade` and `info-rss` usage logs:
+1. **Telemetry depth**: record session identity, client, trigger phrase, stop reason, failures, and completion outcomes.
+2. **Release correctness**: keep release numbering, progress, and task-to-release linkage deterministic.
+3. **Report trustworthiness**: reject placeholder release notes and orphan reports before publish.
+4. **PM planning quality**: improve bundled-release themes and user-facing release narratives.
+5. **Operator recovery UX**: add `status` and `doctor` outputs that explain current gate state and the next action.
