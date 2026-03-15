@@ -342,6 +342,14 @@ def main() -> int:
             ".agent-loop/scripts/capture-review.py",
             "--research",
             "Sample repo scan",
+            "--research-summary",
+            "Sample research summary",
+            "--evidence-ref",
+            "PLANS.md",
+            "--quality-score",
+            "100",
+            "--open-gap",
+            "No blocking gaps",
             "--committee-feedback",
             "Sample committee feedback",
             "--decision",
@@ -355,6 +363,10 @@ def main() -> int:
         check=False,
     )
     check(review_capture.returncode == 0, "capture-review.py runs successfully", failures)
+    if review_capture.returncode == 0:
+        captured = json.loads(review_capture.stdout)
+        check(isinstance(captured.get("research_gate"), dict), "capture-review.py emits research_gate payload", failures)
+        check(captured.get("research_gate", {}).get("summary") == "Sample research summary", "capture-review.py records research summary", failures)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"

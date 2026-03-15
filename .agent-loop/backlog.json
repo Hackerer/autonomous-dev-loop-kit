@@ -98,8 +98,8 @@
   {
     "id": "iteration-19-capture-research-gate",
     "title": "Teach capture-review.py to persist structured research-gate results",
-    "priority": "high",
-    "status": "pending",
+    "priority": "critical",
+    "status": "completed",
     "acceptance": [
       "capture-review.py can record research summary, evidence refs, quality score, and open gaps",
       "Research gate output lands in the new review-state structure",
@@ -110,7 +110,7 @@
   {
     "id": "iteration-20-capture-council-feedback",
     "title": "Capture council-specific feedback summaries instead of one flat committee list",
-    "priority": "high",
+    "priority": "critical",
     "status": "pending",
     "acceptance": [
       "capture-review.py supports product, architecture, and operator council summaries",
@@ -122,7 +122,7 @@
   {
     "id": "iteration-21-scope-decision-fields",
     "title": "Persist selected goal, scope boundaries, assumptions, and required validation as a structured scope decision",
-    "priority": "high",
+    "priority": "critical",
     "status": "pending",
     "acceptance": [
       "review_state stores selected_goal, scope_in, scope_out, assumptions, risks, required_validation, and stop_conditions",
@@ -134,7 +134,7 @@
   {
     "id": "iteration-22-rubric-reference",
     "title": "Add a lightweight evaluator rubric reference and config hook",
-    "priority": "high",
+    "priority": "critical",
     "status": "pending",
     "acceptance": [
       "The repo includes a rubric reference file for implementation readiness",
@@ -146,7 +146,7 @@
   {
     "id": "iteration-23-capture-evaluation-result",
     "title": "Allow capture-review.py to persist evaluator scores and pass-revise-fail outcome",
-    "priority": "high",
+    "priority": "critical",
     "status": "pending",
     "acceptance": [
       "Evaluator results can be recorded in review_state with rubric version and weighted score",
@@ -158,7 +158,7 @@
   {
     "id": "iteration-24-report-scope-decision",
     "title": "Render structured scope decisions, dissent, and evaluation outcome in reports",
-    "priority": "high",
+    "priority": "critical",
     "status": "pending",
     "acceptance": [
       "Reports include selected goal rationale, scope_in, scope_out, and required validation from durable state",
@@ -182,7 +182,7 @@
   {
     "id": "iteration-26-evaluator-gate",
     "title": "Require a passing evaluator result before implementation begins when configured",
-    "priority": "critical",
+    "priority": "high",
     "status": "pending",
     "acceptance": [
       "The loop can enforce evaluator pass before proceeding past pre-implementation gates",
@@ -218,7 +218,7 @@
   {
     "id": "iteration-29-committee-v2-validation",
     "title": "Extend validate-kit to exercise the structured committee V2 flow",
-    "priority": "critical",
+    "priority": "high",
     "status": "pending",
     "acceptance": [
       "validate-kit exercises council rendering, structured capture, evaluation capture, and gating behavior",
