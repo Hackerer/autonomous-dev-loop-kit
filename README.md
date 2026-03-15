@@ -147,12 +147,18 @@ By default, the installer preserves an existing target project's `.agent-loop/co
 After installation, the target repo bootstrap should follow the same lightweight V2 flow:
 
 ```bash
+# Review the defaults you want for this repo first:
+# - discovery.archetype_profiles
+# - committee.evaluator.implementation_gate_mode
 python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
 python3 .agent-loop/scripts/render-committee.py
 python3 .agent-loop/scripts/render-evaluator-brief.py
+python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0
 python3 .agent-loop/scripts/assert-implementation-readiness.py
 ```
+
+`implementation_gate_mode=advisory` can allow implementation to start with a warning, but report and publish still require evaluator pass.
 
 If research is still insufficient before goal selection, record that explicitly instead of pushing ahead:
 

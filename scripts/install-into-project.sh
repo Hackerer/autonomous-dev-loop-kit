@@ -116,14 +116,19 @@ printf 'Project installer finished for %s\n' "$TARGET_DIR"
 cat <<EOF
 Next bootstrap steps:
   1. Replace placeholder validation commands in ${TARGET_DIR}/.agent-loop/config.json if needed.
-  2. Collect and score project data:
+  2. Review archetype and readiness defaults in ${TARGET_DIR}/.agent-loop/config.json:
+     - discovery.archetype_profiles
+     - committee.evaluator.implementation_gate_mode
+  3. Collect and score project data:
      python3 .agent-loop/scripts/collect-project-data.py
      python3 .agent-loop/scripts/score-data-quality.py
-  3. Render the committee brief and do research:
+  4. Render the committee brief and do research:
      python3 .agent-loop/scripts/render-committee.py
-  4. If research still lacks context, record:
+  5. If research still lacks context, record:
      python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."
-  5. After goal selection, render evaluator input and confirm readiness:
+  6. After goal selection, render evaluator input and confirm readiness:
      python3 .agent-loop/scripts/render-evaluator-brief.py
+     python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0
      python3 .agent-loop/scripts/assert-implementation-readiness.py
+     # advisory implementation mode may allow coding, but report and publish still require evaluator pass
 EOF

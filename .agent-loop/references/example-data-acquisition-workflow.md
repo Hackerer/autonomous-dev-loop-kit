@@ -15,6 +15,7 @@ Use this workflow when the loop starts from a minimal prompt such as `循环10`.
    - `python3 .agent-loop/scripts/collect-project-data.py`
 4. Score project data quality:
    - `python3 .agent-loop/scripts/score-data-quality.py`
+   - Review the active repo archetype profile in `.agent-loop/data/project-data.json` if the repo needs different quality expectations.
 5. Render the committee brief:
    - `python3 .agent-loop/scripts/render-committee.py`
 6. Do research and committee review, then persist the findings:
@@ -28,7 +29,9 @@ Use this workflow when the loop starts from a minimal prompt such as `循环10`.
 9. Render the evaluator input:
    - `python3 .agent-loop/scripts/render-evaluator-brief.py`
 10. Capture the evaluator result, then confirm readiness:
+   - `python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0`
    - `python3 .agent-loop/scripts/assert-implementation-readiness.py`
+   - `implementation_gate_mode=advisory` may allow implementation with a warning, but report and publish still require evaluator pass.
 11. Implement the version.
 12. Run full validation:
    - `python3 .agent-loop/scripts/run-full-validation.py`

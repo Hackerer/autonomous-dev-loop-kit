@@ -447,7 +447,7 @@
     "id": "iteration-48-install-profile-alignment",
     "title": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Installer guidance points operators to repo archetype setup when relevant",
       "Bootstrap instructions explain readiness and advisory behavior concisely",

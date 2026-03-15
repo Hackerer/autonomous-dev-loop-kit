@@ -1063,7 +1063,11 @@ def main() -> int:
         )
         check(installer.returncode == 0, "install-into-project.sh runs successfully", failures)
         check(
-            "render-committee.py" in installer.stdout and "assert-implementation-readiness.py" in installer.stdout,
+            "render-committee.py" in installer.stdout
+            and "assert-implementation-readiness.py" in installer.stdout
+            and "discovery.archetype_profiles" in installer.stdout
+            and "implementation_gate_mode" in installer.stdout
+            and "score-evaluator-readiness.py" in installer.stdout,
             "Project installer prints committee and readiness bootstrap guidance",
             failures,
         )

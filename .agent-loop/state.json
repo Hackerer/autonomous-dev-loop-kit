@@ -1,17 +1,17 @@
 {
-  "iteration": 47,
+  "iteration": 48,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 8,
+    "completed_iterations": 9,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:39:06Z",
+    "last_collected_at": "2026-03-15T07:41:25Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:38:49Z",
+    "captured_at": "2026-03-15T07:41:09Z",
     "research_findings": [
-      "Advisory implementation mode only helps if operators can see the resulting gate outcome clearly in the evaluator brief and the version report.",
-      "The smallest useful improvement is to compute one shared implementation-gate status summary and render it wherever operators inspect readiness.",
-      "This can stay lightweight by deriving the status from config plus the captured evaluator result instead of adding more durable state."
+      "The kit now supports archetype-aware quality and advisory implementation mode, but the installer and bootstrap guidance still underspecify how a target repo should use those defaults.",
+      "The smallest next step is guidance only: align install output, README bootstrap, and the example workflow around archetype profiles, evaluator scoring, and readiness modes.",
+      "This should stay lightweight and repo-portable by pointing operators to a few config keys and commands rather than adding a setup wizard."
     ],
     "committee_feedback": [
-      "Product Council: lighter gate modes only work if the operator can quickly tell whether the system warned or blocked.",
-      "Architecture Council: derive gate status from existing config and evaluation state rather than introducing another persisted artifact.",
-      "Operator Council: the same gate language should appear in the brief, readiness output, and report."
+      "Product Council: target-repo operators need one coherent bootstrap path now that the model has archetype and readiness choices.",
+      "Architecture Council: keep the guidance repo-portable and avoid embedding project-specific policy in the installer.",
+      "Operator Council: the bootstrap text should explain advisory mode clearly enough that users do not confuse it with publish permission."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Surface shared implementation-gate outcomes in evaluator briefs and reports so advisory versus blocking behavior is legible.",
+      "summary": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes.",
       "evidence_refs": [
-        ".agent-loop/scripts/common.py",
-        ".agent-loop/scripts/render-evaluator-brief.py",
-        ".agent-loop/scripts/write-report.py"
+        "scripts/install-into-project.sh",
+        "README.md",
+        ".agent-loop/references/example-data-acquisition-workflow.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,33 +48,33 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Make implementation gate outcomes visible so advisory mode cannot be mistaken for weakened publish safety.",
-        "decision": "Approve a shared status-summary version that updates briefs and reports only.",
+        "summary": "Make the stronger committee model installable without forcing operators to read the full protocol first.",
+        "decision": "Approve bootstrap-guidance alignment only.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add one implementation_gate_status helper and reuse it across readiness, evaluator brief, and report rendering.",
-        "decision": "Keep the status vocabulary compact: pass, warn, or block.",
+        "summary": "Align installer stdout, README bootstrap, and example workflow around the same archetype-profile and readiness-mode steps.",
+        "decision": "Point to config keys and commands instead of adding more automation.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "The operator should be able to scan one line and understand whether implementation was allowed, warned, or blocked.",
-        "decision": "Approve if the summary stays concise and consistent across surfaces.",
+        "summary": "Operators should know where to review archetype defaults, how to compute evaluator scores, and what advisory mode does.",
+        "decision": "Approve if the guidance remains short and portable.",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Gate mode now exists in config; the next step is to make its outcome readable everywhere it matters.",
-        "next_action": "Render shared gate outcomes in evaluator-facing and report-facing surfaces."
+        "summary": "The protocol is stronger now; bootstrap guidance needs to catch up so target repos can adopt it correctly.",
+        "next_action": "Refresh the installer and bootstrap references before the final validation closeout."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Operator-facing artifacts should clearly distinguish advisory warnings from blocking failures.",
-        "decision_record": "Implementation gate status now needs one shared rendered summary so the same evaluation is described consistently across the loop.",
+        "summary": "Guidance should state the control boundary clearly: advisory mode may allow implementation, but publish remains strict.",
+        "decision_record": "Target-repo bootstrap now needs explicit mention of archetype profiles, evaluator scoring, and implementation gate mode.",
         "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
@@ -83,16 +83,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs",
-      "why_selected": "The implementation gate can now be advisory or blocking, but the current artifacts do not make that distinction legible enough for operators.",
+      "selected_goal": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes",
+      "why_selected": "The repo now has more configurable committee behavior, but the install path still does not explain those settings clearly enough for target-project operators.",
       "scope_in": [
-        "Add a shared implementation-gate status summary helper.",
-        "Render implementation-gate status in evaluator briefs and version reports.",
-        "Cover the new output in validation."
+        "Update install-into-project.sh bootstrap output.",
+        "Update README bootstrap guidance.",
+        "Update the example workflow to mention archetype profiles, evaluator scoring, and advisory implementation mode."
       ],
       "scope_out": [
-        "Do not add new durable state.",
-        "Do not change any gate semantics."
+        "Do not add new automation or state.",
+        "Do not change the underlying protocol semantics."
       ],
       "assumptions": [],
       "risks": [],
@@ -100,12 +100,12 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if different surfaces start describing the same gate with inconsistent wording."
+        "Stop if the guidance becomes longer than the workflow it is trying to clarify."
       ],
       "dissent": [
-        "Keep the gate vocabulary small and deterministic."
+        "Keep the bootstrap guidance concise; it should point operators to the right knobs, not restate the whole protocol."
       ],
-      "next_action": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes."
+      "next_action": "Close the session by refreshing validation and baseline docs around the upgraded lightweight committee flow."
     },
     "evaluation": {
       "status": "captured",
@@ -116,15 +116,15 @@
         "repo_safety": 4.8,
         "validation_readiness": 4.8,
         "state_durability": 4.8,
-        "publish_safety": 4.9
+        "publish_safety": 4.8
       },
-      "weighted_score": 4.81,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "This improves operator clarity without adding more protocol state."
+        "This reduces adoption friction without changing the execution engine."
       ],
       "minimum_fixes_required": [
-        "Reuse one shared gate-status helper so the wording stays consistent."
+        "Keep the installer and bootstrap guidance concise and repo-portable."
       ]
     },
     "escalation": {
@@ -132,13 +132,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-47-gate-outcome-reporting",
-    "goal_title": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs"
+    "goal_id": "iteration-48-install-profile-alignment",
+    "goal_title": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes"
   },
-  "last_report": "docs/reports/v47.md",
+  "last_report": "docs/reports/v48.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:39:06Z",
+    "ran_at": "2026-03-15T07:41:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -592,6 +592,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:39:16Z",
       "session_progress": "8/10"
+    },
+    {
+      "iteration": 48,
+      "goal": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes",
+      "goal_id": "iteration-48-install-profile-alignment",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v48.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:41:44Z",
+      "session_progress": "9/10"
     }
   ]
 }
