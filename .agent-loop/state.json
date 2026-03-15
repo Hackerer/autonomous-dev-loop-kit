@@ -1,14 +1,14 @@
 {
-  "iteration": 61,
-  "status": "release_report_written",
+  "iteration": 62,
+  "status": "published",
   "session": {
-    "id": "session-20260315-152645",
+    "id": "session-20260315-185911",
     "status": "active",
-    "target_releases": 5,
-    "completed_releases": 4,
+    "target_releases": 4,
+    "completed_releases": 0,
     "target_iterations": null,
-    "completed_iterations": 5,
-    "started_at": "2026-03-15T15:26:45Z",
+    "completed_iterations": 1,
+    "started_at": "2026-03-15T18:59:11Z",
     "ended_at": null
   },
   "project_data": {
@@ -20,107 +20,111 @@
   },
   "current_goal": null,
   "release": {
-    "number": 5,
-    "title": "R5: Add operator-facing status and doctor tooling for loop recovery",
-    "summary": "Ship the single high-priority goal `Add operator-facing status and doctor tooling for loop recovery` as a standalone bundled release.",
+    "number": 1,
+    "title": "R1: Make publish transactions persist committed loop state without dirty post-publish drift",
+    "summary": "Ship the single high-priority goal `Make publish transactions persist committed loop state without dirty post-publish drift` as a standalone bundled release.",
     "status": "ready_to_release",
     "brief": {
       "archetype": "workflow",
-      "objective": "Give operators a first-class way to inspect loop state and recover from blockers.",
-      "target_user_value": "Operators can answer where the loop is stuck and what to run next without reading raw state files.",
-      "why_now": "After telemetry, state consistency, report trust, and PM release planning quality, the main UX gap is day-to-day recovery and inspection.",
-      "packaging_rationale": "Status and doctor belong together because one explains current loop state while the other explains how to recover.",
+      "objective": "Make publish transactions durable and deterministic so successful publishes leave no dirty runtime state behind.",
+      "target_user_value": "Operators can trust that a published task or release leaves the repo in a clean, auditable state and that failed publish attempts do not silently consume work.",
+      "why_now": "Publish ordering is the highest-risk review finding because it can corrupt session progress and release history at the exact moment the kit claims a version has shipped.",
+      "packaging_rationale": "Iteration publish ordering, release closeout ordering, and validator coverage belong in one release because they are all part of the same publish transaction contract.",
       "packaging_signals": [
         "Archetype: workflow",
-        "Matched keywords: operator, release",
-        "Shared theme: tooling",
+        "Matched keywords: release",
+        "Shared theme: without",
         "Bundled goals: 1"
       ],
       "scope_in": [
-        "Add loop-status.py",
-        "Add loop-doctor.py",
-        "Document status and doctor in README, protocol, and installer guidance"
+        "Preflight publish targets before mutating loop state or backlog.",
+        "Persist successful iteration and release closeout state inside the committed artifact.",
+        "Extend validator coverage for clean post-publish state and failed publish rollback expectations."
       ],
       "scope_out": [
-        "No new validation or committee gates"
+        "Do not change release planning semantics or committee structure."
       ],
       "release_acceptance": [
-        "loop-status.py prints session, release, goal, and gate status",
-        "loop-doctor.py prints actionable recovery findings",
-        "validate-kit.py covers both scripts"
+        "publish-iteration.py does not consume a goal before publish-target validation succeeds.",
+        "publish-release.py leaves a clean worktree after a successful release publish.",
+        "validate-kit.py proves both guarantees."
       ],
-      "launch_story": "This release gives operators a practical cockpit for the loop: one command to inspect state, one command to recover.",
-      "deferred_items": []
+      "launch_story": "This release makes the loop trustworthy at the final moment that matters most: when a version is being published.",
+      "deferred_items": [
+        "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+        "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+        "Expand validator coverage for reliability fixes and publish a final remediation review"
+      ]
     },
     "goal_ids": [
-      "iteration-62-status-and-doctor-ux"
+      "iteration-63-publish-transaction-correctness"
     ],
     "goal_titles": [
-      "Add operator-facing status and doctor tooling for loop recovery"
+      "Make publish transactions persist committed loop state without dirty post-publish drift"
     ],
     "completed_goal_ids": [
-      "iteration-62-status-and-doctor-ux"
+      "iteration-63-publish-transaction-correctness"
     ],
     "task_iterations": [
       {
-        "iteration": 61,
-        "goal": "Add operator-facing status and doctor tooling for loop recovery",
-        "goal_id": "iteration-62-status-and-doctor-ux",
-        "report": "docs/reports/v61.md",
-        "published_at": "2026-03-15T16:57:15Z"
+        "iteration": 62,
+        "goal": "Make publish transactions persist committed loop state without dirty post-publish drift",
+        "goal_id": "iteration-63-publish-transaction-correctness",
+        "report": "docs/reports/v62.md",
+        "published_at": "2026-03-15T19:03:10Z"
       }
     ],
-    "selected_at": "2026-03-15T16:55:27Z",
+    "selected_at": "2026-03-15T19:01:55Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R5.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T16:56:37Z",
+    "captured_at": "2026-03-15T19:02:40Z",
     "research_findings": [
-      "Usage-log analysis shows operators need a faster way to inspect live loop state without reading raw JSON."
+      "Code review and reproductions showed that publish-release.py left state and usage logs dirty after a successful publish, while publish-iteration.py could consume a goal before remote validation failed.",
+      "Remote preflight belongs before save_state so direct-push and push-branch failures cannot consume the active goal."
     ],
     "committee_feedback": [
-      "Product, architecture, and operator councils aligned on shipping lightweight read-only operator recovery tooling."
+      "The committee aligned on keeping the fix minimal and deterministic instead of adding a new publish state machine."
     ],
     "committee_decision": [
-      "Approve a single bundled release for loop-status, loop-doctor, and operator-facing guidance."
+      "Approve the release once validator coverage proves both successful and failed publish paths."
     ],
     "reflection_notes": [
-      "Operator recovery should stay read-only in the first release to preserve trust and avoid hidden automation."
+      "This fix should prioritize state correctness over retaining every previous usage-log payload detail."
     ],
     "research_gate": {
       "status": "captured",
-      "summary": "Usage-log analysis shows operators need a clearer way to inspect live loop state and recover from blockers without reading raw JSON state files.",
+      "summary": "The publish transaction boundary was wrong: remote checks and durable-state writes were not ordered to preserve a clean, auditable post-publish repo state.",
       "evidence_refs": [
-        ".agent-loop/data/usage-log.jsonl",
-        ".agent-loop/scripts/analyze-usage-logs.py"
+        ".agent-loop/scripts/publish-iteration.py",
+        ".agent-loop/scripts/publish-release.py",
+        ".agent-loop/scripts/validate-kit.py"
       ],
-      "data_quality_score": 4.7,
-      "open_gaps": [
-        "Status and doctor output should stay concise enough for day-to-day use."
-      ]
+      "data_quality_score": 4.9,
+      "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "This release closes the highest remaining UX gap after telemetry and report trust by giving operators an explicit inspection and recovery surface.",
+        "summary": "Fixing publish transaction correctness is the highest-value reliability improvement because it directly affects whether shipped versions can be trusted.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Standalone status and doctor scripts fit the existing repo-local script boundary and avoid coupling operator recovery UX into publishing or validation flows.",
+        "summary": "The safest repair is to preflight publish targets before mutating durable state, then commit the resulting state in the same artifact that represents the successful publish.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operators need a simple answer to where the loop is blocked and what command to run next; status and doctor provide that without forcing raw state inspection.",
+        "summary": "Operators need publish failures to fail cleanly and successful publishes to leave the repo ready for the next step without manual state cleanup.",
         "decision": "approve",
         "dissent": []
       }
@@ -128,15 +132,15 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Ship a bundled workflow release that adds inspection and recovery commands plus documentation and installer guidance.",
-        "next_action": "Run full validation, then publish the task and bundled release."
+        "summary": "Repair iteration and release publish ordering together and prove the behavior with validator coverage.",
+        "next_action": "Run full validation, then publish the task and bundled release if the transaction checks stay green."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Decision is backed by usage-log findings and durable state coverage; no escalation is required if operator tools stay read-only.",
-        "decision_record": "Approve the operator recovery release with scope limited to loop-status, loop-doctor, validation coverage, and operator-facing docs.",
+        "summary": "The fix is evidence-backed by direct repros and should be accepted only if validator coverage proves clean success and clean failure behavior.",
+        "decision_record": "Approve the publish transaction remediation release with scope limited to ordering, state durability, and validator coverage.",
         "evidence_refs": [
-          ".agent-loop/references/protocol.md"
+          ".agent-loop/scripts/validate-kit.py"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -145,66 +149,66 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "iteration-62-status-and-doctor-ux",
-      "why_selected": "Operator recovery is the remaining UX gap after telemetry, state consistency, report trust, and PM release planning quality were delivered.",
+      "selected_goal": "iteration-63-publish-transaction-correctness",
+      "why_selected": "This is the most severe open finding because it can corrupt release history and session progress at publish time.",
       "scope_in": [
-        "Add loop-status.py for structured loop inspection.",
-        "Add loop-doctor.py for actionable recovery diagnostics.",
-        "Document operator recovery commands in README, protocol, and installer guidance."
+        "Preflight remote requirements before mutating iteration or release state.",
+        "Commit successful publish state inside the published artifact instead of leaving runtime state dirty afterward.",
+        "Add validator checks for clean post-publish state and failed-publish non-consumption."
       ],
       "scope_out": [
-        "Do not add new validation gates or committee roles."
+        "Do not change release planning semantics or committee structure."
       ],
       "assumptions": [
-        "Existing durable state is sufficient to explain operator-facing loop health."
+        "Recording the final publish state in the committed artifact matters more than preserving commit SHA inside state."
       ],
       "risks": [
-        "Operator output could become noisy if status and doctor expose too much raw state."
+        "Publish event payloads may need to drop the commit SHA from pre-commit usage logging to keep the transaction clean."
       ],
       "required_validation": [
-        "validate-kit.py must cover loop-status.py and loop-doctor.py.",
-        "run-full-validation.py must remain green after adding operator tooling."
+        "validate-kit.py must prove successful release publish leaves a clean worktree.",
+        "validate-kit.py must prove failed iteration publish leaves goal and backlog state untouched."
       ],
       "stop_conditions": [
-        "Stop if status or doctor require mutating state to be useful."
+        "Stop if the fix requires destructive rollback of user-authored commits."
       ],
       "dissent": [
-        "Keep the first release of operator tooling read-only and avoid auto-repair behavior."
+        "Do not introduce heavy transactional machinery that changes the loop protocol just to preserve a self-referential commit field."
       ],
-      "next_action": "Validate the new operator tooling and publish the bundled release if all gates pass."
+      "next_action": "Run validate-kit.py and publish the remediation release if the transactional ordering remains green."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.8,
-        "scope_fitness": 4.7,
-        "repo_safety": 4.8,
+        "goal_clarity": 4.9,
+        "scope_fitness": 4.8,
+        "repo_safety": 4.9,
         "validation_readiness": 4.9,
-        "state_durability": 4.8,
-        "publish_safety": 4.8
+        "state_durability": 4.9,
+        "publish_safety": 4.9
       },
-      "weighted_score": 4.8,
+      "weighted_score": 4.9,
       "result": "pass",
       "critique": [
-        "The release is tightly scoped, durable, and easy to validate."
+        "The remediation scope is narrow, testable, and directly tied to the most severe review finding."
       ],
       "minimum_fixes_required": [
-        "Keep operator tooling read-only and block publish if validation regresses."
+        "Keep the fix deterministic and validator-backed."
       ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": "Proceed to validation and publish if the new tools remain green."
+      "recommended_action": "Proceed to validation and publish if the transaction tests remain green."
     },
-    "goal_id": "iteration-62-status-and-doctor-ux",
-    "goal_title": "Add operator-facing status and doctor tooling for loop recovery"
+    "goal_id": "iteration-63-publish-transaction-correctness",
+    "goal_title": "Make publish transactions persist committed loop state without dirty post-publish drift"
   },
-  "last_report": "docs/reports/v61.md",
+  "last_report": "docs/reports/v62.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T16:56:51Z",
+    "ran_at": "2026-03-15T19:02:55Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -850,6 +854,20 @@
       "branch": "main",
       "published_at": "2026-03-15T16:57:15Z",
       "session_progress": "4/5 releases"
+    },
+    {
+      "iteration": 62,
+      "goal": "Make publish transactions persist committed loop state without dirty post-publish drift",
+      "goal_id": "iteration-63-publish-transaction-correctness",
+      "release_number": 1,
+      "release_title": "R1: Make publish transactions persist committed loop state without dirty post-publish drift",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v62.md",
+      "branch": "main",
+      "published_at": "2026-03-15T19:03:10Z",
+      "session_progress": "0/4 releases"
     }
   ],
   "release_history": [
@@ -1022,6 +1040,30 @@
       "report": "docs/releases/R4.md",
       "published_at": "2026-03-15T16:42:30Z",
       "commit": "b26196415c717ba21f591da84655b71195c120b7"
+    },
+    {
+      "number": 5,
+      "session_id": "session-20260315-152645",
+      "title": "R5: Add operator-facing status and doctor tooling for loop recovery",
+      "summary": "Ship the single high-priority goal `Add operator-facing status and doctor tooling for loop recovery` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-62-status-and-doctor-ux"
+      ],
+      "goal_titles": [
+        "Add operator-facing status and doctor tooling for loop recovery"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 61,
+          "goal": "Add operator-facing status and doctor tooling for loop recovery",
+          "goal_id": "iteration-62-status-and-doctor-ux",
+          "report": "docs/reports/v61.md",
+          "published_at": "2026-03-15T16:57:15Z"
+        }
+      ],
+      "report": "docs/releases/R5.md",
+      "published_at": "2026-03-15T17:00:23Z",
+      "commit": "feaf3266ace45d43d4e33e750b4046111e6b05af"
     }
   ]
 }

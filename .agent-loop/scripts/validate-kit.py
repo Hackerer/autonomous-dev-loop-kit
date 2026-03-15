@@ -608,6 +608,14 @@ def validate_release_flow(failures: list[str]) -> None:
         updated_state = load_state(target)
         check(updated_state.get("session", {}).get("completed_releases") == 1, "Bundled release publish increments completed releases", failures)
         check(len(updated_state.get("release_history", [])) >= 1, "Bundled release publish records release history", failures)
+        clean_after_release = subprocess.run(
+            ["git", "status", "--short"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(clean_after_release.returncode == 0 and clean_after_release.stdout.strip() == "", "Bundled release publish leaves a clean worktree", failures)
 
         backlog.append({"id": "goal-c", "title": "Goal C", "priority": "high", "status": "pending", "acceptance": []})
         write_json(target / ".agent-loop/backlog.json", backlog)
@@ -640,6 +648,62 @@ def validate_release_flow(failures: list[str]) -> None:
             check=False,
         )
         check(orphan_publish.returncode != 0, "publish-iteration.py rejects orphan iteration publish attempts", failures)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a failed-publish rollback target", failures)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Failed-publish target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "direct-push"
+        config["git"]["require_remote"] = True
+        write_json(target / ".agent-loop/config.json", config)
+
+        write_json(
+            target / ".agent-loop/backlog.json",
+            [{"id": "goal-a", "title": "Goal A", "priority": "high", "status": "pending", "acceptance": []}],
+        )
+        failed_publish_state = seeded_state("goal-a", evaluator_result="pass")
+        failed_publish_state["current_goal"]["title"] = "Goal A"
+        failed_publish_state["review_state"]["goal_title"] = "Goal A"
+        failed_publish_state["draft_goal"] = failed_publish_state["current_goal"]
+        failed_publish_state["draft_iteration"] = 1
+        failed_publish_state["draft_report"] = "docs/reports/v1.md"
+        write_json(target / ".agent-loop/state.json", failed_publish_state)
+        (target / "docs/reports").mkdir(parents=True, exist_ok=True)
+        (target / "docs/reports/v1.md").write_text("# Task Iteration v1 Report\n", encoding="utf-8")
+
+        failed_publish = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(failed_publish.returncode != 0, "publish-iteration.py fails before mutating state when publish target is invalid", failures)
+        after_failed_publish_state = load_state(target)
+        after_failed_publish_backlog = json.loads((target / ".agent-loop/backlog.json").read_text(encoding="utf-8"))
+        check(
+            after_failed_publish_state.get("session", {}).get("completed_iterations") == 0,
+            "Failed publish does not advance completed task iterations",
+            failures,
+        )
+        check(
+            isinstance(after_failed_publish_state.get("current_goal"), dict)
+            and after_failed_publish_state.get("current_goal", {}).get("id") == "goal-a",
+            "Failed publish preserves the active goal selection",
+            failures,
+        )
+        check(
+            after_failed_publish_backlog[0].get("status") == "pending",
+            "Failed publish does not mark the backlog goal as completed",
+            failures,
+        )
 
 
 def validate_goal_selection_readiness(failures: list[str]) -> None:

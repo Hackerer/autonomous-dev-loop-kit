@@ -77,21 +77,19 @@ Updated: 2026-03-15
 - What is the right amount of secretariat detail to persist before the state becomes noisy?
 - How opinionated should automatic release bundling be before users need to name or curate the release explicitly?
 
-## Session 58-67: Usage-Driven Release UX Hardening
+## Session 63-66: Reliability And Review Remediation
 
 ### Target Outcome
 
-- Make usage logs explain how operators actually use the loop, not just that an event happened.
-- Eliminate release-state drift such as skipped release numbers, orphan task iterations, and misleading progress strings.
-- Turn release reports into trustworthy publish artifacts by blocking placeholder content and requiring real aggregated output.
-- Strengthen PM release planning so bundled releases have clearer themes, user value, and packaging rationale.
-- Add operator-facing status and doctor tooling so users can see where the loop is stuck and how to recover.
+- Eliminate publish-time state drift so durable loop state, backlog progress, and release history are recorded in the same committed version that gets published.
+- Reset new loop sessions cleanly so old review failures, escalation pressure, and stale committee artifacts do not bleed into fresh sessions.
+- Make review gating, usage-log analysis, and operator recovery tooling resilient to real-world malformed inputs and publish-target misconfiguration.
+- Extend validator coverage so these reliability guarantees are enforced continuously and regressions are caught before release.
 
 ### Optimization Focus
 
-Based on the observed `ai-trade` and `info-rss` usage logs:
-1. **Telemetry depth**: record session identity, client, trigger phrase, stop reason, failures, and completion outcomes.
-2. **Release correctness**: keep release numbering, progress, and task-to-release linkage deterministic.
-3. **Report trustworthiness**: reject placeholder release notes and orphan reports before publish.
-4. **PM planning quality**: improve bundled-release themes and user-facing release narratives.
-5. **Operator recovery UX**: add `status` and `doctor` outputs that explain current gate state and the next action.
+1. **Publish transaction correctness**: preflight remotes before state mutation, persist publish state in the committed artifact, and prevent failed publish attempts from consuming goals.
+2. **State reset correctness**: reset review, escalation, and failure counters when a new session is started while preserving long-term release history intentionally.
+3. **Review-state compatibility**: treat structured council, secretariat, scope, and evaluator artifacts as valid review content.
+4. **Operational resilience**: tolerate malformed usage-log rows and make `loop-doctor.py` surface the same remote/publish blockers as the real publish scripts.
+5. **Validator enforcement**: prove clean post-publish state and failed-publish rollback expectations with deterministic tests.

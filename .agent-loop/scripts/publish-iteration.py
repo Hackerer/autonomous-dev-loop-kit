@@ -5,11 +5,9 @@ import argparse
 import sys
 
 from common import (
-    active_release,
     append_usage_log,
     LoopError,
     current_branch,
-    default_state,
     ensure_git_repo,
     find_repo_root,
     git,
@@ -80,6 +78,29 @@ def main() -> int:
     strategy = git_config.get("strategy", "push-branch")
     remote = git_config.get("remote", "origin")
     branch_prefix = git_config.get("branch_prefix", "auto-loop/v")
+
+    remotes = {}
+    if strategy in {"push-branch", "direct-push"}:
+        remotes = git_remotes(root)
+        if git_config.get("require_remote", True) and not remotes:
+            raise LoopError(
+                "No Git remote is configured for this project. Each project must publish to its own GitHub repo. Confirm the correct remote with the user before publishing."
+            )
+        if git_config.get("require_remote", True) and not remote_exists(root, remote):
+            known = ", ".join(sorted(remotes)) or "none"
+            raise LoopError(
+                f"Configured Git remote '{remote}' is not present in this project. Known remotes: {known}. Confirm the correct project GitHub remote with the user before publishing."
+            )
+        remote_urls = remotes.get(remote, [])
+        if not remote_urls:
+            raise LoopError(
+                f"Unable to resolve URLs for Git remote '{remote}'. Confirm the correct project GitHub remote with the user before publishing."
+            )
+        if git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
+            joined_urls = ", ".join(remote_urls)
+            raise LoopError(
+                f"Git remote '{remote}' does not point to GitHub ({joined_urls}). Each project should publish to its own GitHub repo. Confirm with the user before publishing."
+            )
 
     if strategy == "push-branch":
         branch_name = ensure_branch(root, f"{branch_prefix}{int(iteration):03d}-{goal_slug}")
@@ -152,6 +173,20 @@ def main() -> int:
     save_state(root, state)
     save_backlog(root, backlog)
 
+    append_usage_log(
+        root,
+        config,
+        "iteration_published",
+        {
+            "iteration": int(iteration),
+            "goal": goal_label,
+            "goal_id": goal_id or "",
+            "release_number": release.get("number"),
+            "report": report_path,
+            "branch": branch_name,
+        },
+    )
+
     add_result = git(root, "add", "-A")
     if add_result.returncode != 0:
         raise LoopError(add_result.stderr.strip() or "git add -A failed")
@@ -167,46 +202,10 @@ def main() -> int:
     commit_sha = sha_result.stdout.strip()
 
     if strategy in {"push-branch", "direct-push"}:
-        remotes = git_remotes(root)
-        if git_config.get("require_remote", True) and not remotes:
-            raise LoopError(
-                "No Git remote is configured for this project. Each project must publish to its own GitHub repo. Confirm the correct remote with the user before publishing."
-            )
-        if git_config.get("require_remote", True) and not remote_exists(root, remote):
-            known = ", ".join(sorted(remotes)) or "none"
-            raise LoopError(
-                f"Configured Git remote '{remote}' is not present in this project. Known remotes: {known}. Confirm the correct project GitHub remote with the user before publishing."
-            )
-        remote_urls = remotes.get(remote, [])
-        if not remote_urls:
-            raise LoopError(
-                f"Unable to resolve URLs for Git remote '{remote}'. Confirm the correct project GitHub remote with the user before publishing."
-            )
-        if git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
-            joined_urls = ", ".join(remote_urls)
-            raise LoopError(
-                f"Git remote '{remote}' does not point to GitHub ({joined_urls}). Each project should publish to its own GitHub repo. Confirm with the user before publishing."
-            )
         push_target = branch_name if strategy == "push-branch" else current_branch(root)
         push_result = git(root, "push", "-u", remote, push_target)
         if push_result.returncode != 0:
             raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
-
-    append_usage_log(
-        root,
-        config,
-        "iteration_published",
-        {
-            "iteration": int(iteration),
-            "goal": goal_label,
-            "goal_id": goal_id or "",
-            "release_number": release.get("number"),
-            "report": report_path,
-            "branch": branch_name,
-            "commit": commit_sha,
-            "session_progress": None if target is None else f"{state['session'].get('completed_releases', 0)}/{int(target)} releases",
-        },
-    )
 
     progress = session_summary(state)
     release_suffix = ""

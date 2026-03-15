@@ -58,21 +58,7 @@ def main() -> int:
     strategy = git_config.get("strategy", "push-branch")
     remote = git_config.get("remote", "origin")
 
-    add_result = git(root, "add", "-A")
-    if add_result.returncode != 0:
-        raise LoopError(add_result.stderr.strip() or "git add -A failed")
-
-    release_number = int(release["number"])
-    commit_message = args.message or f"feat(release): r{release_number} {slugify(release['title'] or f'release-{release_number}')}"
-    commit_result = git(root, "commit", "-m", commit_message)
-    if commit_result.returncode != 0:
-        raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit failed")
-
-    sha_result = git(root, "rev-parse", "HEAD")
-    if sha_result.returncode != 0:
-        raise LoopError(sha_result.stderr.strip() or "Unable to resolve HEAD after commit")
-    commit_sha = sha_result.stdout.strip()
-
+    remotes = {}
     if strategy in {"push-branch", "direct-push"}:
         remotes = git_remotes(root)
         if git_config.get("require_remote", True) and not remotes:
@@ -84,15 +70,10 @@ def main() -> int:
             raise LoopError(f"Unable to resolve URLs for Git remote '{remote}'.")
         if git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
             raise LoopError(f"Git remote '{remote}' does not point to GitHub ({', '.join(remote_urls)}).")
-        push_result = git(root, "push", "-u", remote, current_branch(root))
-        if push_result.returncode != 0:
-            raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
 
     published_at = utc_now()
-    state = load_state(root)
-    release = release_summary(state)
     release_record = {
-        "number": release_number,
+        "number": int(release["number"]),
         "session_id": session_summary(state).get("id"),
         "title": release["title"],
         "summary": release["summary"],
@@ -101,7 +82,6 @@ def main() -> int:
         "task_iterations": release["task_iterations"],
         "report": report_path,
         "published_at": published_at,
-        "commit": commit_sha,
     }
     state["release_history"].append(release_record)
     state["release"] = default_state()["release"]
@@ -122,10 +102,9 @@ def main() -> int:
         config,
         "release_published",
         {
-            "release_number": release_number,
+            "release_number": release_record["number"],
             "title": release_record["title"],
             "report": report_path,
-            "commit": commit_sha,
         },
     )
     if state.get("session", {}).get("status") == "completed":
@@ -139,6 +118,26 @@ def main() -> int:
                 "target_releases": state.get("session", {}).get("target_releases"),
             },
         )
+
+    add_result = git(root, "add", "-A")
+    if add_result.returncode != 0:
+        raise LoopError(add_result.stderr.strip() or "git add -A failed")
+
+    release_number = int(release["number"])
+    commit_message = args.message or f"feat(release): r{release_number} {slugify(release['title'] or f'release-{release_number}')}"
+    commit_result = git(root, "commit", "-m", commit_message)
+    if commit_result.returncode != 0:
+        raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit failed")
+
+    sha_result = git(root, "rev-parse", "HEAD")
+    if sha_result.returncode != 0:
+        raise LoopError(sha_result.stderr.strip() or "Unable to resolve HEAD after commit")
+    commit_sha = sha_result.stdout.strip()
+
+    if strategy in {"push-branch", "direct-push"}:
+        push_result = git(root, "push", "-u", remote, current_branch(root))
+        if push_result.returncode != 0:
+            raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
 
     print(f"Published release R{release_number} at {commit_sha}")
     return 0

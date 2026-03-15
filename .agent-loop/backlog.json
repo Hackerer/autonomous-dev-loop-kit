@@ -674,5 +674,53 @@
       "README, protocol, and installer guidance point users to status and doctor during recovery"
     ],
     "notes": "A strong loop should help users recover, not just fail with a stack of gate errors."
+  },
+  {
+    "id": "iteration-63-publish-transaction-correctness",
+    "title": "Make publish transactions persist committed loop state without dirty post-publish drift",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "publish-iteration.py preflights remote requirements before mutating durable state or backlog",
+      "publish-release.py records release history and session closeout in the same committed version instead of leaving state dirty after publish",
+      "Validator coverage proves failed publish attempts do not consume a goal and successful release publish leaves a clean worktree"
+    ],
+    "notes": "This addresses the highest-risk review findings around publish ordering and durable-state drift."
+  },
+  {
+    "id": "iteration-64-session-reset-and-review-compatibility",
+    "title": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "set-loop-session.py resets transient review, escalation, and failure state for a fresh session while preserving intended long-term history",
+      "require_review_state accepts structured research, council, secretariat, scope, and evaluation artifacts as non-empty review content",
+      "State initialization paths use the full normalized release and review shape consistently"
+    ],
+    "notes": "A fresh session should not inherit stale failure pressure, and structured review data should satisfy the real gates."
+  },
+  {
+    "id": "iteration-65-operational-resilience",
+    "title": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Usage-log analysis skips malformed JSONL rows without crashing and reports invalid-row counts clearly",
+      "loop-doctor.py reports configured-remote, remote-url, and GitHub-target mismatches the same way publish scripts enforce them",
+      "Operational tools stay read-only and preserve the existing recovery workflow"
+    ],
+    "notes": "Operators need resilient tooling that reflects the real gates rather than a weaker approximation."
+  },
+  {
+    "id": "iteration-66-validator-and-review-closeout",
+    "title": "Expand validator coverage for reliability fixes and publish a final remediation review",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "validate-kit.py covers clean post-publish state, failed publish rollback expectations, session reset behavior, and malformed usage-log handling",
+      "Full validation remains green after all remediation changes",
+      "The session ends with a fresh code review report that confirms whether any issues remain"
+    ],
+    "notes": "Close the remediation loop by proving the fixes and re-reviewing the whole repo."
   }
 ]
