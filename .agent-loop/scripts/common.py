@@ -86,6 +86,61 @@ def default_state() -> dict[str, Any]:
             "committee_feedback": [],
             "committee_decision": [],
             "reflection_notes": [],
+            "research_gate": {
+                "status": "not_started",
+                "summary": "",
+                "evidence_refs": [],
+                "data_quality_score": None,
+                "open_gaps": [],
+            },
+            "councils": {
+                "product_council": {
+                    "status": "not_started",
+                    "summary": "",
+                    "decision": "",
+                    "dissent": [],
+                },
+                "architecture_council": {
+                    "status": "not_started",
+                    "summary": "",
+                    "decision": "",
+                    "dissent": [],
+                },
+                "operator_council": {
+                    "status": "not_started",
+                    "summary": "",
+                    "decision": "",
+                    "dissent": [],
+                },
+            },
+            "cross_committee_tensions": [],
+            "scope_decision": {
+                "status": "not_started",
+                "selected_goal": "",
+                "why_selected": "",
+                "scope_in": [],
+                "scope_out": [],
+                "assumptions": [],
+                "risks": [],
+                "required_validation": [],
+                "stop_conditions": [],
+                "dissent": [],
+                "next_action": "",
+            },
+            "evaluation": {
+                "status": "not_started",
+                "rubric_version": "",
+                "scores": {},
+                "weighted_score": None,
+                "result": "pending",
+                "critique": [],
+                "minimum_fixes_required": [],
+            },
+            "escalation": {
+                "status": "not_needed",
+                "reason": "",
+                "recommended_action": "",
+            },
         },
         "last_report": None,
         "last_validation": {"status": "not_run", "ran_at": None, "results": []},
@@ -128,6 +183,76 @@ def load_state(root: Path) -> dict[str, Any]:
         value = normalized_review_state.get(key)
         if not isinstance(value, list):
             normalized_review_state[key] = []
+    research_gate = normalized_review_state.get("research_gate")
+    if not isinstance(research_gate, dict):
+        research_gate = {}
+    default_research_gate = default_review_state["research_gate"]
+    normalized_research_gate = dict(default_research_gate)
+    normalized_research_gate.update(research_gate)
+    for key in ("evidence_refs", "open_gaps"):
+        value = normalized_research_gate.get(key)
+        if not isinstance(value, list):
+            normalized_research_gate[key] = []
+    normalized_review_state["research_gate"] = normalized_research_gate
+
+    councils = normalized_review_state.get("councils")
+    if not isinstance(councils, dict):
+        councils = {}
+    default_councils = default_review_state["councils"]
+    normalized_councils: dict[str, Any] = {}
+    for council_key, default_council in default_councils.items():
+        council_value = councils.get(council_key)
+        if not isinstance(council_value, dict):
+            council_value = {}
+        normalized_council = dict(default_council)
+        normalized_council.update(council_value)
+        dissent = normalized_council.get("dissent")
+        if not isinstance(dissent, list):
+            normalized_council["dissent"] = []
+        normalized_councils[council_key] = normalized_council
+    normalized_review_state["councils"] = normalized_councils
+
+    for key in ("cross_committee_tensions",):
+        value = normalized_review_state.get(key)
+        if not isinstance(value, list):
+            normalized_review_state[key] = []
+
+    scope_decision = normalized_review_state.get("scope_decision")
+    if not isinstance(scope_decision, dict):
+        scope_decision = {}
+    default_scope_decision = default_review_state["scope_decision"]
+    normalized_scope_decision = dict(default_scope_decision)
+    normalized_scope_decision.update(scope_decision)
+    for key in ("scope_in", "scope_out", "assumptions", "risks", "required_validation", "stop_conditions", "dissent"):
+        value = normalized_scope_decision.get(key)
+        if not isinstance(value, list):
+            normalized_scope_decision[key] = []
+    normalized_review_state["scope_decision"] = normalized_scope_decision
+
+    evaluation = normalized_review_state.get("evaluation")
+    if not isinstance(evaluation, dict):
+        evaluation = {}
+    default_evaluation = default_review_state["evaluation"]
+    normalized_evaluation = dict(default_evaluation)
+    normalized_evaluation.update(evaluation)
+    critique = normalized_evaluation.get("critique")
+    if not isinstance(critique, list):
+        normalized_evaluation["critique"] = []
+    minimum_fixes_required = normalized_evaluation.get("minimum_fixes_required")
+    if not isinstance(minimum_fixes_required, list):
+        normalized_evaluation["minimum_fixes_required"] = []
+    scores = normalized_evaluation.get("scores")
+    if not isinstance(scores, dict):
+        normalized_evaluation["scores"] = {}
+    normalized_review_state["evaluation"] = normalized_evaluation
+
+    escalation = normalized_review_state.get("escalation")
+    if not isinstance(escalation, dict):
+        escalation = {}
+    default_escalation = default_review_state["escalation"]
+    normalized_escalation = dict(default_escalation)
+    normalized_escalation.update(escalation)
+    normalized_review_state["escalation"] = normalized_escalation
     merged["review_state"] = normalized_review_state
 
     last_validation = merged.get("last_validation")

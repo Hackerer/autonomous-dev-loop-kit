@@ -87,7 +87,7 @@
     "id": "iteration-18-review-state-schema-v2",
     "title": "Add a backward-compatible review-state schema for councils and scope decisions",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "State normalization supports research gate, council summaries, scope decision, evaluation, and escalation fields",
       "Existing flat review-state usage remains readable during migration",

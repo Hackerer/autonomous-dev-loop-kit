@@ -9,7 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from common import validate_committee
+from common import load_state, validate_committee
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -247,6 +247,7 @@ def main() -> int:
     validate_skill(ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md", failures)
 
     config = json.loads((ROOT / ".agent-loop/config.json").read_text(encoding="utf-8"))
+    state = load_state(ROOT)
     validation_commands = config.get("validation", {}).get("commands", [])
     check(
         any(".agent-loop/scripts/validate-kit.py" in item.get("command", "") for item in validation_commands),
@@ -280,6 +281,12 @@ def main() -> int:
         "Discovery requires post-validation reflection",
         failures,
     )
+    review_state = state.get("review_state", {})
+    check(isinstance(review_state.get("research_gate"), dict), "State normalization exposes research_gate", failures)
+    check(isinstance(review_state.get("councils"), dict), "State normalization exposes council summaries", failures)
+    check(isinstance(review_state.get("scope_decision"), dict), "State normalization exposes scope_decision", failures)
+    check(isinstance(review_state.get("evaluation"), dict), "State normalization exposes evaluation", failures)
+    check(isinstance(review_state.get("escalation"), dict), "State normalization exposes escalation", failures)
 
     generated_project_data = ROOT / ".agent-loop/data/project-data.generated.json"
     collector = subprocess.run(
