@@ -1,17 +1,17 @@
 {
-  "iteration": 19,
+  "iteration": 20,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 15,
-    "completed_iterations": 4,
+    "completed_iterations": 5,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:00:28Z",
+    "last_collected_at": "2026-03-15T05:02:07Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,19 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:00:18Z",
+    "captured_at": "2026-03-15T05:01:57Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
-      "The compatibility rule is simple: structured research-gate inputs should populate the nested block while the old research bullets continue to work for lightweight flows and reports."
+      "The compatibility rule is simple: structured research-gate inputs should populate the nested block while the old research bullets continue to work for lightweight flows and reports.",
+      "The new schema can hold council-specific summaries, but capture-review.py still only writes one flat committee_feedback list, so product, architecture, and operator voices remain blended together.",
+      "The next step should add optional council-specific flags without removing the generic committee-feedback flags, because lightweight flows still benefit from the simple path.",
+      "Dissent should be modeled as short structured bullets per council, not as full debate transcripts."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
       "Architecture council wants the new capture path to layer onto the current script with optional flags, not split research capture into a parallel tool.",
-      "Operator council wants the structured fields to stay small and practical, especially evidence refs and open gaps, so the command remains usable from the terminal."
+      "Operator council wants the structured fields to stay small and practical, especially evidence refs and open gaps, so the command remains usable from the terminal.",
+      "Product council wants its scope pressure and user-value concerns to be auditable separately from architecture and operator concerns.",
+      "Architecture council wants council slots to stay summary-based, with a short decision and dissent list rather than a free-form transcript field.",
+      "Operator council wants disagreement and evidence gaps to survive in state so later reports can explain why a scope was conditional or contested."
     ],
     "committee_decision": [
-      "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags."
+      "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
+      "Add optional council-specific summary, decision, and dissent flags to capture-review.py and persist them into review_state.councils while keeping the old flat committee-feedback path."
     ],
     "reflection_notes": [],
     "research_gate": {
@@ -50,22 +57,28 @@
     },
     "councils": {
       "product_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
-        "dissent": []
+        "status": "captured",
+        "summary": "The product council supports separate durable council lanes so scope pressure and user value arguments stop getting blended into one generic review list.",
+        "decision": "Keep council output summary-shaped and defer full scope-decision structure to a later step.",
+        "dissent": [
+          "Do not let the council schema turn into a transcript archive."
+        ]
       },
       "architecture_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
-        "dissent": []
+        "status": "captured",
+        "summary": "The architecture council wants council capture to remain additive: structured council slots should coexist with the flat compatibility fields for now.",
+        "decision": "Use summary, decision, and dissent only; avoid adding free-form transcript fields.",
+        "dissent": [
+          "Do not force all downstream scripts to migrate in the same iteration."
+        ]
       },
       "operator_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
-        "dissent": []
+        "status": "captured",
+        "summary": "The operator council wants concise council slots that later reports can explain without making terminal usage much heavier.",
+        "decision": "Prefer short summaries and compact dissent bullets over complex nested debate records.",
+        "dissent": [
+          "Do not increase operator typing cost more than necessary."
+        ]
       }
     },
     "cross_committee_tensions": [],
@@ -96,18 +109,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-19-capture-research-gate",
-    "goal_title": "Teach capture-review.py to persist structured research-gate results"
+    "goal_id": "iteration-20-capture-council-feedback",
+    "goal_title": "Capture council-specific feedback summaries instead of one flat committee list"
   },
-  "last_report": "docs/reports/v19.md",
+  "last_report": "docs/reports/v20.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:00:29Z",
+    "ran_at": "2026-03-15T05:02:38Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee renderer exposes council summaries\n[PASS] Committee renderer exposes secretariat summaries\n[PASS] Committee renderer exposes evaluator summary\n[PASS] capture-review.py runs successfully\n[PASS] capture-review.py emits research_gate payload\n[PASS] capture-review.py records research summary\n[PASS] install-into-project.sh runs successfully\n[PASS] Project installer syncs .agents skill\n[PASS] Project installer syncs .claude skill\n[PASS] Project installer syncs loop scripts\n[PASS] Project installer preserves existing config by default\n[PASS] Project installer supports --over\n...[truncated]...\n-iteration.py explains how to satisfy the review-state gate\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee renderer exposes council summaries\n[PASS] Committee renderer exposes secretariat summaries\n[PASS] Committee renderer exposes evaluator summary\n[PASS] capture-review.py runs successfully\n[PASS] capture-review.py emits research_gate payload\n[PASS] capture-review.py records research summary\n[PASS] capture-review.py emits council payloads\n[PASS] capture-review.py records product council summary\n[PASS] capture-review.py records product council dissent\n[PASS] install-into-project.sh runs successfully\n[PASS] Project installer syncs .agents skill\n[PASS] Project installer sync\n...[truncated]...\n-iteration.py explains how to satisfy the review-state gate\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -268,6 +281,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:00:47Z",
       "session_progress": "4/15"
+    },
+    {
+      "iteration": 20,
+      "goal": "Capture council-specific feedback summaries instead of one flat committee list",
+      "report": "docs/reports/v20.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:02:56Z",
+      "session_progress": "5/15"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "snapshot_version": 1,
-  "collected_at": "2026-03-15T05:00:28Z",
+  "collected_at": "2026-03-15T05:02:07Z",
   "repo": {
     "root": "/Users/max/Documents/coding/autonomous-dev-loop-kit",
     "name": "autonomous-dev-loop-kit",
@@ -102,26 +102,33 @@
   },
   "latest_review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:00:18Z",
+    "captured_at": "2026-03-15T05:01:57Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
-      "The compatibility rule is simple: structured research-gate inputs should populate the nested block while the old research bullets continue to work for lightweight flows and reports."
+      "The compatibility rule is simple: structured research-gate inputs should populate the nested block while the old research bullets continue to work for lightweight flows and reports.",
+      "The new schema can hold council-specific summaries, but capture-review.py still only writes one flat committee_feedback list, so product, architecture, and operator voices remain blended together.",
+      "The next step should add optional council-specific flags without removing the generic committee-feedback flags, because lightweight flows still benefit from the simple path.",
+      "Dissent should be modeled as short structured bullets per council, not as full debate transcripts."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
       "Architecture council wants the new capture path to layer onto the current script with optional flags, not split research capture into a parallel tool.",
-      "Operator council wants the structured fields to stay small and practical, especially evidence refs and open gaps, so the command remains usable from the terminal."
+      "Operator council wants the structured fields to stay small and practical, especially evidence refs and open gaps, so the command remains usable from the terminal.",
+      "Product council wants its scope pressure and user-value concerns to be auditable separately from architecture and operator concerns.",
+      "Architecture council wants council slots to stay summary-based, with a short decision and dissent list rather than a free-form transcript field.",
+      "Operator council wants disagreement and evidence gaps to survive in state so later reports can explain why a scope was conditional or contested."
     ],
     "committee_decision": [
-      "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags."
+      "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
+      "Add optional council-specific summary, decision, and dissent flags to capture-review.py and persist them into review_state.councils while keeping the old flat committee-feedback path."
     ],
     "reflection_notes": [],
-    "goal_id": "iteration-19-capture-research-gate",
-    "goal_title": "Teach capture-review.py to persist structured research-gate results",
+    "goal_id": "iteration-20-capture-council-feedback",
+    "goal_title": "Capture council-specific feedback summaries instead of one flat committee list",
     "matches_current_goal": true,
-    "current_goal_id": "iteration-19-capture-research-gate",
-    "current_goal_title": "Teach capture-review.py to persist structured research-gate results"
+    "current_goal_id": "iteration-20-capture-council-feedback",
+    "current_goal_title": "Capture council-specific feedback summaries instead of one flat committee list"
   },
   "evidence": {
     "sources": [

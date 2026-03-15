@@ -20,6 +20,20 @@ def merge_unique(existing: list[str], new_values: list[str]) -> list[str]:
     return merged
 
 
+def update_council_slot(slot: dict, summary: str | None, decision: str | None, dissent: list[str]) -> dict:
+    next_slot = dict(slot if isinstance(slot, dict) else {})
+    if summary:
+        next_slot["summary"] = summary
+        next_slot["status"] = "captured"
+    if decision:
+        next_slot["decision"] = decision
+        next_slot["status"] = "captured"
+    next_slot["dissent"] = merge_unique(list(next_slot.get("dissent", [])), dissent)
+    if next_slot["dissent"] and next_slot.get("status") == "not_started":
+        next_slot["status"] = "captured"
+    return next_slot
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Persist research and committee review conclusions for the current iteration.")
     parser.add_argument("--research", action="append", default=[], help="Research finding to persist.")
@@ -29,6 +43,15 @@ def main() -> int:
     parser.add_argument("--open-gap", action="append", default=[], help="Open research gap to persist.")
     parser.add_argument("--committee-feedback", action="append", default=[], help="Committee feedback bullet to persist.")
     parser.add_argument("--decision", action="append", default=[], help="Committee decision bullet to persist.")
+    parser.add_argument("--product-summary", help="Structured product council summary.")
+    parser.add_argument("--product-decision", help="Structured product council decision.")
+    parser.add_argument("--product-dissent", action="append", default=[], help="Product council dissent bullet.")
+    parser.add_argument("--architecture-summary", help="Structured architecture council summary.")
+    parser.add_argument("--architecture-decision", help="Structured architecture council decision.")
+    parser.add_argument("--architecture-dissent", action="append", default=[], help="Architecture council dissent bullet.")
+    parser.add_argument("--operator-summary", help="Structured operator council summary.")
+    parser.add_argument("--operator-decision", help="Structured operator council decision.")
+    parser.add_argument("--operator-dissent", action="append", default=[], help="Operator council dissent bullet.")
     parser.add_argument("--reflection", action="append", default=[], help="Optional reflection bullet to persist.")
     parser.add_argument("--json", action="store_true", help="Print the captured review payload as JSON.")
     parser.add_argument("--no-state", action="store_true", help="Validate and print the payload without updating state.")
@@ -42,6 +65,15 @@ def main() -> int:
         and not args.open_gap
         and not args.committee_feedback
         and not args.decision
+        and not args.product_summary
+        and not args.product_decision
+        and not args.product_dissent
+        and not args.architecture_summary
+        and not args.architecture_decision
+        and not args.architecture_dissent
+        and not args.operator_summary
+        and not args.operator_decision
+        and not args.operator_dissent
         and not args.reflection
     ):
         raise LoopError("At least one review input is required.")
@@ -73,6 +105,28 @@ def main() -> int:
         research_gate["data_quality_score"] = args.quality_score
     research_gate["open_gaps"] = merge_unique(list(research_gate.get("open_gaps", [])), list(args.open_gap))
     payload["research_gate"] = research_gate
+    councils = payload.get("councils", {})
+    if not isinstance(councils, dict):
+        councils = {}
+    councils["product_council"] = update_council_slot(
+        councils.get("product_council", {}),
+        args.product_summary,
+        args.product_decision,
+        list(args.product_dissent),
+    )
+    councils["architecture_council"] = update_council_slot(
+        councils.get("architecture_council", {}),
+        args.architecture_summary,
+        args.architecture_decision,
+        list(args.architecture_dissent),
+    )
+    councils["operator_council"] = update_council_slot(
+        councils.get("operator_council", {}),
+        args.operator_summary,
+        args.operator_decision,
+        list(args.operator_dissent),
+    )
+    payload["councils"] = councils
 
     if not args.no_state:
         state["review_state"] = payload

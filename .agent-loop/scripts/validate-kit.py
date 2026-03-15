@@ -354,6 +354,16 @@ def main() -> int:
             "Sample committee feedback",
             "--decision",
             "Sample scope decision",
+            "--product-summary",
+            "Sample product summary",
+            "--product-decision",
+            "Sample product decision",
+            "--product-dissent",
+            "Sample product dissent",
+            "--architecture-summary",
+            "Sample architecture summary",
+            "--operator-summary",
+            "Sample operator summary",
             "--json",
             "--no-state",
         ],
@@ -367,6 +377,10 @@ def main() -> int:
         captured = json.loads(review_capture.stdout)
         check(isinstance(captured.get("research_gate"), dict), "capture-review.py emits research_gate payload", failures)
         check(captured.get("research_gate", {}).get("summary") == "Sample research summary", "capture-review.py records research summary", failures)
+        councils = captured.get("councils", {})
+        check(isinstance(councils, dict), "capture-review.py emits council payloads", failures)
+        check(councils.get("product_council", {}).get("summary") == "Sample product summary", "capture-review.py records product council summary", failures)
+        check("Sample product dissent" in councils.get("product_council", {}).get("dissent", []), "capture-review.py records product council dissent", failures)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"

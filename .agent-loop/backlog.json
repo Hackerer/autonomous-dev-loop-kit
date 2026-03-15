@@ -111,7 +111,7 @@
     "id": "iteration-20-capture-council-feedback",
     "title": "Capture council-specific feedback summaries instead of one flat committee list",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "capture-review.py supports product, architecture, and operator council summaries",
       "State distinguishes council feedback from final scope decisions",
