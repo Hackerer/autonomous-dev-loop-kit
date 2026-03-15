@@ -1,6 +1,6 @@
 {
   "iteration": 58,
-  "status": "published",
+  "status": "release_report_written",
   "session": {
     "id": "session-20260315-152645",
     "status": "active",
@@ -74,7 +74,7 @@
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": null,
+  "draft_release_report": "docs/releases/R2.md",
   "draft_goal": null,
   "review_state": {
     "status": "captured",
