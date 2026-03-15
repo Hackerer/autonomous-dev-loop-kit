@@ -339,7 +339,7 @@
     "id": "iteration-39-v2-baseline-refresh",
     "title": "Refresh the baseline plan, backlog, and capability summary for the finalized lightweight committee design",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Plan and backlog describe the finalized lightweight committee baseline clearly",
       "Remaining open questions are explicit and no finished V2 goals stay marked pending",

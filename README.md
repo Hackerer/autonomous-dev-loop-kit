@@ -61,6 +61,17 @@ For every version, the loop requires:
 
 The session stops automatically when the requested iteration count is reached or when a configured stop condition is hit.
 
+## Current Baseline
+
+The current lightweight committee V2 baseline includes:
+
+- research blocking when project-data quality is insufficient or review state says `need_more_context`
+- Product, Architecture, and Operator councils plus secretariat and independent evaluator roles
+- a dedicated evaluator brief before readiness checks
+- evaluator-pass readiness gating before implementation, reporting, and publication
+- stop and escalation assessment plus report rendering
+- goal-bound review-state capture and non-destructive session continuation
+
 ## Safety Rules
 
 - Each project must publish to its own GitHub repository.

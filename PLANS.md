@@ -16,9 +16,11 @@ Updated: 2026-03-15
 - The loop now stores research and committee review conclusions in durable state and can flow that review context back into collected project data and report generation.
 - The repo now has a repo-local installer path for target projects while preserving target-specific loop config by default.
 - The loop now enforces matching review-state capture before report writing and publication when committee review is required.
-- The committee layer is still intentionally lightweight: it does not yet model councils, secretariat output, evaluator scoring, dissent, or escalation in a structured way.
-- The repo still needs repository-specific validation commands instead of the placeholder validation step when installed into a target project.
-- The repo should keep each published version small, testable, and directly connected to better pre-execution data quality and committee review.
+- The committee layer is now a lightweight V2 baseline with councils, secretariat, evaluator briefs, readiness gating, escalation assessment, stop-and-escalation reporting, and goal-bound review-state capture.
+- The repo now supports non-destructive session continuation for longer autonomous runs.
+- The installer, example workflow, and entrypoint skills now point to the same research-gated, evaluator-aware lightweight committee V2 flow.
+- Target repos still need repository-specific validation commands instead of the placeholder validation step when installed from this kit.
+- Published versions should continue to stay small, testable, and directly connected to better pre-execution data quality, committee review quality, or operator clarity.
 
 ## Non-Negotiable Constraints
 
@@ -48,6 +50,7 @@ Updated: 2026-03-15
 - 2026-03-15: Add a repo-local installer that seeds target projects without overwriting their loop config by default.
 - 2026-03-15: Make matching review-state capture a hard gate for report writing and publication.
 - 2026-03-15: Start a lighter-weight committee V2 roadmap focused on structured councils, scope decisions, dissent, evaluator scoring, and escalation without overloading the kit.
+- 2026-03-15: Finish the lightweight committee V2 baseline with research blocking, evaluator briefs, escalation assessment, stop-and-escalation reporting, session continuation, aligned installer guidance, and goal-bound review resets.
 
 ## Backlog Notes
 
@@ -55,11 +58,11 @@ Updated: 2026-03-15
 - Prefer small, testable items over large rewrites.
 - Prioritize improvements that increase evidence quality and committee challenge quality before implementation quality.
 - Preserve backward compatibility where practical so target repositories can adopt the stronger committee model incrementally.
+- Treat the current lightweight committee V2 baseline as the default starting point for future sessions rather than an experimental branch of the protocol.
 
 ## Open Questions
 
-- Which data signals should be considered mandatory before an autonomous loop edits a repo?
-- How should the kit score "enough context" across different project types?
-- How opinionated should the default committee personas be across very different products?
-- What is the right balance between universal scripts and repo-specific overrides?
-- How much committee structure can the kit add before it becomes too heavy for solo or small-project workflows?
+- Which project archetypes need different minimum data-quality thresholds before the loop should block goal selection?
+- Which future gates should remain advisory versus becoming hard blockers by default?
+- How much of evaluator and escalation handling should become automatic, if any?
+- What is the right long-term balance between universal bootstrap guidance and repo-specific overrides?
