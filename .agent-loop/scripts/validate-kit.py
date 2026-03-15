@@ -172,6 +172,26 @@ def main() -> int:
     )
     check(committee_renderer.returncode == 0, "render-committee.py runs successfully", failures)
 
+    review_capture = subprocess.run(
+        [
+            "python3",
+            ".agent-loop/scripts/capture-review.py",
+            "--research",
+            "Sample repo scan",
+            "--committee-feedback",
+            "Sample committee feedback",
+            "--decision",
+            "Sample scope decision",
+            "--json",
+            "--no-state",
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    check(review_capture.returncode == 0, "capture-review.py runs successfully", failures)
+
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)
         return 1

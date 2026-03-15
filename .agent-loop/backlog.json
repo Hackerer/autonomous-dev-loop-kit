@@ -15,7 +15,7 @@
     "id": "iteration-12-committee-validation-rendering",
     "title": "Persist research and committee review conclusions into loop state",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The state model can store research findings, committee notes, and review decisions for the active iteration",
       "The repo includes a script that records review findings into durable state",

@@ -17,18 +17,20 @@ Use this workflow when the loop starts from a minimal prompt such as `循环10`.
    - `python3 .agent-loop/scripts/score-data-quality.py`
 5. Render the committee brief:
    - `python3 .agent-loop/scripts/render-committee.py`
-6. Do research and committee review, then select the next goal:
+6. Do research and committee review, then persist the findings:
+   - `python3 .agent-loop/scripts/capture-review.py --research ... --committee-feedback ... --decision ...`
+7. Select the next goal:
    - `python3 .agent-loop/scripts/select-next-goal.py`
-7. Implement the version.
-8. Run full validation:
+8. Implement the version.
+9. Run full validation:
    - `python3 .agent-loop/scripts/run-full-validation.py`
-9. Reflect on research and committee feedback after validation.
-10. Refresh project data if the repo changed materially:
+10. Reflect on research and committee feedback after validation.
+11. Refresh project data if the repo changed materially:
    - `python3 .agent-loop/scripts/collect-project-data.py`
    - `python3 .agent-loop/scripts/score-data-quality.py`
-11. Write the report:
+12. Write the report:
    - `python3 .agent-loop/scripts/write-report.py`
-12. Publish:
+13. Publish:
    - `python3 .agent-loop/scripts/publish-iteration.py`
 
 ## Why This Matters

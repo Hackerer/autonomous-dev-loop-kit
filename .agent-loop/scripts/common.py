@@ -76,6 +76,14 @@ def default_state() -> dict[str, Any]:
         "draft_iteration": None,
         "draft_report": None,
         "draft_goal": None,
+        "review_state": {
+            "status": "not_started",
+            "captured_at": None,
+            "research_findings": [],
+            "committee_feedback": [],
+            "committee_decision": [],
+            "reflection_notes": [],
+        },
         "last_report": None,
         "last_validation": {"status": "not_run", "ran_at": None, "results": []},
         "consecutive_failures": 0,
@@ -106,6 +114,18 @@ def load_state(root: Path) -> dict[str, Any]:
     normalized_project_data = dict(default_project_data)
     normalized_project_data.update(project_data)
     merged["project_data"] = normalized_project_data
+
+    review_state = merged.get("review_state")
+    if not isinstance(review_state, dict):
+        review_state = {}
+    default_review_state = default_state()["review_state"]
+    normalized_review_state = dict(default_review_state)
+    normalized_review_state.update(review_state)
+    for key in ("research_findings", "committee_feedback", "committee_decision", "reflection_notes"):
+        value = normalized_review_state.get(key)
+        if not isinstance(value, list):
+            normalized_review_state[key] = []
+    merged["review_state"] = normalized_review_state
 
     last_validation = merged.get("last_validation")
     if not isinstance(last_validation, dict):

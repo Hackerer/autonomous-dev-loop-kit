@@ -60,6 +60,7 @@ Every version follows the same state machine:
      - technical architect committee
      - user committee
    - Narrow or reject the candidate if the committee exposes unclear value, design risk, or user friction.
+   - Persist concise research findings, committee feedback, and scope decisions with `python3 .agent-loop/scripts/capture-review.py`.
 4. `select`
    - Choose exactly one scoped goal.
    - Favor the smallest task that materially advances the target while remaining fully testable.

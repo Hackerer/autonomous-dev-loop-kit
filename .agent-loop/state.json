@@ -1,10 +1,10 @@
 {
-  "iteration": 11,
+  "iteration": 12,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 5,
-    "completed_iterations": 1,
+    "completed_iterations": 2,
     "started_at": "2026-03-15T00:20:54Z",
     "ended_at": null
   },
@@ -19,15 +19,35 @@
   "draft_iteration": null,
   "draft_report": null,
   "draft_goal": null,
-  "last_report": "docs/reports/v11.md",
+  "review_state": {
+    "status": "captured",
+    "captured_at": "2026-03-15T00:38:08Z",
+    "research_findings": [
+      "The current state model has durable session and validation data but no machine-readable slot for research or committee conclusions.",
+      "The reporting flow currently requires committee findings to be retyped into write-report flags, which risks drift from the actual scope decision.",
+      "validate-kit can exercise a new capture script without mutating state by using a no-state path."
+    ],
+    "committee_feedback": [
+      "Product manager committee wants review conclusions stored once and reused, so scope rationale does not get lost between select, implement, and report.",
+      "Technical architect committee wants the review artifact to stay small and JSON-shaped, not a long transcript or free-form blob.",
+      "User committee wants future operators to understand what was challenged without scanning old chat logs or hand-written notes."
+    ],
+    "committee_decision": [
+      "Add a concise review_state object to loop state and a capture-review.py script that records research, committee feedback, and final decisions."
+    ],
+    "reflection_notes": [],
+    "goal_id": "iteration-12-committee-validation-rendering",
+    "goal_title": "Persist research and committee review conclusions into loop state"
+  },
+  "last_report": "docs/reports/v12.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T00:22:20Z",
+    "ran_at": "2026-03-15T00:38:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] capture-review.py runs successfully\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -124,6 +144,14 @@
       "branch": "main",
       "published_at": "2026-03-15T00:27:49Z",
       "session_progress": "1/5"
+    },
+    {
+      "iteration": 12,
+      "goal": "Persist research and committee review conclusions into loop state",
+      "report": "docs/reports/v12.md",
+      "branch": "main",
+      "published_at": "2026-03-15T00:39:30Z",
+      "session_progress": "2/5"
     }
   ]
 }
