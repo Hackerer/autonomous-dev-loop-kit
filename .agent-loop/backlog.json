@@ -567,7 +567,7 @@
     "id": "iteration-54-release-protocol-alignment",
     "title": "Align protocol, skills, installer guidance, and validation with bundled release semantics",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "README, protocol, AGENTS, CLAUDE, and skills explain that loop count means bundled releases",
       "Installer bootstrap guidance points to release planning and release closeout",
