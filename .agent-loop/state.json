@@ -1,17 +1,17 @@
 {
-  "iteration": 37,
+  "iteration": 38,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 22,
+    "completed_iterations": 23,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:16:05Z",
+    "last_collected_at": "2026-03-15T06:17:39Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,20 +21,21 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:15:57Z",
+    "captured_at": "2026-03-15T06:17:28Z",
     "research_findings": [
-      "The example workflow still lagged behind the real lightweight V2 protocol and under-described research blocking, evaluator readiness, and escalation assessment."
+      "The installer already synced the right V2 assets, but its post-install path still left too much of the new flow implicit."
     ],
     "committee_feedback": [
-      "A short example flow is often the fastest operator entrypoint, so it has to stay in sync with the protocol."
+      "Bootstrap guidance should point straight to project-data collection, committee rendering, and readiness confirmation."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Refresh the example workflow so it matches the actual committee V2 sequence from research blocking through escalation assessment.",
+      "summary": "Align installation and bootstrap guidance with the finished lightweight committee V2 defaults so target repos know the first real commands to run.",
       "evidence_refs": [
-        ".agent-loop/references/example-data-acquisition-workflow.md"
+        "scripts/install-into-project.sh",
+        "README.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -62,13 +63,15 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Refresh the example workflow around research blocking, evaluator, and escalation",
-      "why_selected": "The workflow reference should match the current real sequence, especially now that research blocking and evaluator readiness are first-class gates.",
+      "selected_goal": "Align project installation and bootstrap artifacts with the lighter committee V2 defaults",
+      "why_selected": "Adoption friction now sits mostly in the first-run guidance after install, not in missing scripts or references.",
       "scope_in": [
-        "Update the example workflow with need_more_context blocking, evaluator brief rendering, readiness confirmation, and escalation assessment."
+        "Update install-into-project.sh output with concrete V2 bootstrap steps.",
+        "Update README install guidance with research gating and evaluator readiness commands.",
+        "Validate installer stdout for the new bootstrap guidance."
       ],
       "scope_out": [
-        "Do not expand the example into a full manual."
+        "Do not change the installer file-copy semantics."
       ],
       "assumptions": [],
       "risks": [],
@@ -76,31 +79,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the example becomes longer than an operator can scan quickly."
+        "Stop if bootstrap guidance diverges from the shared protocol."
       ],
       "dissent": [
-        "Keep the workflow concise even as the protocol gets stronger."
+        "Keep bootstrap guidance short and command-oriented."
       ],
-      "next_action": "Align installer/bootstrap guidance and then refresh the final baseline docs."
+      "next_action": "Refresh the final plan, backlog, and capability summary for the completed lightweight committee V2 baseline."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.9,
+        "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.8,
         "state_durability": 4.8,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.83,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "A concise example is the fastest way to make the stronger flow legible."
+        "This version reduces adoption friction without changing the install contract itself."
       ],
       "minimum_fixes_required": [
-        "Keep the example strictly sequence-oriented."
+        "Keep the bootstrap output aligned with the shared protocol."
       ]
     },
     "escalation": {
@@ -108,13 +111,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-37-example-workflow-v2",
-    "goal_title": "Refresh the example workflow around research blocking, evaluator, and escalation"
+    "goal_id": "iteration-38-install-and-bootstrap-alignment",
+    "goal_title": "Align project installation and bootstrap artifacts with the lighter committee V2 defaults"
   },
-  "last_report": "docs/reports/v37.md",
+  "last_report": "docs/reports/v38.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T06:15:37Z",
+    "ran_at": "2026-03-15T06:17:12Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -448,6 +451,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:16:13Z",
       "session_progress": "22/24"
+    },
+    {
+      "iteration": 38,
+      "goal": "Align project installation and bootstrap artifacts with the lighter committee V2 defaults",
+      "goal_id": "iteration-38-install-and-bootstrap-alignment",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v38.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:17:46Z",
+      "session_progress": "23/24"
     }
   ]
 }

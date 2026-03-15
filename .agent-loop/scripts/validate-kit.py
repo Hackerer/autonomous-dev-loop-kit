@@ -962,6 +962,11 @@ def main() -> int:
             check=False,
         )
         check(installer.returncode == 0, "install-into-project.sh runs successfully", failures)
+        check(
+            "render-committee.py" in installer.stdout and "assert-implementation-readiness.py" in installer.stdout,
+            "Project installer prints committee and readiness bootstrap guidance",
+            failures,
+        )
         check((target / ".agents/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .agents skill", failures)
         check((target / ".claude/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .claude skill", failures)
         check((target / ".agent-loop/scripts/collect-project-data.py").exists(), "Project installer syncs loop scripts", failures)

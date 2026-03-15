@@ -130,6 +130,22 @@ It also seeds these files if they are missing:
 
 By default, the installer preserves an existing target project's `.agent-loop/config.json`, `.agent-loop/state.json`, `.agent-loop/backlog.json`, `AGENTS.md`, `CLAUDE.md`, and `PLANS.md`.
 
+After installation, the target repo bootstrap should follow the same lightweight V2 flow:
+
+```bash
+python3 .agent-loop/scripts/collect-project-data.py
+python3 .agent-loop/scripts/score-data-quality.py
+python3 .agent-loop/scripts/render-committee.py
+python3 .agent-loop/scripts/render-evaluator-brief.py
+python3 .agent-loop/scripts/assert-implementation-readiness.py
+```
+
+If research is still insufficient before goal selection, record that explicitly instead of pushing ahead:
+
+```bash
+python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."
+```
+
 Optional flags:
 
 - `--overwrite-config`

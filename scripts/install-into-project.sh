@@ -113,3 +113,17 @@ copy_file "${ROOT}/.agent-loop/state.json" "${TARGET_DIR}/.agent-loop/state.json
 copy_file "${ROOT}/.agent-loop/backlog.json" "${TARGET_DIR}/.agent-loop/backlog.json" "$OVERWRITE_BACKLOG" ".agent-loop/backlog.json"
 
 printf 'Project installer finished for %s\n' "$TARGET_DIR"
+cat <<EOF
+Next bootstrap steps:
+  1. Replace placeholder validation commands in ${TARGET_DIR}/.agent-loop/config.json if needed.
+  2. Collect and score project data:
+     python3 .agent-loop/scripts/collect-project-data.py
+     python3 .agent-loop/scripts/score-data-quality.py
+  3. Render the committee brief and do research:
+     python3 .agent-loop/scripts/render-committee.py
+  4. If research still lacks context, record:
+     python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."
+  5. After goal selection, render evaluator input and confirm readiness:
+     python3 .agent-loop/scripts/render-evaluator-brief.py
+     python3 .agent-loop/scripts/assert-implementation-readiness.py
+EOF

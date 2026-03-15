@@ -327,7 +327,7 @@
     "id": "iteration-38-install-and-bootstrap-alignment",
     "title": "Align project installation and bootstrap artifacts with the lighter committee V2 defaults",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Installed target projects get the current committee V2 references and scripts coherently",
       "Bootstrap guidance points to research gating and evaluator readiness without extra ceremony",
