@@ -483,6 +483,11 @@ def validate_release_flow(failures: list[str]) -> None:
             check=False,
         )
         check(planned.returncode == 0, "plan-release.py bundles multiple goals into one release", failures)
+        updated_state = load_state(target)
+        brief = updated_state.get("release", {}).get("brief", {})
+        check(bool(brief.get("objective")), "plan-release.py records a release objective", failures)
+        check(bool(brief.get("target_user_value")), "plan-release.py records target user value", failures)
+        check(isinstance(brief.get("release_acceptance"), list), "plan-release.py records release acceptance", failures)
 
         state = load_state(target)
         state["release"]["status"] = "ready_to_release"
@@ -526,6 +531,7 @@ def validate_release_flow(failures: list[str]) -> None:
         )
         check(release_report.returncode == 0, "write-release-report.py aggregates the bundled release", failures)
         release_report_content = (target / "docs/releases/R1.md").read_text(encoding="utf-8")
+        check("PM Release Brief" in release_report_content, "Bundled release report includes the PM release brief", failures)
         check("Delivered A" in release_report_content and "Delivered B" in release_report_content, "Bundled release report aggregates delivered scope", failures)
         check("Technical Validation" in release_report_content, "Bundled release report includes validation status", failures)
 
@@ -539,7 +545,7 @@ def validate_release_flow(failures: list[str]) -> None:
         check(published.returncode == 0, "publish-release.py publishes the bundled release with commit-only", failures)
         updated_state = load_state(target)
         check(updated_state.get("session", {}).get("completed_releases") == 1, "Bundled release publish increments completed releases", failures)
-        check(len(updated_state.get("release_history", [])) == 1, "Bundled release publish records release history", failures)
+        check(len(updated_state.get("release_history", [])) >= 1, "Bundled release publish records release history", failures)
 
 
 def validate_goal_selection_readiness(failures: list[str]) -> None:

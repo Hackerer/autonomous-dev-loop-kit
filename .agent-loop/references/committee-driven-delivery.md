@@ -16,6 +16,22 @@ The committee system exists to answer five practical questions before implementa
 
 The output must be durable. Important decisions belong in `.agent-loop/state.json`, not only in chat or reports.
 
+When the loop is running in bundled-release mode, the Product Council should answer one more question before task selection:
+
+6. What is the release brief for this version package?
+
+That release brief should define:
+
+- release objective
+- target user value
+- why now
+- packaging rationale
+- scope in
+- scope out
+- release acceptance
+- launch story
+- deferred items
+
 ## Lightweight V2 Structure
 
 The committee system now has five logical units:
@@ -40,6 +56,7 @@ This is intentionally lightweight:
 Focus:
 
 - goal selection
+- release definition
 - why now
 - scope discipline
 - user-facing value
@@ -49,6 +66,8 @@ Default personas:
 - Outcome PM
 - Scope PM
 - User PM
+
+In bundled-release mode, Product Council should not stop at reviewing one small task. It should first shape the release brief, then allow task selection to happen inside that release.
 
 ### Architecture Council
 
@@ -146,16 +165,18 @@ The practical flow is:
 
 1. collect project data
 2. score data quality
-3. render the committee brief
-4. capture research-gate findings
-5. capture council summaries and dissent
-6. capture the scope decision
-7. capture evaluator result
-8. run `python3 .agent-loop/scripts/assert-implementation-readiness.py`
-9. implement
-10. validate
-11. report
-12. publish
+3. define the bundled release brief
+4. render the committee brief
+5. capture research-gate findings
+6. capture council summaries and dissent
+7. capture the scope decision
+8. capture evaluator result
+9. run `python3 .agent-loop/scripts/assert-implementation-readiness.py`
+10. implement
+11. validate
+12. report
+13. publish
+14. close out the bundled release with a release report
 
 ## Output Rules
 

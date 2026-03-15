@@ -543,7 +543,7 @@
     "id": "iteration-52-release-reporting",
     "title": "Generate detailed bundled release reports that aggregate task delivery",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo can write a detailed release report in docs/releases",
       "The release report explains what the demand delivered, whether technical validation passed, and the detailed outputs across bundled tasks",

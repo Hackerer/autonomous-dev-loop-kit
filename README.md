@@ -53,6 +53,7 @@ For every bundled release, the loop requires:
 
 - explicit release definition before task selection
 - multiple scoped goals bundled into one user-facing release
+- a PM-style release brief with objective, user value, why-now logic, scope boundaries, and release acceptance
 - one scoped task goal at a time during implementation
 - deep analysis before execution
 - short reason -> act -> observe -> update cycles
@@ -78,6 +79,7 @@ The current lightweight committee V2 baseline includes:
 - configurable implementation readiness gate mode while keeping report and publish safety strict
 - evaluator-pass gating remains strict for reporting and publication
 - bundled release planning before task selection
+- PM-driven release briefs for bundled release planning
 - detailed release closeout reports that aggregate what the included task iterations delivered
 - repo-local usage logs for install, session start/extension, and published iterations
 - stop and escalation assessment plus report rendering

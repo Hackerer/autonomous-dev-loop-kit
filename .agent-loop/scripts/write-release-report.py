@@ -75,6 +75,7 @@ def main() -> int:
     today = datetime.now().date().isoformat()
     session = session_summary(state)
 
+    brief = release.get("brief", {}) if isinstance(release.get("brief"), dict) else {}
     task_iterations = []
     for item in release.get("task_iterations", []):
         if isinstance(item, dict):
@@ -104,11 +105,31 @@ def main() -> int:
         f"- Title: {release['title'] or f'Release {release_number}'}",
         *bulletize(args.summary or [release["summary"]], "Document why this bundled release exists and what user-facing package it represents."),
         "",
+        "## PM Release Brief",
+        *bulletize(
+            [
+                f"Objective: {brief.get('objective', '')}",
+                f"Target user value: {brief.get('target_user_value', '')}",
+                f"Why now: {brief.get('why_now', '')}",
+                f"Packaging rationale: {brief.get('packaging_rationale', '')}",
+                f"Launch story: {brief.get('launch_story', '')}",
+            ],
+            "Record the PM release objective, user value, why-now logic, packaging rationale, and launch story.",
+        ),
+        "",
         "## Included Scope",
         *bulletize(release["goal_titles"], "List the bundled goals included in this release."),
         "",
+        "## Release Scope Boundary",
+        *bulletize([f"In scope: {item}" for item in brief.get("scope_in", [])], "Record the release-level in-scope items."),
+        *bulletize([f"Out of scope: {item}" for item in brief.get("scope_out", [])], "Record the release-level out-of-scope items."),
+        *bulletize([f"Deferred: {item}" for item in brief.get("deferred_items", [])], "Record the deferred items that stay out of this release."),
+        "",
         "## Requirement Delivery",
         *bulletize(delivered_lines, "Summarize what this release delivered across the included task iterations."),
+        "",
+        "## Release Acceptance",
+        *bulletize(brief.get("release_acceptance", []), "Record the release-level acceptance criteria for this bundled version."),
         "",
         "## Technical Validation",
         *bulletize(validation_lines, "Record the validation results that prove this release is technically sound."),

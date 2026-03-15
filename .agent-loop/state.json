@@ -1,27 +1,27 @@
 {
-  "iteration": 51,
-  "status": "release_report_written",
+  "iteration": 52,
+  "status": "published",
   "session": {
     "status": "active",
     "target_releases": 15,
-    "completed_releases": 1,
+    "completed_releases": 2,
     "target_iterations": null,
-    "completed_iterations": 2,
+    "completed_iterations": 3,
     "started_at": "2026-03-15T12:42:57Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T12:56:20Z",
+    "last_collected_at": "2026-03-15T12:59:30Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
   "current_goal": null,
   "release": {
-    "number": 1,
-    "title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
-    "summary": "Bundle these goals into one user-facing release: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration; Split bundled release state from task-iteration state; Define bundled releases before selecting task goals",
+    "number": 3,
+    "title": "R3: Generate detailed bundled release reports that aggregate task delivery + 2 more bundled goals",
+    "summary": "Bundle these goals into one user-facing release: Generate detailed bundled release reports that aggregate task delivery; Publish bundled releases separately from task iterations and record release-level usage events; Align protocol, skills, installer guidance, and validation with bundled release semantics",
     "status": "in_progress",
     "brief": {
       "objective": "",
@@ -35,49 +35,40 @@
       "deferred_items": []
     },
     "goal_ids": [
-      "iteration-50-native-loop-skill",
-      "iteration-50-release-session-and-state",
-      "iteration-51-release-planning-and-selection"
+      "iteration-52-release-reporting",
+      "iteration-53-release-publication-and-logging",
+      "iteration-54-release-protocol-alignment"
     ],
     "goal_titles": [
-      "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
-      "Split bundled release state from task-iteration state",
-      "Define bundled releases before selecting task goals"
+      "Generate detailed bundled release reports that aggregate task delivery",
+      "Publish bundled releases separately from task iterations and record release-level usage events",
+      "Align protocol, skills, installer guidance, and validation with bundled release semantics"
     ],
     "completed_goal_ids": [
-      "iteration-50-native-loop-skill",
-      "iteration-51-release-planning-and-selection",
-      "iteration-50-release-session-and-state"
+      "iteration-52-release-reporting"
     ],
     "task_iterations": [
       {
-        "iteration": 50,
-        "goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
-        "goal_id": "iteration-50-native-loop-skill",
-        "report": "docs/reports/v50.md",
-        "published_at": "2026-03-15T12:51:50Z"
-      },
-      {
-        "iteration": 51,
-        "goal": "Define bundled releases before selecting task goals",
-        "goal_id": "iteration-51-release-planning-and-selection",
-        "report": "docs/reports/v51.md",
-        "published_at": "2026-03-15T12:54:08Z"
+        "iteration": 52,
+        "goal": "Generate detailed bundled release reports that aggregate task delivery",
+        "goal_id": "iteration-52-release-reporting",
+        "report": "docs/reports/v52.md",
+        "published_at": "2026-03-15T13:01:18Z"
       }
     ],
-    "selected_at": "2026-03-15T12:48:16Z",
+    "selected_at": "2026-03-15T12:59:26Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R1.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T12:53:37Z",
+    "captured_at": "2026-03-15T13:00:44Z",
     "research_findings": [
-      "Current session already has bundled release semantics: target_releases=10, release planning is available, and session tracks releases separately from task iterations"
+      "Release reports help aggregate task delivery into user-facing version summaries"
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -92,19 +83,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Product Council: Bundled releases help users see meaningful version numbers instead of tiny commits",
+        "summary": "Product Council: Release reports provide clear user-facing summaries",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Architecture Council: Release state model is already in place, just needs completion",
+        "summary": "Architecture Council: Report structure supports aggregation",
         "decision": "Approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operator Council: Clear release boundaries help with handoff",
+        "summary": "Operator Council: Clear reporting helps handoff",
         "decision": "Approve",
         "dissent": []
       }
@@ -127,15 +118,14 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Define bundled releases before selecting task goals",
-      "why_selected": "This ensures users define what they want before the loop executes tasks",
+      "selected_goal": "Generate detailed bundled release reports that aggregate task delivery",
+      "why_selected": "Users need clear summaries of what was delivered",
       "scope_in": [
-        "Complete release state model",
-        "Add release planning script",
-        "Ensure release selection blocks without a plan"
+        "Add release report generation",
+        "Aggregate task iteration outputs"
       ],
       "scope_out": [
-        "Modify validation behavior"
+        "Modify individual task reports"
       ],
       "assumptions": [],
       "risks": [],
@@ -153,7 +143,7 @@
       "weighted_score": 4.5,
       "result": "pass",
       "critique": [
-        "Release planning semantics are in place. Ready to complete the bundled release workflow."
+        "Release report generation is in place"
       ],
       "minimum_fixes_required": []
     },
@@ -162,13 +152,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-51-release-planning-and-selection",
-    "goal_title": "Define bundled releases before selecting task goals"
+    "goal_id": "iteration-52-release-reporting",
+    "goal_title": "Generate detailed bundled release reports that aggregate task delivery"
   },
-  "last_report": "docs/reports/v51.md",
+  "last_report": "docs/reports/v52.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T12:54:08Z",
+    "ran_at": "2026-03-15T13:01:18Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -674,7 +664,56 @@
       "branch": "main",
       "published_at": "2026-03-15T12:54:08Z",
       "session_progress": "1/10 releases"
+    },
+    {
+      "iteration": 52,
+      "goal": "Generate detailed bundled release reports that aggregate task delivery",
+      "goal_id": "iteration-52-release-reporting",
+      "release_number": 3,
+      "release_title": "R3: Generate detailed bundled release reports that aggregate task delivery + 2 more bundled goals",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v52.md",
+      "branch": "main",
+      "published_at": "2026-03-15T13:01:18Z",
+      "session_progress": "2/15 releases"
     }
   ],
-  "release_history": []
+  "release_history": [
+    {
+      "number": 1,
+      "title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
+      "summary": "Bundle these goals into one user-facing release: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration; Split bundled release state from task-iteration state; Define bundled releases before selecting task goals",
+      "goal_ids": [
+        "iteration-50-native-loop-skill",
+        "iteration-50-release-session-and-state",
+        "iteration-51-release-planning-and-selection"
+      ],
+      "goal_titles": [
+        "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+        "Split bundled release state from task-iteration state",
+        "Define bundled releases before selecting task goals"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 50,
+          "goal": "Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration",
+          "goal_id": "iteration-50-native-loop-skill",
+          "report": "docs/reports/v50.md",
+          "published_at": "2026-03-15T12:51:50Z"
+        },
+        {
+          "iteration": 51,
+          "goal": "Define bundled releases before selecting task goals",
+          "goal_id": "iteration-51-release-planning-and-selection",
+          "report": "docs/reports/v51.md",
+          "published_at": "2026-03-15T12:54:08Z"
+        }
+      ],
+      "report": "docs/releases/R1.md",
+      "published_at": "2026-03-15T12:59:21Z",
+      "commit": "8670c1122ea41af8d409bb2e9ddb053797a2f2d1"
+    }
+  ]
 }
