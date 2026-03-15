@@ -603,7 +603,7 @@
     "id": "iteration-57-project-first-class",
     "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Project configuration is complete for all workspaces",
       "Project isolation boundaries are enforced",
@@ -622,5 +622,66 @@
       "Vector search is working with temporal decay"
     ],
     "notes": "Enable Scale-based embedding for better memory recall"
+  },
+  {
+    "id": "iteration-59-runtime-profile-template",
+    "title": "Create Runtime Profile templates for reuse across agents",
+    "priority": "critical",
+    "status": "in_progress",
+    "acceptance": [
+      "Runtime profiles are defined as reusable templates",
+      "Agents reference profiles instead of inline config",
+      "Profile inheritance is supported"
+    ],
+    "notes": "Based on OpenClaw architecture: Runtime policy should be shared and reusable"
+  },
+  {
+    "id": "iteration-60-capability-registry",
+    "title": "Complete Capability Registry with all plugins and skills",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "All plugins are registered in capability registry",
+      "All skills are registered",
+      "Capability dependencies are documented"
+    ],
+    "notes": "Based on OpenClaw architecture: New capabilities must be registered before routing"
+  },
+  {
+    "id": "iteration-61-job-layer-integration",
+    "title": "Deep integrate Job Layer for long-running tasks",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Long-running tasks automatically use Job Layer",
+      "Job checkpoints are working",
+      "Job status is observable"
+    ],
+    "notes": "Based on OpenClaw architecture: Long-running work must move through job layer"
+  },
+  {
+    "id": "iteration-62-integration-testing",
+    "title": "Run comprehensive integration testing",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "All agents pass integration tests",
+      "Memory system works across agents",
+      "Job Layer handles long tasks correctly"
+    ],
+    "notes": "Verify all components work together"
+  },
+  {
+    "id": "iteration-63-architecture-review",
+    "title": "Conduct architecture rationality review",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Architecture follows OpenClaw official design rules",
+      "Runtime profiles are properly reused",
+      "Capability registry is complete",
+      "Job Layer is properly integrated"
+    ],
+    "notes": "Final review against OpenClaw architecture"
   }
 ]

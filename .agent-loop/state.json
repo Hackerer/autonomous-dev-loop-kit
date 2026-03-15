@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T13:43:15Z",
+    "last_collected_at": "2026-03-15T13:58:35Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,46 +21,57 @@
     "id": "iteration-57-project-first-class",
     "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
     "priority": "critical",
-    "selected_at": "2026-03-15T13:42:37Z",
+    "selected_at": "2026-03-15T13:59:41Z",
     "source": ".agent-loop/backlog.json"
   },
   "release": {
     "number": 4,
-    "title": "R4: Strengthen Project as first-class citizen in OpenClaw architecture + 1 more bundled goals",
-    "summary": "Bundle these goals into one user-facing release: Strengthen Project as first-class citizen in OpenClaw architecture; Enable memory-lancedb with Scale embedding integration",
+    "title": "R4: Strengthen Project as first-class citizen in OpenClaw architecture + 2 more bundled goals",
+    "summary": "Bundle these goals into one user-facing release: Strengthen Project as first-class citizen in OpenClaw architecture; Create Runtime Profile templates for reuse across agents; Run comprehensive integration testing",
     "status": "planned",
     "brief": {
-      "objective": "Ship a coherent release around strengthen.",
+      "objective": "Ship a coherent release around testing.",
       "target_user_value": "Users should experience one packaged improvement with a clear story instead of several disconnected tiny task commits.",
       "why_now": "These bundled goals are the highest-value pending items that reinforce the same release theme and should land together now.",
-      "packaging_rationale": "These goals all strengthen the same release theme around strengthen, so shipping them together creates a clearer user-visible version.",
+      "packaging_rationale": "These goals all strengthen the same release theme around testing, so shipping them together creates a clearer user-visible version.",
       "scope_in": [
         "Strengthen Project as first-class citizen in OpenClaw architecture",
-        "Enable memory-lancedb with Scale embedding integration"
+        "Create Runtime Profile templates for reuse across agents",
+        "Run comprehensive integration testing"
       ],
-      "scope_out": [],
+      "scope_out": [
+        "Enable memory-lancedb with Scale embedding integration",
+        "Complete Capability Registry with all plugins and skills",
+        "Deep integrate Job Layer for long-running tasks"
+      ],
       "release_acceptance": [
         "Project configuration is complete for all workspaces",
         "Project isolation boundaries are enforced",
         "Project-specific memory namespaces are working",
-        "OPENAI_API_KEY is configured",
-        "memory-lancedb plugin is enabled",
-        "Vector search is working with temporal decay"
+        "Runtime profiles are defined as reusable templates",
+        "Agents reference profiles instead of inline config",
+        "Profile inheritance is supported"
       ],
-      "launch_story": "This release tells one simple story: Ship a coherent release around strengthen. It packages 2 aligned improvements into a single version.",
-      "deferred_items": []
+      "launch_story": "This release tells one simple story: Ship a coherent release around testing. It packages 3 aligned improvements into a single version.",
+      "deferred_items": [
+        "Enable memory-lancedb with Scale embedding integration",
+        "Complete Capability Registry with all plugins and skills",
+        "Deep integrate Job Layer for long-running tasks"
+      ]
     },
     "goal_ids": [
       "iteration-57-project-first-class",
-      "iteration-58-memory-scale-integration"
+      "iteration-59-runtime-profile-template",
+      "iteration-62-integration-testing"
     ],
     "goal_titles": [
       "Strengthen Project as first-class citizen in OpenClaw architecture",
-      "Enable memory-lancedb with Scale embedding integration"
+      "Create Runtime Profile templates for reuse across agents",
+      "Run comprehensive integration testing"
     ],
     "completed_goal_ids": [],
     "task_iterations": [],
-    "selected_at": "2026-03-15T13:40:14Z",
+    "selected_at": "2026-03-15T13:59:37Z",
     "published_at": null,
     "report_path": null
   },
@@ -71,15 +82,16 @@
     "id": "iteration-57-project-first-class",
     "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
     "priority": "critical",
-    "selected_at": "2026-03-15T13:42:37Z",
+    "selected_at": "2026-03-15T13:59:41Z",
     "source": ".agent-loop/backlog.json"
   },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T13:44:33Z",
+    "captured_at": "2026-03-15T14:01:14Z",
     "research_findings": [
       "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state",
-      "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall."
+      "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall.",
+      "Runtime profiles already defined in lab/config/policies/runtime-profiles.json: container-dev, host-chat, host-gateway, container-clean. Need to verify agents reference these profiles instead of inline config."
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -94,13 +106,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve - Scale embedding improves memory recall",
+        "summary": "Approve - Profiles are well-defined",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve - memory-lancedb is the official recommended approach",
+        "summary": "Approve - Need to verify agents use profile references",
         "decision": "Approve",
         "dissent": []
       },
@@ -129,25 +141,30 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Enable memory-lancedb with Scale embedding integration",
-      "why_selected": "To improve memory recall with vector search",
+      "selected_goal": "Create Runtime Profile templates for reuse across agents",
+      "why_selected": "To implement OpenClaw architecture: Runtime policy should be shared and reusable",
       "scope_in": [
         "Verify project configuration is complete",
         "Check project isolation boundaries",
         "Verify memory namespaces per project",
         "Configure OPENAI_API_KEY",
         "Enable memory-lancedb plugin",
-        "Verify vector search with temporal decay"
+        "Verify vector search with temporal decay",
+        "Verify runtime profiles are complete",
+        "Check agents reference profiles",
+        "Document profile usage"
       ],
       "scope_out": [
         "Do not modify live runtime yet",
-        "Do not modify existing memory content"
+        "Do not modify existing memory content",
+        "Do not change live config yet"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
         "python3 ~/.openclaw/lab/scripts/validate_config.py",
-        "Check OPENAI_API_KEY is set"
+        "Check OPENAI_API_KEY is set",
+        "Check profile references in agents"
       ],
       "stop_conditions": [],
       "dissent": [],
@@ -157,11 +174,12 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 4.5,
+      "weighted_score": 5.0,
       "result": "pass",
       "critique": [
         "Project configuration verified against OpenClaw official architecture",
-        "Memory Scale integration plan is ready"
+        "Memory Scale integration plan is ready",
+        "Runtime profiles are well-defined and ready for agent reference"
       ],
       "minimum_fixes_required": []
     },
@@ -176,7 +194,7 @@
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T13:44:47Z",
+    "ran_at": "2026-03-15T14:01:33Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
