@@ -30,6 +30,13 @@ Date: {date}
 - Goal:
 - Acceptance:
 
+## Scope Decision
+
+- Why was this goal selected now?
+- What is explicitly in scope?
+- What is explicitly out of scope?
+- What assumptions, required validation, stop conditions, or dissent matter?
+
 ## Key Observations
 
 - What did the agent observe that materially changed or confirmed the plan?
@@ -46,6 +53,11 @@ Date: {date}
 
 - Change 1
 - Change 2
+
+## Evaluation Readiness
+
+- What rubric and evaluator result authorized this iteration?
+- What critique or minimum fixes remained?
 
 ## Full Validation
 

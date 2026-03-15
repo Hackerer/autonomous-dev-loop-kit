@@ -40,6 +40,10 @@ def merge_unique(primary: list[str], secondary: list[str]) -> list[str]:
     return merged
 
 
+def prefixed_lines(prefix: str, values: list[str]) -> list[str]:
+    return [f"{prefix}{value}" for value in values if value.strip()]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Write a version report for the next autonomous iteration.")
     parser.add_argument("--analysis", action="append", default=[], help="Current-state analysis bullet.")
@@ -74,14 +78,95 @@ def main() -> int:
     review_feedback = list(review_state.get("committee_feedback", []))
     review_decision = list(review_state.get("committee_decision", []))
     review_reflection = list(review_state.get("reflection_notes", []))
+    research_gate = review_state.get("research_gate", {})
+    councils = review_state.get("councils", {})
+    scope_decision = review_state.get("scope_decision", {})
+    evaluation = review_state.get("evaluation", {})
 
     research_lines = merge_unique(args.research, review_research)
+    if isinstance(research_gate, dict):
+        summary = str(research_gate.get("summary", "")).strip()
+        if summary:
+            research_lines = merge_unique(research_lines, [f"Research gate summary: {summary}"])
+        open_gaps = research_gate.get("open_gaps", [])
+        if isinstance(open_gaps, list):
+            research_lines = merge_unique(research_lines, [f"Open gap: {item}" for item in open_gaps if str(item).strip()])
     committee_lines = []
     for role in committee_summary(config):
         members = ", ".join(role["members"]) if role["members"] else "no named members"
         committee_lines.append(f"{role['label']}: {role['responsibility']} Members: {members}")
+    if isinstance(councils, dict):
+        council_labels = {
+            "product_council": "Product Council",
+            "architecture_council": "Architecture Council",
+            "operator_council": "Operator Council",
+        }
+        for key, label in council_labels.items():
+            council = councils.get(key, {})
+            if not isinstance(council, dict):
+                continue
+            summary = str(council.get("summary", "")).strip()
+            decision = str(council.get("decision", "")).strip()
+            dissent = council.get("dissent", [])
+            if summary:
+                committee_lines.append(f"{label} summary: {summary}")
+            if decision:
+                committee_lines.append(f"{label} decision: {decision}")
+            if isinstance(dissent, list):
+                committee_lines.extend([f"{label} dissent: {item}" for item in dissent if str(item).strip()])
     committee_lines.extend(merge_unique(args.committee_feedback, review_feedback))
     committee_lines.extend(merge_unique(args.committee_decision, review_decision))
+
+    scope_lines: list[str] = []
+    if isinstance(scope_decision, dict):
+        why_selected = str(scope_decision.get("why_selected", "")).strip()
+        if why_selected:
+            scope_lines.append(f"Why selected: {why_selected}")
+        if isinstance(scope_decision.get("scope_in"), list):
+            scope_lines.extend(prefixed_lines("Scope in: ", [str(item) for item in scope_decision.get("scope_in", [])]))
+        if isinstance(scope_decision.get("scope_out"), list):
+            scope_lines.extend(prefixed_lines("Scope out: ", [str(item) for item in scope_decision.get("scope_out", [])]))
+        if isinstance(scope_decision.get("assumptions"), list):
+            scope_lines.extend(prefixed_lines("Assumption: ", [str(item) for item in scope_decision.get("assumptions", [])]))
+        if isinstance(scope_decision.get("risks"), list):
+            scope_lines.extend(prefixed_lines("Risk: ", [str(item) for item in scope_decision.get("risks", [])]))
+        if isinstance(scope_decision.get("required_validation"), list):
+            scope_lines.extend(
+                prefixed_lines("Required validation: ", [str(item) for item in scope_decision.get("required_validation", [])])
+            )
+        if isinstance(scope_decision.get("stop_conditions"), list):
+            scope_lines.extend(prefixed_lines("Stop condition: ", [str(item) for item in scope_decision.get("stop_conditions", [])]))
+        if isinstance(scope_decision.get("dissent"), list):
+            scope_lines.extend(prefixed_lines("Scope dissent: ", [str(item) for item in scope_decision.get("dissent", [])]))
+        next_action = str(scope_decision.get("next_action", "")).strip()
+        if next_action:
+            scope_lines.append(f"Next action: {next_action}")
+
+    evaluation_lines: list[str] = []
+    if isinstance(evaluation, dict) and evaluation.get("status") == "captured":
+        rubric_version = str(evaluation.get("rubric_version", "")).strip()
+        weighted_score = evaluation.get("weighted_score")
+        result = str(evaluation.get("result", "")).strip()
+        summary_bits = []
+        if rubric_version:
+            summary_bits.append(f"rubric `{rubric_version}`")
+        if weighted_score is not None:
+            summary_bits.append(f"weighted score `{weighted_score}`")
+        if result:
+            summary_bits.append(f"result `{result}`")
+        if summary_bits:
+            evaluation_lines.append("Evaluator outcome: " + ", ".join(summary_bits))
+        scores = evaluation.get("scores", {})
+        if isinstance(scores, dict):
+            score_summary = ", ".join(f"{key}={value}" for key, value in scores.items())
+            if score_summary:
+                evaluation_lines.append(f"Evaluator scores: {score_summary}")
+        critique = evaluation.get("critique", [])
+        if isinstance(critique, list):
+            evaluation_lines.extend(prefixed_lines("Evaluator critique: ", [str(item) for item in critique]))
+        minimum_fixes = evaluation.get("minimum_fixes_required", [])
+        if isinstance(minimum_fixes, list):
+            evaluation_lines.extend(prefixed_lines("Minimum fix required: ", [str(item) for item in minimum_fixes]))
 
     validation_lines = []
     for result in validation.get("results", []):
@@ -136,6 +221,9 @@ def main() -> int:
         f"- Goal: {goal_label}",
         *bullet_lines(args.acceptance, "Document the acceptance criteria for this version."),
         "",
+        "## Scope Decision",
+        *bullet_lines(scope_lines, "Record why this goal was selected, what is in scope, what is out of scope, and where the stop line sits."),
+        "",
         "## Key Observations",
         *bullet_lines(args.observation, "Capture the evidence or observation that most influenced this version."),
         "",
@@ -147,6 +235,9 @@ def main() -> int:
         "",
         "## Delivered",
         *bullet_lines(args.delivered, "List the concrete changes delivered in this version."),
+        "",
+        "## Evaluation Readiness",
+        *bullet_lines(evaluation_lines, "Record the evaluator outcome, weighted score, and minimum fixes when available."),
         "",
         "## Full Validation",
         *validation_lines,

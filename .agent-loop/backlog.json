@@ -159,7 +159,7 @@
     "id": "iteration-24-report-scope-decision",
     "title": "Render structured scope decisions, dissent, and evaluation outcome in reports",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Reports include selected goal rationale, scope_in, scope_out, and required validation from durable state",
       "Reports surface dissent and open gaps when present",
