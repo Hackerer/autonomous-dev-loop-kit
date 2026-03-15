@@ -1,13 +1,13 @@
 {
-  "iteration": 57,
-  "status": "release_report_written",
+  "iteration": 58,
+  "status": "published",
   "session": {
-    "id": null,
+    "id": "session-20260315-152645",
     "status": "active",
     "target_releases": 5,
-    "completed_releases": 0,
+    "completed_releases": 1,
     "target_iterations": null,
-    "completed_iterations": 1,
+    "completed_iterations": 2,
     "started_at": "2026-03-15T15:26:45Z",
     "ended_at": null
   },
@@ -20,79 +20,80 @@
   },
   "current_goal": null,
   "release": {
-    "number": 1,
-    "title": "R1: Upgrade usage telemetry and usage-log analysis into a product signal layer",
-    "summary": "Ship the single high-priority goal `Upgrade usage telemetry and usage-log analysis into a product signal layer` as a standalone bundled release.",
+    "number": 2,
+    "title": "R2: Make release state transitions deterministic and block orphan publish paths",
+    "summary": "Ship the single high-priority goal `Make release state transitions deterministic and block orphan publish paths` as a standalone bundled release.",
     "status": "ready_to_release",
     "brief": {
-      "objective": "Make usage logs explain how users actually drive the loop.",
-      "target_user_value": "Operators and kit authors can see session-level behavior, failures, and suspicious release gaps without manual log spelunking.",
-      "why_now": "Current logs are too thin to explain real usage, which blocks product iteration on the loop UX.",
-      "packaging_rationale": "Telemetry enrichment and deeper log analysis must land together so the kit both records and explains user behavior.",
+      "objective": "Make release sequencing deterministic and prevent orphan task publishes.",
+      "target_user_value": "Operators can trust release numbering, session progress, and publish attribution without reading raw state.",
+      "why_now": "Telemetry is only useful if release and publish state cannot drift or produce orphan records.",
+      "packaging_rationale": "Release sequencing fixes and orphan guards belong together because both protect the trustworthiness of release history and usage telemetry.",
       "scope_in": [
-        "Session-aware usage telemetry",
-        "Failure and completion lifecycle events",
-        "Session-oriented usage-log analysis"
+        "Session-id derivation for active sessions",
+        "Consecutive release numbering within a session",
+        "Active-goal and active-release guards before reporting and publish"
       ],
       "scope_out": [
-        "Release state-machine fixes",
-        "Placeholder report gates"
+        "Placeholder report quality gates",
+        "Status and doctor commands"
       ],
       "release_acceptance": [
-        "Usage events capture stable session ids",
-        "Validation failures and session completion are logged",
-        "Analyzer summarizes sessions and suspicious gaps"
+        "Current sessions derive a stable session id even after migration",
+        "Release planner keeps consecutive numbers within the active session",
+        "Orphan iteration publish attempts fail with actionable errors"
       ],
-      "launch_story": "This release upgrades the kit from counting events to understanding operator behavior across a real release session.",
+      "launch_story": "This release hardens the loop's state machine so every published task and release has a trustworthy place in session history.",
       "deferred_items": [
-        "Make release state transitions deterministic and block orphan publish paths",
         "Turn task and release reports into trustworthy publish artifacts",
-        "Strengthen PM release planning with archetypes and better packaging signals"
+        "Strengthen PM release planning with archetypes and better packaging signals",
+        "Add operator-facing status and doctor tooling for loop recovery"
       ]
     },
     "goal_ids": [
-      "iteration-58-usage-telemetry-and-analysis"
+      "iteration-59-release-state-consistency"
     ],
     "goal_titles": [
-      "Upgrade usage telemetry and usage-log analysis into a product signal layer"
+      "Make release state transitions deterministic and block orphan publish paths"
     ],
     "completed_goal_ids": [
-      "iteration-58-usage-telemetry-and-analysis"
+      "iteration-59-release-state-consistency"
     ],
     "task_iterations": [
       {
-        "iteration": 57,
-        "goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
-        "goal_id": "iteration-58-usage-telemetry-and-analysis",
-        "report": "docs/reports/v57.md",
-        "published_at": "2026-03-15T15:45:42Z"
+        "iteration": 58,
+        "goal": "Make release state transitions deterministic and block orphan publish paths",
+        "goal_id": "iteration-59-release-state-consistency",
+        "report": "docs/reports/v58.md",
+        "published_at": "2026-03-15T16:07:53Z"
       }
     ],
-    "selected_at": "2026-03-15T15:42:50Z",
+    "selected_at": "2026-03-15T16:06:45Z",
     "published_at": null,
     "report_path": null
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": "docs/releases/R1.md",
+  "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T15:43:13Z",
+    "captured_at": "2026-03-15T16:07:07Z",
     "research_findings": [
-      "Cross-repo usage logs currently show only 5 event types, so they cannot explain session flow, failure points, or CLI choice.",
-      "ai-trade logs show release-planned and release-published events but the current analyzer cannot reconstruct per-session behavior because legacy rows lack session identity.",
-      "The product opportunity is to turn usage logging into a lightweight telemetry layer before tightening more release UX gates."
+      "The first telemetry release surfaced that active sessions created before session-id support still serialize as null ids unless the loop derives a stable fallback.",
+      "Validator coverage now reproduces an orphan publish attempt and a dirty completed_releases counter, making the release-state bug concrete and testable.",
+      "Release trust depends on two guarantees: session-local release numbering must stay consecutive, and no task publish can happen without a valid active goal inside a planned release."
     ],
     "committee_feedback": [],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Observed logs prove that the kit needs session-aware telemetry and higher-level usage analysis before deeper UX tuning.",
+      "summary": "Observed state drift and orphan publish paths justify a dedicated hardening release before report-quality or UX work.",
       "evidence_refs": [
-        "/Users/max/Documents/coding/ai-trade/.agent-loop/data/usage-log.jsonl",
-        "/Users/max/Documents/coding/info-rss/.agent-loop/data/usage-log.jsonl"
+        ".agent-loop/scripts/validate-kit.py",
+        ".agent-loop/scripts/publish-iteration.py",
+        ".agent-loop/scripts/common.py"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -100,19 +101,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve: richer telemetry is the highest-leverage step because it makes later UX iteration evidence-based.",
+        "summary": "Approve: this is the next highest-value hardening step because it prevents the loop from emitting misleading release history.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve: session/release context belongs in usage logging and can stay backward compatible as additive JSON fields.",
+        "summary": "Approve: state normalization, release-number derivation, and active-release guards are the correct structural controls for this failure mode.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Approve: operators need logs that explain where a session stopped, not just which commit happened.",
+        "summary": "Approve: users need clear failures for orphan publish attempts instead of silent bad history.",
         "decision": "approve",
         "dissent": []
       }
@@ -120,16 +121,15 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Instrument usage events with session/release/goal context, then upgrade the analyzer to summarize sessions, failures, and suspicious gaps.",
-        "next_action": "Render evaluator brief and confirm readiness for telemetry and analyzer changes."
+        "summary": "Derive session ids for migrated sessions, bind release numbering to the active session, and guard report/publish against invalid goal-release context.",
+        "next_action": "Validate the state-machine fixes end to end and then publish the hardening release."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Evidence from ai-trade and info-rss usage logs shows insufficient session attribution and no stop/failure visibility.",
-        "decision_record": "Proceed with telemetry enrichment plus analyzer upgrade as one bundled release.",
+        "summary": "Validator evidence proves the kit can now defend against orphan publish and release-number drift regressions.",
+        "decision_record": "Proceed with release-state hardening as a standalone bundled release.",
         "evidence_refs": [
-          "/Users/max/Documents/coding/ai-trade/.agent-loop/data/usage-log.jsonl",
-          "/Users/max/Documents/coding/info-rss/.agent-loop/data/usage-log.jsonl"
+          ".agent-loop/scripts/validate-kit.py"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -138,17 +138,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
-      "why_selected": "Without richer telemetry, later UX changes would be guided by guesswork instead of observed operator behavior.",
+      "selected_goal": "Make release state transitions deterministic and block orphan publish paths",
+      "why_selected": "Telemetry without trustworthy release sequencing would produce better-looking logs but not better product evidence.",
       "scope_in": [
-        "Add stable session ids to autonomous sessions",
-        "Attach session, release, goal, iteration, and client context to usage events",
-        "Log validation pass/fail and session completion lifecycle events",
-        "Upgrade usage-log analysis to summarize sessions and suspicious gaps"
+        "Derive stable session ids for active sessions missing explicit ids",
+        "Use session-local release history to recover consecutive release numbers when counters drift",
+        "Reject report or publish attempts when the active goal is missing, unspecified, or outside the active release"
       ],
       "scope_out": [
-        "Do not change release numbering logic yet",
-        "Do not add status/doctor commands yet"
+        "Do not add placeholder-content gates yet",
+        "Do not add operator doctor commands yet"
       ],
       "assumptions": [],
       "risks": [],
@@ -156,7 +155,7 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if telemetry changes break current validator coverage or usage-log backward compatibility"
+        "Stop if state-machine hardening breaks seeded validator targets or bundled release planning"
       ],
       "dissent": [],
       "next_action": ""
@@ -175,8 +174,8 @@
       "weighted_score": 5.0,
       "result": "pass",
       "critique": [
-        "This release is tightly scoped to the observed logging blind spot.",
-        "The changes are additive to durable state and low-risk to existing protocol gates."
+        "This release directly hardens the trust boundary for release history and publish attribution.",
+        "The change stays focused on deterministic state handling and avoids mixing in later UX/reporting work."
       ],
       "minimum_fixes_required": []
     },
@@ -185,13 +184,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-58-usage-telemetry-and-analysis",
-    "goal_title": "Upgrade usage telemetry and usage-log analysis into a product signal layer"
+    "goal_id": "iteration-59-release-state-consistency",
+    "goal_title": "Make release state transitions deterministic and block orphan publish paths"
   },
-  "last_report": "docs/reports/v57.md",
+  "last_report": "docs/reports/v58.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T15:43:33Z",
+    "ran_at": "2026-03-15T16:07:25Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -781,6 +780,20 @@
       "branch": "main",
       "published_at": "2026-03-15T15:45:42Z",
       "session_progress": "0/5 releases"
+    },
+    {
+      "iteration": 58,
+      "goal": "Make release state transitions deterministic and block orphan publish paths",
+      "goal_id": "iteration-59-release-state-consistency",
+      "release_number": 2,
+      "release_title": "R2: Make release state transitions deterministic and block orphan publish paths",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v58.md",
+      "branch": "main",
+      "published_at": "2026-03-15T16:07:53Z",
+      "session_progress": "1/5 releases"
     }
   ],
   "release_history": [
@@ -858,6 +871,29 @@
       "report": "docs/releases/R3.md",
       "published_at": "2026-03-15T13:15:53Z",
       "commit": "dffa7b8ca8e844df3e0144659e863afe74e9ae27"
+    },
+    {
+      "number": 1,
+      "title": "R1: Upgrade usage telemetry and usage-log analysis into a product signal layer",
+      "summary": "Ship the single high-priority goal `Upgrade usage telemetry and usage-log analysis into a product signal layer` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-58-usage-telemetry-and-analysis"
+      ],
+      "goal_titles": [
+        "Upgrade usage telemetry and usage-log analysis into a product signal layer"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 57,
+          "goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
+          "goal_id": "iteration-58-usage-telemetry-and-analysis",
+          "report": "docs/reports/v57.md",
+          "published_at": "2026-03-15T15:45:42Z"
+        }
+      ],
+      "report": "docs/releases/R1.md",
+      "published_at": "2026-03-15T15:46:07Z",
+      "commit": "04e09ae520c071eee63c23737caaf39e7d5d9f0c"
     }
   ]
 }

@@ -228,9 +228,7 @@ def load_state(root: Path) -> dict[str, Any]:
     default_session = default_state()["session"]
     normalized_session = dict(default_session)
     normalized_session.update(session)
-    session_id = normalized_session.get("id")
-    if session_id is None:
-        normalized_session["id"] = None
+    normalized_session["id"] = derive_session_id(normalized_session)
     if normalized_session.get("target_releases") is None and normalized_session.get("target_iterations") is not None:
         normalized_session["target_releases"] = normalized_session.get("target_iterations")
     if (
@@ -440,6 +438,20 @@ def usage_logging_config(config: dict[str, Any]) -> dict[str, Any]:
         "enabled": bool(usage_logging.get("enabled", True)),
         "path": str(usage_logging.get("path", DEFAULT_USAGE_LOG_PATH) or DEFAULT_USAGE_LOG_PATH),
     }
+
+
+def derive_session_id(session: dict[str, Any] | None) -> str | None:
+    if not isinstance(session, dict):
+        return None
+    raw_id = session.get("id")
+    if raw_id is not None:
+        text = str(raw_id).strip()
+        if text and text.lower() != "none":
+            return text
+    started_at = str(session.get("started_at", "")).strip()
+    if not started_at:
+        return None
+    return f"session-{started_at.replace(':', '').replace('-', '').replace('T', '-').replace('Z', '')}"
 
 
 def discovery_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -929,7 +941,7 @@ def usage_log_context(root: Path) -> dict[str, Any]:
     goal = state.get("draft_goal") or state.get("current_goal")
     context: dict[str, Any] = {
         "session": {
-            "id": state.get("session", {}).get("id") if isinstance(state.get("session"), dict) else None,
+            "id": session.get("id"),
             "status": session.get("status"),
             "target_releases": session.get("target_releases"),
             "completed_releases": session.get("completed_releases"),
@@ -996,6 +1008,19 @@ def goal_title(goal: Any) -> str:
     if goal:
         return str(goal)
     return "unspecified goal"
+
+
+def require_selected_goal(state: dict[str, Any]) -> dict[str, Any]:
+    goal = state.get("current_goal") or state.get("draft_goal")
+    if not isinstance(goal, dict):
+        raise LoopError("No active goal is selected. Run `python3 .agent-loop/scripts/select-next-goal.py` first.")
+    goal_id = str(goal.get("id", "")).strip()
+    goal_name = goal_title(goal)
+    if not goal_id or goal_name == "unspecified goal":
+        raise LoopError(
+            "The active goal is incomplete or unspecified. Select a valid backlog goal before writing reports or publishing."
+        )
+    return goal
 
 
 def review_state_matches_goal(review_state: Any, goal: Any) -> bool:
@@ -1100,6 +1125,7 @@ def session_summary(state: dict[str, Any]) -> dict[str, Any]:
     target_iterations = session.get("target_iterations")
     completed_iterations = int(session.get("completed_iterations", 0) or 0)
     return {
+        "id": derive_session_id(session),
         "status": session.get("status", "not_configured"),
         "target_releases": target_releases,
         "completed_releases": completed_releases,
@@ -1133,6 +1159,22 @@ def require_session_capacity(config: dict[str, Any], state: dict[str, Any]) -> d
     if completed >= target:
         raise LoopError(f"Release limit reached for this session ({completed}/{target}).")
     return session
+
+
+def next_release_number(state: dict[str, Any]) -> int:
+    session = session_summary(state)
+    session_id = session.get("id")
+    history = state.get("release_history", [])
+    session_history_count = 0
+    if session_id and isinstance(history, list):
+        for item in history:
+            if not isinstance(item, dict):
+                continue
+            item_session_id = str(item.get("session_id", "")).strip()
+            if item_session_id and item_session_id == session_id:
+                session_history_count += 1
+    completed_releases = int(session.get("completed_releases", 0) or 0)
+    return max(completed_releases, session_history_count) + 1
 
 
 def active_release(state: dict[str, Any]) -> dict[str, Any]:
@@ -1177,6 +1219,18 @@ def require_active_release(config: dict[str, Any], state: dict[str, Any]) -> dic
     if release_cfg["require_release_plan"] and release["status"] in {"not_planned", "published"}:
         raise LoopError(
             "No active release plan exists. Define the next bundled version first with `python3 .agent-loop/scripts/plan-release.py`."
+        )
+    return release
+
+
+def require_goal_in_active_release(config: dict[str, Any], state: dict[str, Any], goal: dict[str, Any]) -> dict[str, Any]:
+    release = require_active_release(config, state)
+    goal_id = str(goal.get("id", "")).strip()
+    if release["number"] is None or not goal_id:
+        raise LoopError("Cannot continue because the active goal is not attached to a valid planned release.")
+    if release["goal_ids"] and goal_id not in release["goal_ids"]:
+        raise LoopError(
+            "The active goal is not part of the active release. Re-select a goal from the current release plan or plan a new release intentionally."
         )
     return release
 

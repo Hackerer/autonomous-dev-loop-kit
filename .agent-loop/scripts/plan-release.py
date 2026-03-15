@@ -13,6 +13,7 @@ from common import (
     load_backlog,
     load_config,
     load_state,
+    next_release_number,
     release_planning_config,
     release_summary,
     require_session_capacity,
@@ -208,7 +209,7 @@ def main() -> int:
         )
 
     goals = resolve_goals(backlog, [str(goal_id) for goal_id in args.goal_id], count)
-    release_number = int(session["completed_releases"] or 0) + 1
+    release_number = next_release_number(state)
     brief = build_release_brief(args, goals, backlog)
     release_payload = {
         "number": release_number,

@@ -49,13 +49,15 @@ def normalize_rows(log_paths: list[Path]) -> list[dict[str, Any]]:
 def session_id_for(row: dict[str, Any]) -> str | None:
     session = row.get("session", {})
     if isinstance(session, dict):
-        session_id = str(session.get("id", "")).strip()
-        if session_id:
+        raw_session_id = session.get("id")
+        session_id = str(raw_session_id).strip() if raw_session_id is not None else ""
+        if session_id and session_id.lower() != "none":
             return session_id
     payload = row.get("payload", {})
     if isinstance(payload, dict):
-        session_id = str(payload.get("session_id", "")).strip()
-        if session_id:
+        raw_session_id = payload.get("session_id")
+        session_id = str(raw_session_id).strip() if raw_session_id is not None else ""
+        if session_id and session_id.lower() != "none":
             return session_id
     return None
 

@@ -85,6 +85,7 @@ def main() -> int:
     release = release_summary(state)
     release_record = {
         "number": release_number,
+        "session_id": session_summary(state).get("id"),
         "title": release["title"],
         "summary": release["summary"],
         "goal_ids": release["goal_ids"],

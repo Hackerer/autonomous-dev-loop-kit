@@ -18,7 +18,9 @@ from common import (
     load_backlog,
     load_config,
     load_state,
+    require_goal_in_active_release,
     require_session_capacity,
+    require_selected_goal,
     remote_exists,
     require_evaluator_pass,
     require_green_validation,
@@ -65,7 +67,8 @@ def main() -> int:
     if not iteration or not report_path:
         raise LoopError("No draft report exists. Run write-report.py before publishing.")
 
-    goal = state.get("draft_goal") or state.get("current_goal")
+    goal = require_selected_goal({"current_goal": state.get("current_goal"), "draft_goal": state.get("draft_goal")})
+    require_goal_in_active_release(config, state, goal)
     require_review_state(config, state, goal)
     require_evaluator_pass(config, state, goal)
     goal_label = goal_title(goal)

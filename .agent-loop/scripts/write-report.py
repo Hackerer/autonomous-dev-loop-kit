@@ -15,6 +15,8 @@ from common import (
     load_config,
     load_json,
     load_state,
+    require_goal_in_active_release,
+    require_selected_goal,
     release_summary,
     relpath,
     reporting_path,
@@ -74,7 +76,8 @@ def main() -> int:
     report_path = reporting_path(root, config, iteration)
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    goal = state.get("current_goal")
+    goal = require_selected_goal(state)
+    require_goal_in_active_release(config, state, goal)
     goal_label = goal_title(goal)
     today = datetime.now().date().isoformat()
     project_data = state.get("project_data", {})

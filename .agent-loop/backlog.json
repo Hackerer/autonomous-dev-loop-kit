@@ -627,7 +627,7 @@
     "id": "iteration-59-release-state-consistency",
     "title": "Make release state transitions deterministic and block orphan publish paths",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Release numbers cannot skip ahead when a previous release was just published",
       "Session progress strings match the actual completed release count before and after publish",

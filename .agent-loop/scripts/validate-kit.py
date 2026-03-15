@@ -111,6 +111,30 @@ def seeded_state(goal_id: str, evaluator_result: str | None = None) -> dict:
             "selected_at": "2026-03-15T00:00:00Z",
             "source": ".agent-loop/backlog.json",
         },
+        "release": {
+            "number": 1,
+            "title": "R1 seeded validation release",
+            "summary": "Seeded release for validator coverage",
+            "status": "planned",
+            "brief": {
+                "objective": "Seed validator coverage for report and publish gates.",
+                "target_user_value": "Validator targets should exercise active release behavior.",
+                "why_now": "Release planning is required by default.",
+                "packaging_rationale": "A minimal seeded release keeps gate coverage aligned with the real protocol.",
+                "scope_in": ["Gate review-state reporting and publication"],
+                "scope_out": [],
+                "release_acceptance": ["Validator target can write reports and publish iterations inside a release."],
+                "launch_story": "Seed validator coverage for release-aware report and publish flows.",
+                "deferred_items": [],
+            },
+            "goal_ids": [goal_id],
+            "goal_titles": ["Gate review-state reporting and publication"],
+            "completed_goal_ids": [],
+            "task_iterations": [],
+            "selected_at": "2026-03-15T00:00:00Z",
+            "published_at": None,
+            "report_path": None,
+        },
         "draft_iteration": None,
         "draft_report": None,
         "draft_goal": None,
@@ -560,6 +584,38 @@ def validate_release_flow(failures: list[str]) -> None:
         updated_state = load_state(target)
         check(updated_state.get("session", {}).get("completed_releases") == 1, "Bundled release publish increments completed releases", failures)
         check(len(updated_state.get("release_history", [])) >= 1, "Bundled release publish records release history", failures)
+
+        backlog.append({"id": "goal-c", "title": "Goal C", "priority": "high", "status": "pending", "acceptance": []})
+        write_json(target / ".agent-loop/backlog.json", backlog)
+        updated_state["session"]["completed_releases"] = 0
+        write_json(target / ".agent-loop/state.json", updated_state)
+        replanned = subprocess.run(
+            ["python3", ".agent-loop/scripts/plan-release.py", "--goal-id", "goal-c"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(replanned.returncode == 0, "plan-release.py can continue with consecutive release numbers from release history", failures)
+        if replanned.returncode == 0:
+            next_state = load_state(target)
+            check(next_state.get("release", {}).get("number") == 2, "plan-release.py keeps release numbers consecutive", failures)
+
+        orphan_state = load_state(target)
+        orphan_state["current_goal"] = {"id": "", "title": "", "selected_at": "2026-03-15T00:10:00Z", "source": ".agent-loop/backlog.json"}
+        orphan_state["draft_goal"] = orphan_state["current_goal"]
+        orphan_state["draft_iteration"] = 3
+        orphan_state["draft_report"] = "docs/reports/v3.md"
+        write_json(target / ".agent-loop/state.json", orphan_state)
+        (target / "docs/reports/v3.md").write_text("# Task Iteration v3 Report\n", encoding="utf-8")
+        orphan_publish = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(orphan_publish.returncode != 0, "publish-iteration.py rejects orphan iteration publish attempts", failures)
 
 
 def validate_goal_selection_readiness(failures: list[str]) -> None:
