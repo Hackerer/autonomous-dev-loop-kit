@@ -147,7 +147,7 @@
     "id": "iteration-23-capture-evaluation-result",
     "title": "Allow capture-review.py to persist evaluator scores and pass-revise-fail outcome",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Evaluator results can be recorded in review_state with rubric version and weighted score",
       "The stored output supports pass, revise, and fail outcomes",

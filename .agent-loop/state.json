@@ -1,17 +1,17 @@
 {
-  "iteration": 22,
+  "iteration": 23,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 15,
-    "completed_iterations": 7,
+    "completed_iterations": 8,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:06:25Z",
+    "last_collected_at": "2026-03-15T05:08:12Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,7 +21,7 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:05:10Z",
+    "captured_at": "2026-03-15T05:07:59Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
@@ -34,7 +34,10 @@
       "The state should capture only executable boundaries here: selected goal, why selected, scope in/out, assumptions, risks, required validation, stop conditions, dissent, and next action.",
       "The config already references an evaluator rubric path, but the file does not exist yet, so the evaluator contract is implied rather than durable.",
       "The next step should create one small portable rubric file instead of embedding long scoring logic into config or prose.",
-      "The rubric only needs implementation-readiness criteria and thresholds now; later evaluator capture can reference it directly."
+      "The rubric only needs implementation-readiness criteria and thresholds now; later evaluator capture can reference it directly.",
+      "The evaluator now has a roster entry and a rubric artifact, but review_state still cannot store evaluator scores or pass-revise-fail judgment, so readiness remains implicit.",
+      "The next step should let capture-review.py record evaluator output in the same durable review document while keeping evaluator judgment separate from council summaries.",
+      "A repeated --score criterion=value flag is enough here; the evaluator lane needs structured numbers and a result, not a new heavyweight file format."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
@@ -48,13 +51,17 @@
       "Operator council wants scope boundaries and stop conditions visible in raw JSON so a future maintainer can understand what the loop intended to do and not do.",
       "Product council wants the evaluator contract to stay concise so it helps iteration readiness rather than turning into heavy process.",
       "Architecture council wants a single rubric file path as the source of truth, because evaluator config should point to a stable artifact rather than duplicate weight math inline.",
-      "Operator council wants a readable rubric artifact that future maintainers can inspect without digging through scripts."
+      "Operator council wants a readable rubric artifact that future maintainers can inspect without digging through scripts.",
+      "Product council wants evaluator results to stay visibly separate from the council debate so readiness scoring does not get confused with recommendation-making.",
+      "Architecture council wants a simple CLI surface for evaluator capture that can be validated deterministically and mapped directly into the rubric file.",
+      "Operator council wants stored evaluator outcomes to be easy to read in JSON and future reports, especially the difference between revise and fail."
     ],
     "committee_decision": [
       "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
       "Add optional council-specific summary, decision, and dissent flags to capture-review.py and persist them into review_state.councils while keeping the old flat committee-feedback path.",
       "Add scope-decision flags to capture-review.py and persist them into review_state.scope_decision while keeping the existing top-level decision bullets for compatibility during migration.",
-      "Add a compact iteration-readiness rubric reference file, point config and validation at it, and keep the scoring model small enough to stay repo-portable."
+      "Add a compact iteration-readiness rubric reference file, point config and validation at it, and keep the scoring model small enough to stay repo-portable.",
+      "Add evaluator result flags to capture-review.py for rubric version, individual scores, weighted score, result, critique, and minimum fixes, and persist them into review_state.evaluation."
     ],
     "reflection_notes": [],
     "research_gate": {
@@ -126,26 +133,37 @@
       "next_action": "Use the new scope-decision structure as the durable source for later report and evaluator work."
     },
     "evaluation": {
-      "status": "not_started",
-      "rubric_version": "",
-      "scores": {},
-      "weighted_score": null,
-      "result": "pending",
-      "critique": [],
-      "minimum_fixes_required": []
+      "status": "captured",
+      "rubric_version": "iteration-readiness-v1",
+      "scores": {
+        "goal_clarity": 4.4,
+        "scope_fitness": 4.2,
+        "repo_safety": 4.3,
+        "validation_readiness": 4.5,
+        "state_durability": 4.4,
+        "publish_safety": 4.5
+      },
+      "weighted_score": 4.36,
+      "result": "pass",
+      "critique": [
+        "The iteration readiness contract is now concrete enough to authorize later implementation gates."
+      ],
+      "minimum_fixes_required": [
+        "Keep evaluator capture and council capture clearly separated in later report rendering."
+      ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-22-rubric-reference",
-    "goal_title": "Add a lightweight evaluator rubric reference and config hook"
+    "goal_id": "iteration-23-capture-evaluation-result",
+    "goal_title": "Allow capture-review.py to persist evaluator scores and pass-revise-fail outcome"
   },
-  "last_report": "docs/reports/v22.md",
+  "last_report": "docs/reports/v23.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:06:26Z",
+    "ran_at": "2026-03-15T05:08:13Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -335,6 +353,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:06:47Z",
       "session_progress": "7/15"
+    },
+    {
+      "iteration": 23,
+      "goal": "Allow capture-review.py to persist evaluator scores and pass-revise-fail outcome",
+      "report": "docs/reports/v23.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:08:39Z",
+      "session_progress": "8/15"
     }
   ]
 }

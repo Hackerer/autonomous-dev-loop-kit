@@ -34,6 +34,22 @@ def update_council_slot(slot: dict, summary: str | None, decision: str | None, d
     return next_slot
 
 
+def parse_scores(score_args: list[str]) -> dict[str, float]:
+    scores: dict[str, float] = {}
+    for raw_item in score_args:
+        if "=" not in raw_item:
+            raise LoopError(f"Invalid --score value '{raw_item}'. Expected criterion=value.")
+        key, value = raw_item.split("=", 1)
+        key = key.strip()
+        if not key:
+            raise LoopError(f"Invalid --score value '{raw_item}'. Criterion name is required.")
+        try:
+            scores[key] = float(value)
+        except ValueError as exc:
+            raise LoopError(f"Invalid --score value '{raw_item}'. Score must be numeric.") from exc
+    return scores
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Persist research and committee review conclusions for the current iteration.")
     parser.add_argument("--research", action="append", default=[], help="Research finding to persist.")
@@ -62,6 +78,12 @@ def main() -> int:
     parser.add_argument("--stop-condition", action="append", default=[], help="Structured stop-condition bullet.")
     parser.add_argument("--scope-dissent", action="append", default=[], help="Structured scope-decision dissent bullet.")
     parser.add_argument("--next-action", help="Next action after the scope decision.")
+    parser.add_argument("--rubric-version", help="Evaluator rubric version.")
+    parser.add_argument("--score", action="append", default=[], help="Evaluator score in criterion=value form.")
+    parser.add_argument("--weighted-score", type=float, help="Evaluator weighted score.")
+    parser.add_argument("--evaluation-result", choices=["pass", "revise", "fail"], help="Evaluator final result.")
+    parser.add_argument("--critique", action="append", default=[], help="Evaluator critique bullet.")
+    parser.add_argument("--minimum-fix", action="append", default=[], help="Minimum fix required before implementation.")
     parser.add_argument("--reflection", action="append", default=[], help="Optional reflection bullet to persist.")
     parser.add_argument("--json", action="store_true", help="Print the captured review payload as JSON.")
     parser.add_argument("--no-state", action="store_true", help="Validate and print the payload without updating state.")
@@ -94,6 +116,12 @@ def main() -> int:
         and not args.stop_condition
         and not args.scope_dissent
         and not args.next_action
+        and not args.rubric_version
+        and not args.score
+        and args.weighted_score is None
+        and not args.evaluation_result
+        and not args.critique
+        and not args.minimum_fix
         and not args.reflection
     ):
         raise LoopError("At least one review input is required.")
@@ -185,6 +213,37 @@ def main() -> int:
     if args.next_action:
         scope_decision["next_action"] = args.next_action
     payload["scope_decision"] = scope_decision
+
+    evaluation = payload.get("evaluation", {})
+    if not isinstance(evaluation, dict):
+        evaluation = {}
+    has_evaluation_inputs = any(
+        [
+            args.rubric_version,
+            args.score,
+            args.weighted_score is not None,
+            args.evaluation_result,
+            args.critique,
+            args.minimum_fix,
+        ]
+    )
+    if has_evaluation_inputs:
+        evaluation["status"] = "captured"
+    if args.rubric_version:
+        evaluation["rubric_version"] = args.rubric_version
+    if args.score:
+        scores = dict(evaluation.get("scores", {}))
+        scores.update(parse_scores(list(args.score)))
+        evaluation["scores"] = scores
+    if args.weighted_score is not None:
+        evaluation["weighted_score"] = args.weighted_score
+    if args.evaluation_result:
+        evaluation["result"] = args.evaluation_result
+    evaluation["critique"] = merge_unique(list(evaluation.get("critique", [])), list(args.critique))
+    evaluation["minimum_fixes_required"] = merge_unique(
+        list(evaluation.get("minimum_fixes_required", [])), list(args.minimum_fix)
+    )
+    payload["evaluation"] = evaluation
 
     if not args.no_state:
         state["review_state"] = payload

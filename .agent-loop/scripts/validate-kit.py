@@ -392,6 +392,20 @@ def main() -> int:
             "Sample scope dissent",
             "--next-action",
             "Sample next action",
+            "--rubric-version",
+            "iteration-readiness-v1",
+            "--score",
+            "goal_clarity=4.5",
+            "--score",
+            "scope_fitness=4.0",
+            "--weighted-score",
+            "4.2",
+            "--evaluation-result",
+            "pass",
+            "--critique",
+            "Sample evaluator critique",
+            "--minimum-fix",
+            "Sample evaluator fix",
             "--json",
             "--no-state",
         ],
@@ -413,6 +427,11 @@ def main() -> int:
         check(isinstance(scope_decision, dict), "capture-review.py emits scope_decision payload", failures)
         check(scope_decision.get("selected_goal") == "Sample selected goal", "capture-review.py records selected_goal", failures)
         check("Sample scope dissent" in scope_decision.get("dissent", []), "capture-review.py records scope dissent", failures)
+        evaluation = captured.get("evaluation", {})
+        check(isinstance(evaluation, dict), "capture-review.py emits evaluation payload", failures)
+        check(evaluation.get("rubric_version") == "iteration-readiness-v1", "capture-review.py records rubric version", failures)
+        check(evaluation.get("scores", {}).get("goal_clarity") == 4.5, "capture-review.py records evaluator scores", failures)
+        check(evaluation.get("result") == "pass", "capture-review.py records evaluator result", failures)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"
