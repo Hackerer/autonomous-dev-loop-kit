@@ -411,7 +411,7 @@
     "id": "iteration-45-evaluator-score-helper",
     "title": "Add a helper that computes evaluator readiness scores from the rubric contract",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo includes a deterministic helper for weighted evaluator scoring",
       "The helper reads the committed rubric instead of duplicating weights",

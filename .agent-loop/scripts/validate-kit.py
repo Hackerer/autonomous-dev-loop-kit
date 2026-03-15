@@ -717,6 +717,7 @@ def main() -> int:
         ROOT / ".agent-loop/scripts/assess-escalation.py",
         ROOT / ".agent-loop/scripts/continue-loop-session.py",
         ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
+        ROOT / ".agent-loop/scripts/score-evaluator-readiness.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".agent-loop/config.json",
@@ -1088,6 +1089,34 @@ def main() -> int:
     validate_review_reset_on_goal_change(failures)
     validate_session_continuation(failures)
     validate_structured_committee_flow(failures)
+    helper = subprocess.run(
+        [
+            "python3",
+            ".agent-loop/scripts/score-evaluator-readiness.py",
+            "--score",
+            "goal_clarity=4.0",
+            "--score",
+            "scope_fitness=4.0",
+            "--score",
+            "repo_safety=4.0",
+            "--score",
+            "validation_readiness=4.0",
+            "--score",
+            "state_durability=4.0",
+            "--score",
+            "publish_safety=4.0",
+            "--json",
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    check(helper.returncode == 0, "score-evaluator-readiness.py runs successfully", failures)
+    if helper.returncode == 0:
+        helper_payload = json.loads(helper.stdout)
+        check(helper_payload.get("weighted_score") == 4.0, "score-evaluator-readiness.py computes the weighted score from the rubric", failures)
+        check(helper_payload.get("result") == "pass", "score-evaluator-readiness.py computes the evaluator result from thresholds", failures)
 
     if failures:
         print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)

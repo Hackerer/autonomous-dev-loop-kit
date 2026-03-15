@@ -1,17 +1,17 @@
 {
-  "iteration": 44,
+  "iteration": 45,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 5,
+    "completed_iterations": 6,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:31:36Z",
+    "last_collected_at": "2026-03-15T07:33:34Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:30:38Z",
+    "captured_at": "2026-03-15T07:33:20Z",
     "research_findings": [
-      "The new secretariat fields are durable after v43, but later operators still cannot see them in project snapshots or version reports.",
-      "The next smallest step is visibility: summarize secretary output in collect-project-data and write-report without changing gates.",
-      "Keeping the rendered output compact preserves the lightweight committee model while improving handoff quality."
+      "Evaluator scoring still depends on manually calculating weighted_score even though the rubric already stores all criterion weights and thresholds.",
+      "The smallest durable improvement is a helper script that reads the configured rubric and computes weighted score plus pass-revise-fail outcome from criterion scores.",
+      "This helper should stay side-effect free so current capture and gate behavior remain compatible."
     ],
     "committee_feedback": [
-      "Product Council: the convergence layer only helps operators if they can actually see it in reports and snapshots.",
-      "Architecture Council: render only compact secretary summaries and decision records, not the full capture payload.",
-      "Operator Council: visibility should improve handoff quality without making reports noisy."
+      "Product Council: evaluator scoring should become easier to apply consistently across iterations.",
+      "Architecture Council: the helper must read the committed rubric instead of duplicating weights in code or docs.",
+      "Operator Council: the output should be compact enough to paste directly into capture-review or future tooling."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Expose compact delivery and audit secretary summaries in project-data snapshots and reports.",
+      "summary": "Add a deterministic evaluator score helper that computes weighted score and result from the committed rubric.",
       "evidence_refs": [
-        ".agent-loop/scripts/collect-project-data.py",
-        ".agent-loop/scripts/write-report.py",
-        ".agent-loop/templates/project-data-template.json"
+        ".agent-loop/references/iteration-readiness-rubric.json",
+        ".agent-loop/scripts/capture-review.py",
+        ".agent-loop/config.json"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,53 +48,51 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Make the secretariat visible so later sessions can understand how council feedback became an executable decision.",
-        "decision": "Approve snapshot and report rendering only; keep readiness behavior unchanged.",
+        "summary": "Make evaluator scoring deterministic and reusable instead of a manual arithmetic step.",
+        "decision": "Approve a helper script only; defer auto-wiring it into capture-review or readiness gates.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Read the new secretariat fields from review_state and surface a narrow summary in collect-project-data and write-report.",
-        "decision": "Prefer summary strings and open-gap counts over duplicating full secretary payloads.",
+        "summary": "Add a dedicated script that reads the configured rubric, validates complete criterion coverage, and computes weighted score plus thresholds.",
+        "decision": "Keep the helper stateless so it can feed current and future workflows without side effects.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "A later maintainer should be able to scan the report and snapshot and understand the secretary outcome quickly.",
-        "decision": "Approve if the output remains concise and clearly separated from committee and scope sections.",
+        "summary": "A compact JSON payload is enough as long as operators can use it directly in existing review flows.",
+        "decision": "Approve if the helper remains simple and scriptable.",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "The delivery and audit outputs now exist durably, so the next step is to expose them where later operators already look.",
-        "next_action": "Render compact secretariat summaries in project snapshots and version reports."
+        "summary": "The convergence layer is visible now; the next friction point is manual evaluator math.",
+        "next_action": "Introduce a stateless score helper before considering any readiness-mode changes."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Visibility should focus on secretary summaries, decision records, and open gaps, not full raw capture payloads.",
-        "decision_record": "The convergence layer becomes more useful once reports and snapshots surface it directly for handoff.",
+        "summary": "Weighted score and result should be derived from the committed rubric, not copied into ad hoc calculations.",
+        "decision_record": "Evaluator scoring now needs a deterministic helper so the same inputs always map to the same readiness result.",
         "evidence_refs": [],
-        "open_gaps": [
-          "Readiness and gate decisions still do not consume secretariat output directly."
-        ],
+        "open_gaps": [],
         "dissent_record": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Expose secretariat output in project-data snapshots and reports",
-      "why_selected": "The new secretariat fields are durable, but still effectively hidden from operators unless they inspect state.json directly.",
+      "selected_goal": "Add a helper that computes evaluator readiness scores from the rubric contract",
+      "why_selected": "The rubric is already durable, but the loop still relies on manual weighted-score calculation, which is unnecessary and error-prone.",
       "scope_in": [
-        "Add a compact secretariat summary to latest_review_state in collected project data.",
-        "Render delivery and audit secretary output in version reports.",
-        "Extend validation to cover the new report and snapshot visibility."
+        "Add a stateless evaluator-score helper script.",
+        "Read the committed rubric and compute weighted score and result from complete criterion input.",
+        "Cover the helper in validation and operator docs."
       ],
       "scope_out": [
-        "Do not change readiness or publication gates.",
-        "Do not add more secretariat fields."
+        "Do not automatically mutate review_state from the helper.",
+        "Do not change readiness gate behavior yet."
       ],
       "assumptions": [],
       "risks": [],
@@ -102,12 +100,12 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if secretariat visibility duplicates full state blobs instead of concise summaries."
+        "Stop if the helper duplicates rubric weights instead of reading them from the committed rubric file."
       ],
       "dissent": [
-        "Keep secretary visibility compact; the report should not become a dump of every captured field."
+        "Keep the helper simple; it should compute scores, not become another gate runner."
       ],
-      "next_action": "Use the now-visible convergence layer to improve evaluator ergonomics in the next version."
+      "next_action": "Use the deterministic score helper as the basis for lighter readiness modes in the next version."
     },
     "evaluation": {
       "status": "captured",
@@ -117,16 +115,16 @@
         "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.7,
-        "state_durability": 4.9,
+        "state_durability": 4.8,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.81,
+      "weighted_score": 4.79,
       "result": "pass",
       "critique": [
-        "This turns the secretariat from hidden state into a visible handoff tool while keeping the model lightweight."
+        "This reduces manual evaluator friction without changing any release gate semantics."
       ],
       "minimum_fixes_required": [
-        "Keep the rendered secretary output concise and clearly separated from committee summaries."
+        "Ensure the helper reads the committed rubric and rejects incomplete criterion input."
       ]
     },
     "escalation": {
@@ -134,18 +132,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-44-secretariat-visibility",
-    "goal_title": "Expose secretariat output in project-data snapshots and reports"
+    "goal_id": "iteration-45-evaluator-score-helper",
+    "goal_title": "Add a helper that computes evaluator readiness scores from the rubric contract"
   },
-  "last_report": "docs/reports/v44.md",
+  "last_report": "docs/reports/v45.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:31:19Z",
+    "ran_at": "2026-03-15T07:33:34Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summa\n...[truncated]...\nut\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is corre\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -558,6 +556,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:31:44Z",
       "session_progress": "5/10"
+    },
+    {
+      "iteration": 45,
+      "goal": "Add a helper that computes evaluator readiness scores from the rubric contract",
+      "goal_id": "iteration-45-evaluator-score-helper",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v45.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:33:49Z",
+      "session_progress": "6/10"
     }
   ]
 }

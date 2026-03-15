@@ -236,6 +236,7 @@ python3 .agent-loop/scripts/collect-project-data.py
 python3 .agent-loop/scripts/score-data-quality.py
 python3 .agent-loop/scripts/render-committee.py
 python3 .agent-loop/scripts/render-evaluator-brief.py
+python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.5 --score scope_fitness=4.5 --score repo_safety=4.5 --score validation_readiness=4.5 --score state_durability=4.5 --score publish_safety=4.5
 python3 .agent-loop/scripts/assert-implementation-readiness.py
 python3 .agent-loop/scripts/continue-loop-session.py --add 5
 python3 .agent-loop/scripts/select-next-goal.py
