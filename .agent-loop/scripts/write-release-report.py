@@ -51,6 +51,19 @@ def bulletize(lines: list[str], fallback: str) -> list[str]:
     return bullets
 
 
+def optional_bulletize(lines: list[str]) -> list[str]:
+    values = [line for line in lines if line.strip()]
+    if not values:
+        return []
+    bullets: list[str] = []
+    for line in values:
+        if line.startswith("- "):
+            bullets.append(line)
+        else:
+            bullets.append(f"- {line}")
+    return bullets
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Write a bundled release report that aggregates multiple task iterations.")
     parser.add_argument("--summary", action="append", default=[], help="Release-level summary bullet.")
@@ -139,7 +152,7 @@ def main() -> int:
         "## Release Scope Boundary",
         *bulletize([f"In scope: {item}" for item in brief.get("scope_in", [])], "Record the release-level in-scope items."),
         *bulletize([f"Out of scope: {item}" for item in brief.get("scope_out", [])], "Record the release-level out-of-scope items."),
-        *bulletize([f"Deferred: {item}" for item in brief.get("deferred_items", [])], "Record the deferred items that stay out of this release."),
+        *optional_bulletize([f"Deferred: {item}" for item in brief.get("deferred_items", [])]),
         "",
         "## Requirement Delivery",
         *bulletize(delivered_lines, "Summarize what this release delivered across the included task iterations."),
