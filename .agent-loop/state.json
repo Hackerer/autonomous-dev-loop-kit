@@ -1,15 +1,15 @@
 {
   "iteration": 65,
-  "status": "published",
+  "status": "session_completed",
   "session": {
     "id": "session-20260315-185911",
-    "status": "active",
+    "status": "completed",
     "target_releases": 4,
-    "completed_releases": 3,
+    "completed_releases": 4,
     "target_iterations": null,
     "completed_iterations": 4,
     "started_at": "2026-03-15T18:59:11Z",
-    "ended_at": null
+    "ended_at": "2026-03-15T19:34:24Z"
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
@@ -20,57 +20,28 @@
   },
   "current_goal": null,
   "release": {
-    "number": 4,
-    "title": "R4: Expand validator coverage for reliability fixes and publish a final remediation review",
-    "summary": "Ship the single high-priority goal `Expand validator coverage for reliability fixes and publish a final remediation review` as a standalone bundled release.",
-    "status": "ready_to_release",
+    "number": null,
+    "title": "",
+    "summary": "",
+    "status": "not_planned",
     "brief": {
-      "archetype": "stability",
-      "objective": "Close the remediation run by proving the repaired reliability guarantees and publishing a fresh clean code review.",
-      "target_user_value": "Operators and future maintainers can trust that the repaired behaviors are continuously verified and that the remediation run ended with an explicit clean review.",
-      "why_now": "The previous three releases repaired the concrete bugs; the final step is to lock those guarantees into validator coverage and record the post-remediation review outcome.",
-      "packaging_rationale": "Validator hardening and remediation review belong together because they both define whether this repair wave is actually complete and trustworthy.",
-      "packaging_signals": [
-        "Archetype: stability",
-        "Matched keywords: fix, reliability, validation",
-        "Shared theme: validator",
-        "Bundled goals: 1"
-      ],
-      "scope_in": [
-        "Add final validator coverage for clean successful iteration publish behavior.",
-        "Refresh protocol notes for the repaired publish and session-reset guarantees.",
-        "Publish a final remediation code review report."
-      ],
-      "scope_out": [
-        "Do not change publish semantics, committee semantics, or operator tooling behavior."
-      ],
-      "release_acceptance": [
-        "validate-kit.py covers the final reliability assumptions from the remediation run.",
-        "The repo includes a fresh remediation code review report with no remaining significant findings.",
-        "Full validation remains green after the review closeout artifacts are added."
-      ],
-      "launch_story": "This release closes the remediation cycle by proving the fixes and documenting that the core loop is clean again.",
+      "archetype": "",
+      "objective": "",
+      "target_user_value": "",
+      "why_now": "",
+      "packaging_rationale": "",
+      "packaging_signals": [],
+      "scope_in": [],
+      "scope_out": [],
+      "release_acceptance": [],
+      "launch_story": "",
       "deferred_items": []
     },
-    "goal_ids": [
-      "iteration-66-validator-and-review-closeout"
-    ],
-    "goal_titles": [
-      "Expand validator coverage for reliability fixes and publish a final remediation review"
-    ],
-    "completed_goal_ids": [
-      "iteration-66-validator-and-review-closeout"
-    ],
-    "task_iterations": [
-      {
-        "iteration": 65,
-        "goal": "Expand validator coverage for reliability fixes and publish a final remediation review",
-        "goal_id": "iteration-66-validator-and-review-closeout",
-        "report": "docs/reports/v65.md",
-        "published_at": "2026-03-15T19:34:08Z"
-      }
-    ],
-    "selected_at": "2026-03-15T19:30:33Z",
+    "goal_ids": [],
+    "goal_titles": [],
+    "completed_goal_ids": [],
+    "task_iterations": [],
+    "selected_at": null,
     "published_at": null,
     "report_path": null
   },
@@ -1173,6 +1144,29 @@
       ],
       "report": "docs/releases/R3.md",
       "published_at": "2026-03-15T19:28:10Z"
+    },
+    {
+      "number": 4,
+      "session_id": "session-20260315-185911",
+      "title": "R4: Expand validator coverage for reliability fixes and publish a final remediation review",
+      "summary": "Ship the single high-priority goal `Expand validator coverage for reliability fixes and publish a final remediation review` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-66-validator-and-review-closeout"
+      ],
+      "goal_titles": [
+        "Expand validator coverage for reliability fixes and publish a final remediation review"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 65,
+          "goal": "Expand validator coverage for reliability fixes and publish a final remediation review",
+          "goal_id": "iteration-66-validator-and-review-closeout",
+          "report": "docs/reports/v65.md",
+          "published_at": "2026-03-15T19:34:08Z"
+        }
+      ],
+      "report": "docs/releases/R4.md",
+      "published_at": "2026-03-15T19:34:24Z"
     }
   ]
 }
