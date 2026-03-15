@@ -1,6 +1,6 @@
 {
   "snapshot_version": 1,
-  "collected_at": "2026-03-15T07:12:25Z",
+  "collected_at": "2026-03-15T07:24:42Z",
   "repo": {
     "root": "/Users/max/Documents/coding/autonomous-dev-loop-kit",
     "name": "autonomous-dev-loop-kit",
@@ -128,15 +128,15 @@
   },
   "latest_review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:11:59Z",
-    "goal_id": "iteration-41-archetype-quality-scoring",
-    "goal_title": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+    "captured_at": "2026-03-15T07:24:12Z",
+    "goal_id": "iteration-42-review-context-packet",
+    "goal_title": "Render a live committee review packet with active goal, recent evidence, and current blockers",
     "matches_current_goal": true,
-    "current_goal_id": "iteration-41-archetype-quality-scoring",
-    "current_goal_title": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+    "current_goal_id": "iteration-42-review-context-packet",
+    "current_goal_title": "Render a live committee review packet with active goal, recent evidence, and current blockers",
     "research_gate": {
       "status": "captured",
-      "summary": "Make score-data-quality consume the active archetype profile and emit profile-specific evaluated signals and blocking gaps.",
+      "summary": "Turn render-committee.py into a live review packet that includes active-goal, quality, project, and recent-iteration context.",
       "data_quality_score": 100.0,
       "open_gaps": []
     },
@@ -147,21 +147,21 @@
     },
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+      "selected_goal": "Render a live committee review packet with active goal, recent evidence, and current blockers",
       "scope_in_count": 3,
       "scope_out_count": 2,
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if profile-aware scoring changes this repo from ready to blocked without a real missing signal."
+        "Stop if the review packet duplicates too much state or becomes difficult to scan in the terminal."
       ],
       "dissent_count": 1
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "weighted_score": 4.78,
+      "weighted_score": 4.77,
       "result": "pass"
     },
     "escalation": {

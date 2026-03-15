@@ -865,6 +865,10 @@ def main() -> int:
         check(isinstance(rendered.get("councils"), list) and len(rendered.get("councils", [])) >= 3, "Committee renderer exposes council summaries", failures)
         check(isinstance(rendered.get("secretariat"), list) and len(rendered.get("secretariat", [])) >= 2, "Committee renderer exposes secretariat summaries", failures)
         check(isinstance(rendered.get("evaluator"), dict) and isinstance(rendered.get("evaluator", {}).get("persona"), dict), "Committee renderer exposes evaluator summary", failures)
+        review_packet = rendered.get("review_packet", {})
+        check(isinstance(review_packet, dict), "Committee renderer exposes a live review packet", failures)
+        check(isinstance(review_packet.get("active_goal"), dict), "Committee renderer exposes the active goal context", failures)
+        check(isinstance(review_packet.get("quality_context"), dict), "Committee renderer exposes quality context", failures)
 
     review_capture = subprocess.run(
         [

@@ -375,7 +375,7 @@
     "id": "iteration-42-review-context-packet",
     "title": "Render a live committee review packet with active goal, recent evidence, and current blockers",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Committee rendering includes the active goal, quality status, open gaps, and recent repo context",
       "The review packet stays concise and terminal-friendly",

@@ -1,17 +1,17 @@
 {
-  "iteration": 41,
+  "iteration": 42,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 2,
+    "completed_iterations": 3,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:12:25Z",
+    "last_collected_at": "2026-03-15T07:24:42Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:11:59Z",
+    "captured_at": "2026-03-15T07:24:12Z",
     "research_findings": [
-      "The new archetype profile model exists in config and project data, but score-data-quality still ignores it and applies one generic checklist.",
-      "The next smallest step is to let quality scoring consume the resolved profile and explain missing signals in profile-specific terms.",
-      "For the current repo, agent-skill-kit should require repo_archetype detection while preserving the overall ready status."
+      "The committee renderer now knows the active goal, quality context, and recent iteration state internally, but it still exposes mostly static structure to operators.",
+      "The highest-value improvement is to package live context directly into the committee brief so councils review the current iteration instead of reconstructing it from separate files.",
+      "This can stay lightweight by reusing state, project-data, and quality artifacts already on disk instead of adding new storage."
     ],
     "committee_feedback": [
-      "Product Council: the scoring output should explain why a gap matters for this repo type, not just say a signal is missing.",
-      "Architecture Council: use the resolved profile already present in project data rather than re-encoding profile logic in multiple places.",
-      "Operator Council: quality output should become more legible, not more policy-heavy."
+      "Product Council: councils should see the active goal and current blockers immediately so the review can stay about this iteration.",
+      "Architecture Council: reuse the existing snapshot and quality artifacts rather than creating another state file.",
+      "Operator Council: the packet must stay terminal-friendly and concise even after adding more context."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Make score-data-quality consume the active archetype profile and emit profile-specific evaluated signals and blocking gaps.",
+      "summary": "Turn render-committee.py into a live review packet that includes active-goal, quality, project, and recent-iteration context.",
       "evidence_refs": [
-        ".agent-loop/scripts/score-data-quality.py",
+        ".agent-loop/scripts/render-committee.py",
         ".agent-loop/data/project-data.json",
-        ".agent-loop/config.json"
+        ".agent-loop/data/data-quality.json"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,36 +48,36 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Profile-aware scoring is the first behavior change that makes archetype profiles matter in the loop.",
-        "decision": "Approve a focused scoring update that keeps overall thresholds stable.",
+        "summary": "Make the committee brief actionable for the current iteration by adding active-goal and blocker context.",
+        "decision": "Approve a renderer-focused version that adds live packet data without changing capture or gate semantics.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Reuse the profile contract from collected project data and emit a structured list of evaluated signals for later scripts.",
-        "decision": "Prefer one scoring table over more hard-coded additive checks.",
+        "summary": "Assemble the packet from existing durable artifacts: state, project-data snapshot, quality report, and recent history.",
+        "decision": "Keep the packet read-only and compact; this version should not introduce new persistence.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Expose profile id, required signals, and missing signal ids so later reports and committee packets can stay concise.",
-        "decision": "Approve if the output stays compact and backward-compatible enough for existing workflows.",
+        "summary": "The packet should help operators review scope faster, not force them to read more files.",
+        "decision": "Approve if the text output stays concise and the JSON output remains scriptable.",
         "dissent": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
-      "why_selected": "The profile schema only becomes useful once the quality gate actually reads it and explains missing signals in profile-specific terms.",
+      "selected_goal": "Render a live committee review packet with active goal, recent evidence, and current blockers",
+      "why_selected": "The committee architecture is already durable, but the operator-facing brief still lacks enough live context to review a version directly from the terminal.",
       "scope_in": [
-        "Make score-data-quality read the resolved archetype profile from project data.",
-        "Emit structured evaluated signals, missing signal ids, and the active profile in data-quality output.",
-        "Refine profile signal ids so archetype-specific requirements can differ safely."
+        "Load active goal, project-data snapshot, quality report, and recent iteration state into the committee renderer.",
+        "Expose the live review packet in both JSON and text output.",
+        "Add validation coverage for the new packet fields."
       ],
       "scope_out": [
-        "Do not yet change committee rendering or readiness gates.",
-        "Do not introduce archetype-specific scoring weights."
+        "Do not add new durable state or secretariat fields yet.",
+        "Do not change evaluator or readiness behavior."
       ],
       "assumptions": [],
       "risks": [],
@@ -85,31 +85,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if profile-aware scoring changes this repo from ready to blocked without a real missing signal."
+        "Stop if the review packet duplicates too much state or becomes difficult to scan in the terminal."
       ],
       "dissent": [
-        "Keep the scoring simple; archetype profiles should select required signals, not become a weighted policy engine."
+        "Prefer concise summaries over dumping full project-data artifacts into the committee packet."
       ],
-      "next_action": "Update the scoring script, validate the output structure, and refresh the README sentence that explains profile-aware scoring."
+      "next_action": "Validate the enriched renderer output and publish the packet as the new committee review entrypoint."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.8,
-        "repo_safety": 4.7,
+        "scope_fitness": 4.7,
+        "repo_safety": 4.8,
         "validation_readiness": 4.7,
-        "state_durability": 4.8,
+        "state_durability": 4.7,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.78,
+      "weighted_score": 4.77,
       "result": "pass",
       "critique": [
-        "This makes the new profile model behaviorally real while keeping scoring thresholds and publish gates stable."
+        "This improves the usefulness of committee review without broadening scope into new state mechanics."
       ],
       "minimum_fixes_required": [
-        "Preserve the current repo's ready status unless a profile-required signal is actually missing."
+        "Keep the review packet concise and sourced from existing durable artifacts only."
       ]
     },
     "escalation": {
@@ -117,13 +117,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-41-archetype-quality-scoring",
-    "goal_title": "Apply repo archetype profiles to data-quality scoring and blocking behavior"
+    "goal_id": "iteration-42-review-context-packet",
+    "goal_title": "Render a live committee review packet with active goal, recent evidence, and current blockers"
   },
-  "last_report": "docs/reports/v41.md",
+  "last_report": "docs/reports/v42.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:12:17Z",
+    "ran_at": "2026-03-15T07:24:27Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -505,6 +505,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:12:47Z",
       "session_progress": "2/10"
+    },
+    {
+      "iteration": 42,
+      "goal": "Render a live committee review packet with active goal, recent evidence, and current blockers",
+      "goal_id": "iteration-42-review-context-packet",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v42.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:24:49Z",
+      "session_progress": "3/10"
     }
   ]
 }

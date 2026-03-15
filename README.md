@@ -68,6 +68,7 @@ The current lightweight committee V2 baseline includes:
 - research blocking when project-data quality is insufficient or review state says `need_more_context`
 - Product, Architecture, and Operator councils plus secretariat and independent evaluator roles
 - lightweight repo archetype profiles that can tune quality expectations and committee emphasis
+- a live committee review packet that includes the active goal, quality context, and recent repo evidence
 - a dedicated evaluator brief before readiness checks
 - evaluator-pass readiness gating before implementation, reporting, and publication
 - stop and escalation assessment plus report rendering
