@@ -7,6 +7,7 @@ Updated: 2026-03-15
 - Turn `autonomous-dev-loop-kit` into a stronger cross-CLI kit that gathers high-quality project data and context before acting, then challenges each version through committee-driven review.
 - Make high-quality data acquisition and committee-driven requirement review first-class parts of the loop, not implicit side effects.
 - Keep the kit usable from minimal prompts such as `循环10`, while preserving strict validation, reporting, and Git publication rules.
+- Strengthen the committee architecture with clearer council roles, structured scope decisions, durable dissent, and evaluator-style readiness checks without turning the kit into heavyweight enterprise process.
 
 ## Current State
 
@@ -15,6 +16,7 @@ Updated: 2026-03-15
 - The loop now stores research and committee review conclusions in durable state and can flow that review context back into collected project data and report generation.
 - The repo now has a repo-local installer path for target projects while preserving target-specific loop config by default.
 - The loop now enforces matching review-state capture before report writing and publication when committee review is required.
+- The committee layer is still intentionally lightweight: it does not yet model councils, secretariat output, evaluator scoring, dissent, or escalation in a structured way.
 - The repo still needs repository-specific validation commands instead of the placeholder validation step when installed into a target project.
 - The repo should keep each published version small, testable, and directly connected to better pre-execution data quality and committee review.
 
@@ -45,12 +47,14 @@ Updated: 2026-03-15
 - 2026-03-15: Reuse goal-matched review state automatically in project snapshots and version reports.
 - 2026-03-15: Add a repo-local installer that seeds target projects without overwriting their loop config by default.
 - 2026-03-15: Make matching review-state capture a hard gate for report writing and publication.
+- 2026-03-15: Start a lighter-weight committee V2 roadmap focused on structured councils, scope decisions, dissent, evaluator scoring, and escalation without overloading the kit.
 
 ## Backlog Notes
 
 - Keep `.agent-loop/backlog.json` aligned with this plan.
 - Prefer small, testable items over large rewrites.
 - Prioritize improvements that increase evidence quality and committee challenge quality before implementation quality.
+- Preserve backward compatibility where practical so target repositories can adopt the stronger committee model incrementally.
 
 ## Open Questions
 
@@ -58,3 +62,4 @@ Updated: 2026-03-15
 - How should the kit score "enough context" across different project types?
 - How opinionated should the default committee personas be across very different products?
 - What is the right balance between universal scripts and repo-specific overrides?
+- How much committee structure can the kit add before it becomes too heavy for solo or small-project workflows?

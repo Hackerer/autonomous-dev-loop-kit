@@ -1,17 +1,17 @@
 {
-  "iteration": 15,
-  "status": "session_completed",
+  "iteration": 16,
+  "status": "published",
   "session": {
-    "status": "completed",
-    "target_iterations": 5,
-    "completed_iterations": 5,
-    "started_at": "2026-03-15T00:20:54Z",
-    "ended_at": "2026-03-15T04:10:44Z"
+    "status": "active",
+    "target_iterations": 15,
+    "completed_iterations": 1,
+    "started_at": "2026-03-15T04:46:02Z",
+    "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T04:10:03Z",
+    "last_collected_at": "2026-03-15T04:48:17Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,28 +21,28 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T04:07:55Z",
+    "captured_at": "2026-03-15T04:46:32Z",
     "research_findings": [
-      "The current loop can persist review_state, but write-report.py and publish-iteration.py still treat that artifact as optional, so a version can slip through without a matching recorded review.",
-      "The right gate condition is goal-aware: a captured review_state must exist and match the active goal or draft goal when committee review is required by config.",
-      "validate-kit should exercise the failure mode directly, otherwise the new gate would live only in documentation and source inspection."
+      "The current config only models three flat committee roles, so it cannot distinguish council membership from secretariat or evaluator responsibilities.",
+      "The next architecture step should add a lightweight V2 roster in config first, while keeping the existing roles array so current rendering and validation do not break.",
+      "A persona-id based roster is enough for this round; detailed field contracts and richer rendering can wait for the next iteration."
     ],
     "committee_feedback": [
-      "Product manager committee wants committee review to become an actual release gate, not a best-effort habit that can be skipped under pressure.",
-      "Technical architect committee wants one shared helper for review-state enforcement so report and publish reject the same missing-or-stale conditions.",
-      "User committee wants clear failure messages that say to run capture-review.py instead of silently producing incomplete reports."
+      "Product council wants clearer responsibility boundaries so product, architecture, operator, and evaluator roles stop blending together in later workflow steps.",
+      "Architecture council wants the stronger structure to stay backward-compatible, because render-committee.py and current validators still depend on the existing roles list.",
+      "Operator council wants the stronger model to remain lightweight and readable in config, not explode into a large prompt registry in one step."
     ],
     "committee_decision": [
-      "Add a shared require_review_state helper, call it from write-report.py and publish-iteration.py, and make validate-kit assert that report and publish fail when matching review_state is absent."
+      "Add a concise committee V2 config layer with councils, persona ids, secretariat, evaluator, rubric hook, and escalation policy while preserving the existing roles roster for current tooling."
     ],
     "reflection_notes": [],
-    "goal_id": "iteration-15-wrapper-protocol-alignment",
-    "goal_title": "Require recorded review state before reporting and publication"
+    "goal_id": "iteration-16-lightweight-council-roster",
+    "goal_title": "Define lightweight councils, secretariat, and evaluator roster in config"
   },
-  "last_report": "docs/reports/v15.md",
+  "last_report": "docs/reports/v16.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T04:10:04Z",
+    "ran_at": "2026-03-15T04:48:18Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -176,6 +176,14 @@
       "branch": "main",
       "published_at": "2026-03-15T04:10:44Z",
       "session_progress": "5/5"
+    },
+    {
+      "iteration": 16,
+      "goal": "Define lightweight councils, secretariat, and evaluator roster in config",
+      "report": "docs/reports/v16.md",
+      "branch": "main",
+      "published_at": "2026-03-15T04:48:38Z",
+      "session_progress": "1/15"
     }
   ]
 }

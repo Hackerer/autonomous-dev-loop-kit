@@ -29,6 +29,220 @@
   "committee": {
     "enabled": true,
     "review_mode": "requirements-and-review-council",
+    "personas": {
+      "outcome-pm": {
+        "label": "Outcome PM",
+        "group": "product-council",
+        "responsibility": "Judge whether the iteration materially advances the target outcome.",
+        "focus": "goal mapping, why now, expected outcome",
+        "output_fields": [
+          "stance",
+          "candidate_goal",
+          "why_now",
+          "expected_outcome",
+          "success_signal",
+          "reject_reasons"
+        ]
+      },
+      "scope-pm": {
+        "label": "Scope PM",
+        "group": "product-council",
+        "responsibility": "Compress the iteration into the smallest testable boundary.",
+        "focus": "scope in, scope out, stop line",
+        "output_fields": [
+          "stance",
+          "scope_in",
+          "scope_out",
+          "mvp_boundary",
+          "deferred_items",
+          "stop_line"
+        ]
+      },
+      "user-pm": {
+        "label": "User PM",
+        "group": "product-council",
+        "responsibility": "Protect operator clarity, documentation consistency, and handoff quality.",
+        "focus": "user value, cognitive cost, explainability",
+        "output_fields": [
+          "stance",
+          "user_value",
+          "cognitive_cost",
+          "explainability_gaps",
+          "documentation_impact"
+        ]
+      },
+      "repo-architect": {
+        "label": "Repo Architect",
+        "group": "architecture-council",
+        "responsibility": "Protect source-of-truth boundaries, repo portability, and script ownership.",
+        "focus": "structural fit, coupling, portability",
+        "output_fields": [
+          "stance",
+          "structural_fit",
+          "source_of_truth_check",
+          "portability_impact",
+          "coupling_risks"
+        ]
+      },
+      "protocol-architect": {
+        "label": "Protocol Architect",
+        "group": "architecture-council",
+        "responsibility": "Protect gate ordering, state transitions, and deterministic stop behavior.",
+        "focus": "protocol clarity, state transitions, stop conditions",
+        "output_fields": [
+          "stance",
+          "protocol_clarity",
+          "state_transition_impact",
+          "gate_integrity",
+          "stop_condition_gaps"
+        ]
+      },
+      "quality-safety-architect": {
+        "label": "Quality & Safety Architect",
+        "group": "architecture-council",
+        "responsibility": "Protect validation truthfulness, publish safety, and release trustworthiness.",
+        "focus": "validation readiness, publish safety, auditability",
+        "output_fields": [
+          "stance",
+          "validation_readiness",
+          "publish_safety",
+          "trustworthiness_risk",
+          "stop_triggers"
+        ]
+      },
+      "solo-builder": {
+        "label": "Solo Builder",
+        "group": "operator-council",
+        "responsibility": "Protect low-ceremony adoption for solo and small-project workflows.",
+        "focus": "setup cost, iteration friction, practical benefit",
+        "output_fields": [
+          "stance",
+          "setup_cost",
+          "iteration_friction",
+          "small_project_fit",
+          "practical_benefit"
+        ]
+      },
+      "team-maintainer": {
+        "label": "Team Maintainer",
+        "group": "operator-council",
+        "responsibility": "Protect handoff quality, traceability, and later debugging support.",
+        "focus": "maintainability, handoff, traceability",
+        "output_fields": [
+          "stance",
+          "maintainability_impact",
+          "handoff_quality",
+          "traceability",
+          "debugging_support"
+        ]
+      },
+      "security-compliance-user": {
+        "label": "Security & Compliance User",
+        "group": "operator-council",
+        "responsibility": "Protect audit chain, explicit controls, and minimum-surprise automation.",
+        "focus": "audit chain, policy alignment, evidence gaps",
+        "output_fields": [
+          "stance",
+          "audit_chain",
+          "policy_alignment",
+          "risk_surface",
+          "control_recommendation"
+        ]
+      },
+      "delivery-secretary": {
+        "label": "Delivery Secretary",
+        "group": "secretariat",
+        "responsibility": "Converge committee output into an executable scope decision without inventing new scope.",
+        "focus": "selected goal, scope boundaries, next action",
+        "output_fields": [
+          "selected_goal",
+          "why_selected",
+          "scope_in",
+          "scope_out",
+          "required_validation",
+          "next_action"
+        ]
+      },
+      "audit-secretary": {
+        "label": "Audit Secretary",
+        "group": "secretariat",
+        "responsibility": "Translate committee output into durable, auditable state fields.",
+        "focus": "decision record, evidence refs, open gaps",
+        "output_fields": [
+          "research_summary",
+          "committee_feedback_summary",
+          "evidence_refs",
+          "decision_record",
+          "open_gaps",
+          "dissent_record"
+        ]
+      },
+      "independent-evaluator": {
+        "label": "Independent Evaluator",
+        "group": "evaluator",
+        "responsibility": "Score the final scope decision independently before implementation starts.",
+        "focus": "goal clarity, scope fitness, repo safety, validation readiness",
+        "output_fields": [
+          "rubric_version",
+          "scores",
+          "weighted_score",
+          "result",
+          "minimum_fixes_required"
+        ]
+      }
+    },
+    "councils": [
+      {
+        "id": "product-council",
+        "label": "Product Council",
+        "responsibility": "Choose the smallest worthwhile goal and keep the scope user-meaningful.",
+        "persona_ids": [
+          "outcome-pm",
+          "scope-pm",
+          "user-pm"
+        ]
+      },
+      {
+        "id": "architecture-council",
+        "label": "Architecture Council",
+        "responsibility": "Stress-test structure, protocol integrity, and release safety before implementation.",
+        "persona_ids": [
+          "repo-architect",
+          "protocol-architect",
+          "quality-safety-architect"
+        ]
+      },
+      {
+        "id": "operator-council",
+        "label": "Operator Council",
+        "responsibility": "Protect lightweight adoption, handoff quality, and auditability for real operators.",
+        "persona_ids": [
+          "solo-builder",
+          "team-maintainer",
+          "security-compliance-user"
+        ]
+      }
+    ],
+    "secretariat": {
+      "persona_ids": [
+        "delivery-secretary",
+        "audit-secretary"
+      ]
+    },
+    "evaluator": {
+      "persona_id": "independent-evaluator",
+      "rubric_ref": ".agent-loop/references/iteration-readiness-rubric.json",
+      "result_thresholds": {
+        "pass": 4.0,
+        "revise": 3.0,
+        "fail": 0.0
+      }
+    },
+    "escalation_policy": {
+      "repeat_evaluator_revise_or_fail": 2,
+      "repeat_validation_failures": 2,
+      "repeat_goal_churn": 2
+    },
     "roles": [
       {
         "id": "product-manager",
@@ -104,7 +318,7 @@
   },
   "planning": {
     "require_explicit_target_iterations": true,
-    "max_iterations_per_session": 10,
+    "max_iterations_per_session": 20,
     "max_consecutive_failures": 2,
     "goal_selection_policy": "highest-priority-pending"
   },

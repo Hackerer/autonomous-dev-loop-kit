@@ -58,5 +58,185 @@
       "Protocol and README explain the new gate clearly"
     ],
     "notes": "This closes the gap between committee guidance and enforceable release gates."
+  },
+  {
+    "id": "iteration-16-lightweight-council-roster",
+    "title": "Define lightweight councils, secretariat, and evaluator roster in config",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "Config models product, architecture, and operator councils with persona ids and responsibilities",
+      "Config adds lightweight secretariat and evaluator definitions without breaking existing role rendering",
+      "The design remains concise enough for solo-project adoption"
+    ],
+    "notes": "Introduce clearer committee structure without making the kit enterprise-heavy."
+  },
+  {
+    "id": "iteration-17-render-committee-contracts",
+    "title": "Render council responsibilities and output contracts from config",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "render-committee.py outputs council, secretariat, and evaluator responsibilities",
+      "Rendered output includes expected fields instead of only names",
+      "The output can be used directly as a review brief"
+    ],
+    "notes": "The current renderer is only a roster dump."
+  },
+  {
+    "id": "iteration-18-review-state-schema-v2",
+    "title": "Add a backward-compatible review-state schema for councils and scope decisions",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "State normalization supports research gate, council summaries, scope decision, evaluation, and escalation fields",
+      "Existing flat review-state usage remains readable during migration",
+      "The new schema stays concise and machine-friendly"
+    ],
+    "notes": "This creates room for stronger committee output without a transcript-heavy state file."
+  },
+  {
+    "id": "iteration-19-capture-research-gate",
+    "title": "Teach capture-review.py to persist structured research-gate results",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "capture-review.py can record research summary, evidence refs, quality score, and open gaps",
+      "Research gate output lands in the new review-state structure",
+      "The script still supports minimal usage for lightweight flows"
+    ],
+    "notes": "Research should be structured before scope decisions exist."
+  },
+  {
+    "id": "iteration-20-capture-council-feedback",
+    "title": "Capture council-specific feedback summaries instead of one flat committee list",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "capture-review.py supports product, architecture, and operator council summaries",
+      "State distinguishes council feedback from final scope decisions",
+      "Dissent and evidence gaps can be attached without verbose transcripts"
+    ],
+    "notes": "Separate council outputs make disagreements auditable."
+  },
+  {
+    "id": "iteration-21-scope-decision-fields",
+    "title": "Persist selected goal, scope boundaries, assumptions, and required validation as a structured scope decision",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "review_state stores selected_goal, scope_in, scope_out, assumptions, risks, required_validation, and stop_conditions",
+      "The schema supports dissent without forcing consensus",
+      "The structure is narrow enough to stay readable in JSON"
+    ],
+    "notes": "This turns committee output into an executable decision record."
+  },
+  {
+    "id": "iteration-22-rubric-reference",
+    "title": "Add a lightweight evaluator rubric reference and config hook",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "The repo includes a rubric reference file for implementation readiness",
+      "Config points to the rubric and evaluator thresholds",
+      "The rubric remains small and repo-portable"
+    ],
+    "notes": "Evaluator scoring needs a stable contract before adding gates."
+  },
+  {
+    "id": "iteration-23-capture-evaluation-result",
+    "title": "Allow capture-review.py to persist evaluator scores and pass-revise-fail outcome",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Evaluator results can be recorded in review_state with rubric version and weighted score",
+      "The stored output supports pass, revise, and fail outcomes",
+      "The design avoids mixing evaluator judgment with council summaries"
+    ],
+    "notes": "Evaluation should be explicit but lightweight."
+  },
+  {
+    "id": "iteration-24-report-scope-decision",
+    "title": "Render structured scope decisions, dissent, and evaluation outcome in reports",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Reports include selected goal rationale, scope_in, scope_out, and required validation from durable state",
+      "Reports surface dissent and open gaps when present",
+      "Reports show evaluator outcome without dumping the entire state object"
+    ],
+    "notes": "The report should expose the stronger decision model to humans."
+  },
+  {
+    "id": "iteration-25-project-data-review-v2",
+    "title": "Expose structured review-state and evaluator readiness in project-data snapshots",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Project data includes the current structured review-state summary",
+      "Snapshot data indicates whether evaluation passed or is still incomplete",
+      "The summary avoids duplicating the full state tree"
+    ],
+    "notes": "Project data should reflect the stronger review process without becoming noisy."
+  },
+  {
+    "id": "iteration-26-evaluator-gate",
+    "title": "Require a passing evaluator result before implementation begins when configured",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "The loop can enforce evaluator pass before proceeding past pre-implementation gates",
+      "Missing or revise-fail evaluation blocks the iteration clearly",
+      "Validation covers the new gate"
+    ],
+    "notes": "Councils can advise, but evaluator pass should authorize implementation."
+  },
+  {
+    "id": "iteration-27-escalation-policy",
+    "title": "Model escalation policy for repeated review or validation failures",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Config defines lightweight escalation rules for repeated failures",
+      "review_state can record escalation reason and status",
+      "The policy stays deterministic and easy to explain"
+    ],
+    "notes": "Escalation should exist without introducing enterprise bureaucracy."
+  },
+  {
+    "id": "iteration-28-stop-and-escalation-reporting",
+    "title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Reports and protocol explain when the loop stops or escalates",
+      "Open gaps and stop conditions are rendered from durable state",
+      "The operator can understand why a version was blocked"
+    ],
+    "notes": "Human handoff quality depends on clear stop reasons."
+  },
+  {
+    "id": "iteration-29-committee-v2-validation",
+    "title": "Extend validate-kit to exercise the structured committee V2 flow",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "validate-kit exercises council rendering, structured capture, evaluation capture, and gating behavior",
+      "Validation checks stay fast and deterministic",
+      "The kit can prove the lighter V2 architecture is wired end to end"
+    ],
+    "notes": "The upgraded committee architecture should be tested, not only documented."
+  },
+  {
+    "id": "iteration-30-committee-v2-docs",
+    "title": "Rewrite committee guidance around the lighter V2 architecture",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "committee-driven-delivery.md documents councils, secretariat, evaluator, dissent, and escalation in lightweight terms",
+      "README and wrapper guidance stay aligned with the upgraded architecture",
+      "The docs explain the stronger model without sounding like enterprise governance"
+    ],
+    "notes": "Close the loop by documenting the final lighter-weight architecture."
   }
 ]

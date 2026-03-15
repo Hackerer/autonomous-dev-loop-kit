@@ -16,6 +16,9 @@ STATE_FILE = "state.json"
 BACKLOG_FILE = "backlog.json"
 LAST_VALIDATION_FILE = "last-validation.json"
 EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
+EXPECTED_COUNCIL_IDS = ("product-council", "architecture-council", "operator-council")
+EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
+EXPECTED_EVALUATOR_PERSONA_ID = "independent-evaluator"
 
 
 class LoopError(RuntimeError):
@@ -225,6 +228,103 @@ def validate_committee(config: dict[str, Any]) -> list[str]:
             for key in ("name", "style", "focus"):
                 if not str(member.get(key, "")).strip():
                     errors.append(f"committee role '{role_id}' member {index} is missing {key}")
+
+    personas = committee.get("personas")
+    councils = committee.get("councils")
+    secretariat = committee.get("secretariat")
+    evaluator = committee.get("evaluator")
+    escalation_policy = committee.get("escalation_policy")
+
+    if personas is not None and not isinstance(personas, dict):
+        errors.append("committee.personas must be an object when provided")
+        personas = {}
+    if councils is not None and not isinstance(councils, list):
+        errors.append("committee.councils must be a list when provided")
+        councils = []
+
+    persona_map: dict[str, Any] = personas if isinstance(personas, dict) else {}
+    for persona_id, persona in persona_map.items():
+        if not isinstance(persona, dict):
+            errors.append(f"committee persona '{persona_id}' must be an object")
+            continue
+        for key in ("label", "group", "responsibility", "focus"):
+            if not str(persona.get(key, "")).strip():
+                errors.append(f"committee persona '{persona_id}' is missing {key}")
+        output_fields = persona.get("output_fields", [])
+        if not isinstance(output_fields, list) or not output_fields:
+            errors.append(f"committee persona '{persona_id}' must define a non-empty output_fields list")
+
+    if isinstance(councils, list):
+        council_map: dict[str, Any] = {}
+        for council in councils:
+            if not isinstance(council, dict):
+                errors.append("committee.councils entries must be objects")
+                continue
+            council_id = str(council.get("id", "")).strip()
+            if not council_id:
+                errors.append("committee.councils entries must include an id")
+                continue
+            council_map[council_id] = council
+            if not str(council.get("label", "")).strip():
+                errors.append(f"committee council '{council_id}' is missing label")
+            if not str(council.get("responsibility", "")).strip():
+                errors.append(f"committee council '{council_id}' is missing responsibility")
+            persona_ids = council.get("persona_ids", [])
+            if not isinstance(persona_ids, list) or len(persona_ids) < 1:
+                errors.append(f"committee council '{council_id}' must define persona_ids")
+                continue
+            for persona_id in persona_ids:
+                if str(persona_id) not in persona_map:
+                    errors.append(f"committee council '{council_id}' references unknown persona '{persona_id}'")
+
+        missing_councils = [council_id for council_id in EXPECTED_COUNCIL_IDS if council_id not in council_map]
+        if councils and missing_councils:
+            errors.append(f"committee.councils is missing required ids: {', '.join(missing_councils)}")
+
+    if secretariat is not None:
+        if not isinstance(secretariat, dict):
+            errors.append("committee.secretariat must be an object when provided")
+        else:
+            persona_ids = secretariat.get("persona_ids", [])
+            if not isinstance(persona_ids, list):
+                errors.append("committee.secretariat.persona_ids must be a list")
+            else:
+                for persona_id in EXPECTED_SECRETARIAT_PERSONA_IDS:
+                    if persona_id not in persona_ids:
+                        errors.append(f"committee.secretariat.persona_ids is missing required persona '{persona_id}'")
+                for persona_id in persona_ids:
+                    if str(persona_id) not in persona_map:
+                        errors.append(f"committee.secretariat references unknown persona '{persona_id}'")
+
+    if evaluator is not None:
+        if not isinstance(evaluator, dict):
+            errors.append("committee.evaluator must be an object when provided")
+        else:
+            persona_id = str(evaluator.get("persona_id", "")).strip()
+            if persona_id != EXPECTED_EVALUATOR_PERSONA_ID:
+                errors.append(
+                    f"committee.evaluator.persona_id must be '{EXPECTED_EVALUATOR_PERSONA_ID}' when provided"
+                )
+            elif persona_id not in persona_map:
+                errors.append(f"committee.evaluator references unknown persona '{persona_id}'")
+            if not str(evaluator.get("rubric_ref", "")).strip():
+                errors.append("committee.evaluator.rubric_ref is required when evaluator is provided")
+            thresholds = evaluator.get("result_thresholds", {})
+            if not isinstance(thresholds, dict):
+                errors.append("committee.evaluator.result_thresholds must be an object")
+            else:
+                for threshold_key in ("pass", "revise", "fail"):
+                    if threshold_key not in thresholds:
+                        errors.append(f"committee.evaluator.result_thresholds is missing '{threshold_key}'")
+
+    if escalation_policy is not None:
+        if not isinstance(escalation_policy, dict):
+            errors.append("committee.escalation_policy must be an object when provided")
+        else:
+            for key in ("repeat_evaluator_revise_or_fail", "repeat_validation_failures", "repeat_goal_churn"):
+                value = escalation_policy.get(key)
+                if not isinstance(value, int) or value < 1:
+                    errors.append(f"committee.escalation_policy.{key} must be a positive integer when provided")
     return errors
 
 
