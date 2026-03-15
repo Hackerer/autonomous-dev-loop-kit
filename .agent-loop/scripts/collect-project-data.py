@@ -246,6 +246,7 @@ def main() -> int:
     }
     research_gate = review_state.get("research_gate", {})
     councils = review_state.get("councils", {})
+    secretariat = review_state.get("secretariat", {})
     scope_decision = review_state.get("scope_decision", {})
     evaluation = review_state.get("evaluation", {})
     escalation = review_state.get("escalation", {})
@@ -267,6 +268,33 @@ def main() -> int:
             "product_council": councils.get("product_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
             "architecture_council": councils.get("architecture_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
             "operator_council": councils.get("operator_council", {}).get("status", "not_started") if isinstance(councils, dict) else "not_started",
+        },
+        "secretariat": {
+            "delivery_secretary": {
+                "status": secretariat.get("delivery_secretary", {}).get("status", "not_started")
+                if isinstance(secretariat, dict)
+                else "not_started",
+                "summary": secretariat.get("delivery_secretary", {}).get("summary", "")
+                if isinstance(secretariat, dict)
+                else "",
+                "next_action": secretariat.get("delivery_secretary", {}).get("next_action", "")
+                if isinstance(secretariat, dict)
+                else "",
+            },
+            "audit_secretary": {
+                "status": secretariat.get("audit_secretary", {}).get("status", "not_started")
+                if isinstance(secretariat, dict)
+                else "not_started",
+                "summary": secretariat.get("audit_secretary", {}).get("summary", "")
+                if isinstance(secretariat, dict)
+                else "",
+                "decision_record": secretariat.get("audit_secretary", {}).get("decision_record", "")
+                if isinstance(secretariat, dict)
+                else "",
+                "open_gaps": list(secretariat.get("audit_secretary", {}).get("open_gaps", []))
+                if isinstance(secretariat, dict)
+                else [],
+            },
         },
         "scope_decision": {
             "status": scope_decision.get("status", "not_started") if isinstance(scope_decision, dict) else "not_started",

@@ -82,6 +82,7 @@ def main() -> int:
     review_reflection = list(review_state.get("reflection_notes", []))
     research_gate = review_state.get("research_gate", {})
     councils = review_state.get("councils", {})
+    secretariat = review_state.get("secretariat", {})
     scope_decision = review_state.get("scope_decision", {})
     evaluation = review_state.get("evaluation", {})
 
@@ -118,6 +119,31 @@ def main() -> int:
                 committee_lines.extend([f"{label} dissent: {item}" for item in dissent if str(item).strip()])
     committee_lines.extend(merge_unique(args.committee_feedback, review_feedback))
     committee_lines.extend(merge_unique(args.committee_decision, review_decision))
+
+    secretariat_lines: list[str] = []
+    if isinstance(secretariat, dict):
+        delivery = secretariat.get("delivery_secretary", {})
+        if isinstance(delivery, dict):
+            summary = str(delivery.get("summary", "")).strip()
+            next_action = str(delivery.get("next_action", "")).strip()
+            if summary:
+                secretariat_lines.append(f"Delivery Secretary summary: {summary}")
+            if next_action:
+                secretariat_lines.append(f"Delivery Secretary next action: {next_action}")
+        audit = secretariat.get("audit_secretary", {})
+        if isinstance(audit, dict):
+            summary = str(audit.get("summary", "")).strip()
+            decision_record = str(audit.get("decision_record", "")).strip()
+            if summary:
+                secretariat_lines.append(f"Audit Secretary summary: {summary}")
+            if decision_record:
+                secretariat_lines.append(f"Audit decision record: {decision_record}")
+            open_gaps = audit.get("open_gaps", [])
+            if isinstance(open_gaps, list):
+                secretariat_lines.extend(prefixed_lines("Audit open gap: ", [str(item) for item in open_gaps]))
+            dissent_record = audit.get("dissent_record", [])
+            if isinstance(dissent_record, list):
+                secretariat_lines.extend(prefixed_lines("Audit dissent: ", [str(item) for item in dissent_record]))
 
     scope_lines: list[str] = []
     if isinstance(scope_decision, dict):
@@ -239,6 +265,9 @@ def main() -> int:
         "",
         "## Committee Review",
         *bullet_lines(committee_lines, "Record the requirement and review feedback from the product, architecture, and user committee."),
+        "",
+        "## Secretariat",
+        *bullet_lines(secretariat_lines, "Record the delivery and audit secretary outcome for this iteration."),
         "",
         "## Version Goal",
         f"- Goal: {goal_label}",

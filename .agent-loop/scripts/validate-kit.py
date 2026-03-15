@@ -330,6 +330,16 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
                 "Seeded escalation reason",
                 "--recommended-action",
                 "Seeded escalation action",
+                "--delivery-summary",
+                "Seeded delivery secretary summary",
+                "--delivery-next-action",
+                "Seeded delivery secretary next action",
+                "--audit-summary",
+                "Seeded audit secretary summary",
+                "--decision-record",
+                "Seeded audit decision record",
+                "--audit-open-gap",
+                "Seeded audit gap",
             ],
             cwd=str(target),
             text=True,
@@ -371,6 +381,8 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         report_content = (target / "docs/reports/v1.md").read_text(encoding="utf-8")
         check("Seeded stop condition" in report_content, "Structured-flow report renders stop conditions", failures)
         check("Seeded escalation reason" in report_content, "Structured-flow report renders escalation reasons", failures)
+        check("Seeded delivery secretary summary" in report_content, "Structured-flow report renders delivery secretary output", failures)
+        check("Seeded audit decision record" in report_content, "Structured-flow report renders audit secretary output", failures)
 
         publish = subprocess.run(
             ["python3", ".agent-loop/scripts/publish-iteration.py"],
@@ -812,6 +824,7 @@ def main() -> int:
         latest_review_state = project_data.get("latest_review_state", {})
         check(isinstance(latest_review_state.get("evaluation"), dict), "Project data includes evaluation readiness summary", failures)
         check(isinstance(latest_review_state.get("scope_decision"), dict), "Project data includes scope decision summary", failures)
+        check(isinstance(latest_review_state.get("secretariat"), dict), "Project data includes secretariat summary", failures)
         archetype_profile = project_data.get("project", {}).get("archetype_profile", {})
         check(isinstance(archetype_profile, dict), "Project data includes an archetype profile summary", failures)
         check(

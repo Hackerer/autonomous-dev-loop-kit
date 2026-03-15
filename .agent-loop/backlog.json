@@ -399,7 +399,7 @@
     "id": "iteration-44-secretariat-visibility",
     "title": "Expose secretariat output in project-data snapshots and reports",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Reports show the delivery and audit secretary outcome in a compact form",
       "Project-data snapshots expose a concise secretariat summary for later sessions",
