@@ -598,5 +598,29 @@
       "Workspaces are accessible"
     ],
     "notes": "Verification iteration 2 for config migration"
+  },
+  {
+    "id": "iteration-57-project-first-class",
+    "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "Project configuration is complete for all workspaces",
+      "Project isolation boundaries are enforced",
+      "Project-specific memory namespaces are working"
+    ],
+    "notes": "Based on OpenClaw official architecture: Projects should be first-class objects with isolated state"
+  },
+  {
+    "id": "iteration-58-memory-scale-integration",
+    "title": "Enable memory-lancedb with Scale embedding integration",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "OPENAI_API_KEY is configured",
+      "memory-lancedb plugin is enabled",
+      "Vector search is working with temporal decay"
+    ],
+    "notes": "Enable Scale-based embedding for better memory recall"
   }
 ]
