@@ -226,6 +226,7 @@ def main() -> int:
         ROOT / ".agent-loop/references/data-quality-acquisition.md",
         ROOT / ".agent-loop/references/committee-driven-delivery.md",
         ROOT / ".agent-loop/references/example-data-acquisition-workflow.md",
+        ROOT / ".agent-loop/references/iteration-readiness-rubric.json",
         ROOT / ".agent-loop/templates/project-data-template.json",
         ROOT / ".agent-loop/templates/report-template.md",
     ]
@@ -236,6 +237,7 @@ def main() -> int:
         ROOT / ".agent-loop/config.json",
         ROOT / ".agent-loop/state.json",
         ROOT / ".agent-loop/backlog.json",
+        ROOT / ".agent-loop/references/iteration-readiness-rubric.json",
         ROOT / ".agent-loop/templates/project-data-template.json",
     ]:
         validate_json(json_file, failures)
@@ -281,6 +283,12 @@ def main() -> int:
         "Discovery requires post-validation reflection",
         failures,
     )
+    evaluator = config.get("committee", {}).get("evaluator", {})
+    rubric_ref = evaluator.get("rubric_ref")
+    check(rubric_ref == ".agent-loop/references/iteration-readiness-rubric.json", "Config points to the committed evaluator rubric", failures)
+    rubric = json.loads((ROOT / ".agent-loop/references/iteration-readiness-rubric.json").read_text(encoding="utf-8"))
+    check(rubric.get("id") == "iteration-readiness-v1", "Evaluator rubric id is correct", failures)
+    check(isinstance(rubric.get("criteria"), dict) and len(rubric.get("criteria", {})) >= 6, "Evaluator rubric exposes weighted criteria", failures)
     review_state = state.get("review_state", {})
     check(isinstance(review_state.get("research_gate"), dict), "State normalization exposes research_gate", failures)
     check(isinstance(review_state.get("councils"), dict), "State normalization exposes council summaries", failures)

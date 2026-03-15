@@ -135,7 +135,7 @@
     "id": "iteration-22-rubric-reference",
     "title": "Add a lightweight evaluator rubric reference and config hook",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "The repo includes a rubric reference file for implementation readiness",
       "Config points to the rubric and evaluator thresholds",

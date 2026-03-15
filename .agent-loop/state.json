@@ -1,17 +1,17 @@
 {
-  "iteration": 21,
+  "iteration": 22,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 15,
-    "completed_iterations": 6,
+    "completed_iterations": 7,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:04:23Z",
+    "last_collected_at": "2026-03-15T05:06:25Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,7 +21,7 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:04:13Z",
+    "captured_at": "2026-03-15T05:05:10Z",
     "research_findings": [
       "The stronger review_state schema now has a research_gate block, but capture-review.py still cannot write structured research summaries, evidence refs, quality scores, or open gaps into it.",
       "The next step should extend the existing script instead of adding a second capture entrypoint, because operators already know capture-review.py as the durable review writer.",
@@ -31,7 +31,10 @@
       "Dissent should be modeled as short structured bullets per council, not as full debate transcripts.",
       "The council slots now hold differentiated advice, but the actual scope decision for an iteration still has no dedicated writer path, so selected goal and boundaries remain trapped in generic decision bullets or reports.",
       "The next useful step is to add compact scope-decision flags to capture-review.py instead of inventing a separate scope tool, because the same command already owns durable review writing.",
-      "The state should capture only executable boundaries here: selected goal, why selected, scope in/out, assumptions, risks, required validation, stop conditions, dissent, and next action."
+      "The state should capture only executable boundaries here: selected goal, why selected, scope in/out, assumptions, risks, required validation, stop conditions, dissent, and next action.",
+      "The config already references an evaluator rubric path, but the file does not exist yet, so the evaluator contract is implied rather than durable.",
+      "The next step should create one small portable rubric file instead of embedding long scoring logic into config or prose.",
+      "The rubric only needs implementation-readiness criteria and thresholds now; later evaluator capture can reference it directly."
     ],
     "committee_feedback": [
       "Product council wants the research gate to record why the current scope is ready or blocked before scope decisions get more sophisticated.",
@@ -42,12 +45,16 @@
       "Operator council wants disagreement and evidence gaps to survive in state so later reports can explain why a scope was conditional or contested.",
       "Product council wants the chosen goal and stop line written structurally so scope control survives beyond the chat and report prose.",
       "Architecture council wants the scope-decision block to stay compact and action-oriented, not become a narrative design document inside state.json.",
-      "Operator council wants scope boundaries and stop conditions visible in raw JSON so a future maintainer can understand what the loop intended to do and not do."
+      "Operator council wants scope boundaries and stop conditions visible in raw JSON so a future maintainer can understand what the loop intended to do and not do.",
+      "Product council wants the evaluator contract to stay concise so it helps iteration readiness rather than turning into heavy process.",
+      "Architecture council wants a single rubric file path as the source of truth, because evaluator config should point to a stable artifact rather than duplicate weight math inline.",
+      "Operator council wants a readable rubric artifact that future maintainers can inspect without digging through scripts."
     ],
     "committee_decision": [
       "Add optional research-gate flags to capture-review.py for summary, evidence refs, quality score, and open gaps, and persist them into review_state.research_gate without breaking the existing simple flags.",
       "Add optional council-specific summary, decision, and dissent flags to capture-review.py and persist them into review_state.councils while keeping the old flat committee-feedback path.",
-      "Add scope-decision flags to capture-review.py and persist them into review_state.scope_decision while keeping the existing top-level decision bullets for compatibility during migration."
+      "Add scope-decision flags to capture-review.py and persist them into review_state.scope_decision while keeping the existing top-level decision bullets for compatibility during migration.",
+      "Add a compact iteration-readiness rubric reference file, point config and validation at it, and keep the scoring model small enough to stay repo-portable."
     ],
     "reflection_notes": [],
     "research_gate": {
@@ -132,18 +139,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-21-scope-decision-fields",
-    "goal_title": "Persist selected goal, scope boundaries, assumptions, and required validation as a structured scope decision"
+    "goal_id": "iteration-22-rubric-reference",
+    "goal_title": "Add a lightweight evaluator rubric reference and config hook"
   },
-  "last_report": "docs/reports/v21.md",
+  "last_report": "docs/reports/v22.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:04:24Z",
+    "ran_at": "2026-03-15T05:06:26Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee renderer exposes council summaries\n[PASS] Committee renderer exposes secretariat summaries\n[PASS] Committee renderer exposes evaluator summary\n[PASS] capture-review.py runs successfully\n[PASS] capture-review.py emits research_gate payload\n[PASS] capture-review.py records research summary\n[PASS] capture-review.py emits council payloads\n[PASS] capture-review.py records product council summary\n[PASS] capture-review.py records product council dissent\n[PASS] capture-review.py emits scope_decision payload\n[PASS] capture-review.py records selected_goal\n[PASS] capture-review.\n...[truncated]...\n-iteration.py explains how to satisfy the review-state gate\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] score-data-quality.py runs successfully\n[PASS] JSON parse: .agent-loop/data/data-quality.generated.json\n[PASS] render-committee.py runs successfully\n[PASS] Committee renderer exposes council summaries\n[PASS] Committee renderer exposes secretariat summaries\n[PASS] Committee renderer exposes evaluator summary\n[PASS] capture-review.py runs successfully\n[PASS] capture-review.py emits research_gate payload\n[PASS] capture-review.py records r\n...[truncated]...\n-iteration.py explains how to satisfy the review-state gate\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -320,6 +327,14 @@
       "branch": "main",
       "published_at": "2026-03-15T05:04:44Z",
       "session_progress": "6/15"
+    },
+    {
+      "iteration": 22,
+      "goal": "Add a lightweight evaluator rubric reference and config hook",
+      "report": "docs/reports/v22.md",
+      "branch": "main",
+      "published_at": "2026-03-15T05:06:47Z",
+      "session_progress": "7/15"
     }
   ]
 }

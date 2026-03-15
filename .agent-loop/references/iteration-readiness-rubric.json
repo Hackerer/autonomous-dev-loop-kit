@@ -1,0 +1,35 @@
+{
+  "id": "iteration-readiness-v1",
+  "purpose": "Score whether a scoped iteration is ready to enter implementation.",
+  "criteria": {
+    "goal_clarity": {
+      "weight": 0.2,
+      "question": "Is the selected goal specific enough to implement and validate in one iteration?"
+    },
+    "scope_fitness": {
+      "weight": 0.2,
+      "question": "Does the scope stay small enough to avoid multi-problem sprawl?"
+    },
+    "repo_safety": {
+      "weight": 0.2,
+      "question": "Are repository boundaries, state ownership, and blast radius acceptable?"
+    },
+    "validation_readiness": {
+      "weight": 0.2,
+      "question": "Is there a real validation path for the intended change?"
+    },
+    "state_durability": {
+      "weight": 0.1,
+      "question": "Is the review and scope context recorded durably enough for handoff and audit?"
+    },
+    "publish_safety": {
+      "weight": 0.1,
+      "question": "Are publish preconditions and Git target safety clear?"
+    }
+  },
+  "thresholds": {
+    "pass": 4.0,
+    "revise": 3.0,
+    "fail": 0.0
+  }
+}
