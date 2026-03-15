@@ -1,6 +1,6 @@
 {
   "iteration": 54,
-  "status": "published",
+  "status": "release_report_written",
   "session": {
     "status": "active",
     "target_releases": 15,
@@ -78,7 +78,7 @@
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": null,
+  "draft_release_report": "docs/releases/R3.md",
   "draft_goal": null,
   "review_state": {
     "status": "captured",
