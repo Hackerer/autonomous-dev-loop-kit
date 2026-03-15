@@ -1,17 +1,17 @@
 {
-  "iteration": 45,
+  "iteration": 46,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 6,
+    "completed_iterations": 7,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:33:34Z",
+    "last_collected_at": "2026-03-15T07:36:24Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,25 +21,25 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:33:20Z",
+    "captured_at": "2026-03-15T07:36:04Z",
     "research_findings": [
-      "Evaluator scoring still depends on manually calculating weighted_score even though the rubric already stores all criterion weights and thresholds.",
-      "The smallest durable improvement is a helper script that reads the configured rubric and computes weighted score plus pass-revise-fail outcome from criterion scores.",
-      "This helper should stay side-effect free so current capture and gate behavior remain compatible."
+      "Implementation readiness is currently all-or-nothing: evaluator revise/fail always blocks implementation, even if a repo wants lighter onboarding while keeping release gates strict.",
+      "The smallest safe design is to make only the implementation readiness gate configurable as advisory or blocking, while report and publish continue to require evaluator pass.",
+      "This change needs explicit operator-facing messaging so advisory mode cannot be mistaken for publish permission."
     ],
     "committee_feedback": [
-      "Product Council: evaluator scoring should become easier to apply consistently across iterations.",
-      "Architecture Council: the helper must read the committed rubric instead of duplicating weights in code or docs.",
-      "Operator Council: the output should be compact enough to paste directly into capture-review or future tooling."
+      "Product Council: lighter onboarding should not silently weaken release discipline.",
+      "Architecture Council: advisory mode must be explicit in config and output, not inferred from evaluator results.",
+      "Operator Council: the readiness script must tell the operator whether a warning is advisory or blocking."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Add a deterministic evaluator score helper that computes weighted score and result from the committed rubric.",
+      "summary": "Support advisory versus blocking implementation readiness gate modes while preserving strict report and publish safety.",
       "evidence_refs": [
-        ".agent-loop/references/iteration-readiness-rubric.json",
-        ".agent-loop/scripts/capture-review.py",
+        ".agent-loop/scripts/assert-implementation-readiness.py",
+        ".agent-loop/scripts/common.py",
         ".agent-loop/config.json"
       ],
       "data_quality_score": 100.0,
@@ -48,33 +48,33 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Make evaluator scoring deterministic and reusable instead of a manual arithmetic step.",
-        "decision": "Approve a helper script only; defer auto-wiring it into capture-review or readiness gates.",
+        "summary": "Allow implementation readiness to be advisory for some repos without changing strict release safety.",
+        "decision": "Approve a narrow implementation-gate-mode change only.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Add a dedicated script that reads the configured rubric, validates complete criterion coverage, and computes weighted score plus thresholds.",
-        "decision": "Keep the helper stateless so it can feed current and future workflows without side effects.",
+        "summary": "Add an explicit evaluator implementation_gate_mode config, validate it, and make assert-implementation-readiness honor it while write-report and publish remain strict.",
+        "decision": "Keep blocking as the default and avoid changing require_evaluator_pass semantics for report or publish gates.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "A compact JSON payload is enough as long as operators can use it directly in existing review flows.",
-        "decision": "Approve if the helper remains simple and scriptable.",
+        "summary": "Advisory mode should print a clear warning so operators understand they may implement but still cannot report or publish without pass.",
+        "decision": "Approve if the default remains blocking and the warning is explicit.",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "The convergence layer is visible now; the next friction point is manual evaluator math.",
-        "next_action": "Introduce a stateless score helper before considering any readiness-mode changes."
+        "summary": "The next useful flexibility point is implementation readiness, not release safety.",
+        "next_action": "Introduce advisory implementation mode without changing publish-time evaluator requirements."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Weighted score and result should be derived from the committed rubric, not copied into ad hoc calculations.",
-        "decision_record": "Evaluator scoring now needs a deterministic helper so the same inputs always map to the same readiness result.",
+        "summary": "The control boundary should stay explicit: implementation may proceed in advisory mode, but report and publish still require pass.",
+        "decision_record": "Implementation readiness gate mode can vary by repo, but publish safety remains strictly evaluator-pass.",
         "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
@@ -83,16 +83,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Add a helper that computes evaluator readiness scores from the rubric contract",
-      "why_selected": "The rubric is already durable, but the loop still relies on manual weighted-score calculation, which is unnecessary and error-prone.",
+      "selected_goal": "Support advisory versus blocking readiness gate modes without weakening publish safety",
+      "why_selected": "The kit now has enough durable committee context that implementation readiness can be made more flexible for onboarding, as long as report and publish safety stay strict.",
       "scope_in": [
-        "Add a stateless evaluator-score helper script.",
-        "Read the committed rubric and compute weighted score and result from complete criterion input.",
-        "Cover the helper in validation and operator docs."
+        "Add evaluator implementation_gate_mode config with blocking as the default.",
+        "Make assert-implementation-readiness support advisory mode with explicit warnings.",
+        "Cover blocking and advisory behavior in validation and docs."
       ],
       "scope_out": [
-        "Do not automatically mutate review_state from the helper.",
-        "Do not change readiness gate behavior yet."
+        "Do not weaken report or publish evaluator-pass gates.",
+        "Do not add per-criterion advisory logic yet."
       ],
       "assumptions": [],
       "risks": [],
@@ -100,31 +100,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the helper duplicates rubric weights instead of reading them from the committed rubric file."
+        "Stop if advisory mode changes report or publish safety semantics."
       ],
       "dissent": [
-        "Keep the helper simple; it should compute scores, not become another gate runner."
+        "Keep advisory support narrow; this version should not expand into full per-gate policy matrices."
       ],
-      "next_action": "Use the deterministic score helper as the basis for lighter readiness modes in the next version."
+      "next_action": "Render gate outcomes and advisory warnings more explicitly in reports and evaluator-facing output."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.8,
+        "scope_fitness": 4.7,
         "repo_safety": 4.8,
-        "validation_readiness": 4.7,
+        "validation_readiness": 4.8,
         "state_durability": 4.8,
-        "publish_safety": 4.8
+        "publish_safety": 4.9
       },
-      "weighted_score": 4.79,
+      "weighted_score": 4.81,
       "result": "pass",
       "critique": [
-        "This reduces manual evaluator friction without changing any release gate semantics."
+        "This adds flexibility at the right boundary while preserving strict release safety."
       ],
       "minimum_fixes_required": [
-        "Ensure the helper reads the committed rubric and rejects incomplete criterion input."
+        "Keep blocking as the default and preserve strict evaluator-pass gating for report and publish."
       ]
     },
     "escalation": {
@@ -132,18 +132,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-45-evaluator-score-helper",
-    "goal_title": "Add a helper that computes evaluator readiness scores from the rubric contract"
+    "goal_id": "iteration-46-readiness-gate-modes",
+    "goal_title": "Support advisory versus blocking readiness gate modes without weakening publish safety"
   },
-  "last_report": "docs/reports/v45.md",
+  "last_report": "docs/reports/v46.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:33:34Z",
+    "ran_at": "2026-03-15T07:36:24Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is corre\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/score-evaluator-readiness.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator defaults to blocki\n...[truncated]...\n-readiness.py computes the evaluator result from thresholds\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -568,6 +568,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:33:49Z",
       "session_progress": "6/10"
+    },
+    {
+      "iteration": 46,
+      "goal": "Support advisory versus blocking readiness gate modes without weakening publish safety",
+      "goal_id": "iteration-46-readiness-gate-modes",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v46.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:36:36Z",
+      "session_progress": "7/10"
     }
   ]
 }

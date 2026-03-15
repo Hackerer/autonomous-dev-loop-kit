@@ -187,6 +187,7 @@ def main() -> int:
         outputs = ", ".join(persona.get("output_fields", [])) if persona else "no output fields configured"
         print(f"- Evaluator: {persona.get('label', 'unconfigured evaluator')}")
         print(f"  Rubric: {evaluator.get('rubric_ref', '')}")
+        print(f"  Implementation gate mode: {evaluator.get('implementation_gate_mode', 'blocking')}")
         print(f"  Outputs: {outputs}")
     return 0
 

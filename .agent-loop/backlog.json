@@ -423,7 +423,7 @@
     "id": "iteration-46-readiness-gate-modes",
     "title": "Support advisory versus blocking readiness gate modes without weakening publish safety",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Config can mark selected readiness gates as advisory while preserving strict publish safety",
       "Implementation readiness explains whether a failure is blocking or advisory",

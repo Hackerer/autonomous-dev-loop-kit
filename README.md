@@ -70,7 +70,8 @@ The current lightweight committee V2 baseline includes:
 - lightweight repo archetype profiles that can tune quality expectations and committee emphasis
 - a live committee review packet that includes the active goal, quality context, and recent repo evidence
 - a dedicated evaluator brief before readiness checks
-- evaluator-pass readiness gating before implementation, reporting, and publication
+- configurable implementation readiness gate mode while keeping report and publish safety strict
+- evaluator-pass gating remains strict for reporting and publication
 - stop and escalation assessment plus report rendering
 - goal-bound review-state capture and non-destructive session continuation
 

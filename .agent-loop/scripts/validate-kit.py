@@ -270,6 +270,29 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         )
         check(readiness_attempt.returncode == 0, "assert-implementation-readiness.py accepts matching evaluator pass", failures)
 
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an advisory evaluator target", failures)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["committee"]["evaluator"]["implementation_gate_mode"] = "advisory"
+        write_json(target / ".agent-loop/config.json", config)
+        write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="revise"))
+        readiness_attempt = subprocess.run(
+            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(readiness_attempt.returncode == 0, "assert-implementation-readiness.py allows advisory evaluator mode", failures)
+        check(
+            "advisory warning" in readiness_attempt.stdout.lower(),
+            "assert-implementation-readiness.py reports advisory evaluator mode clearly",
+            failures,
+        )
+
 
 def validate_structured_committee_flow(failures: list[str]) -> None:
     goal_id = "structured-committee-flow"
@@ -798,6 +821,7 @@ def main() -> int:
     evaluator = config.get("committee", {}).get("evaluator", {})
     rubric_ref = evaluator.get("rubric_ref")
     check(rubric_ref == ".agent-loop/references/iteration-readiness-rubric.json", "Config points to the committed evaluator rubric", failures)
+    check(evaluator.get("implementation_gate_mode") == "blocking", "Evaluator defaults to blocking implementation gate mode", failures)
     rubric = json.loads((ROOT / ".agent-loop/references/iteration-readiness-rubric.json").read_text(encoding="utf-8"))
     check(rubric.get("id") == "iteration-readiness-v1", "Evaluator rubric id is correct", failures)
     check(isinstance(rubric.get("criteria"), dict) and len(rubric.get("criteria", {})) >= 6, "Evaluator rubric exposes weighted criteria", failures)

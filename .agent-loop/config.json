@@ -336,6 +336,7 @@
       "persona_id": "independent-evaluator",
       "rubric_ref": ".agent-loop/references/iteration-readiness-rubric.json",
       "require_pass_before_implementation": true,
+      "implementation_gate_mode": "blocking",
       "result_thresholds": {
         "pass": 4.0,
         "revise": 3.0,

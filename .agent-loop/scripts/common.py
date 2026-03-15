@@ -569,6 +569,9 @@ def validate_committee(config: dict[str, Any]) -> list[str]:
                 evaluator.get("require_pass_before_implementation"), bool
             ):
                 errors.append("committee.evaluator.require_pass_before_implementation must be a boolean when provided")
+            gate_mode = str(evaluator.get("implementation_gate_mode", "blocking")).strip()
+            if gate_mode not in {"blocking", "advisory"}:
+                errors.append("committee.evaluator.implementation_gate_mode must be 'blocking' or 'advisory'")
             thresholds = evaluator.get("result_thresholds", {})
             if not isinstance(thresholds, dict):
                 errors.append("committee.evaluator.result_thresholds must be an object")
@@ -684,6 +687,7 @@ def evaluator_summary(config: dict[str, Any]) -> dict[str, Any]:
         "persona": personas.get(persona_id, {}),
         "rubric_ref": str(evaluator.get("rubric_ref", "")),
         "require_pass_before_implementation": bool(evaluator.get("require_pass_before_implementation", False)),
+        "implementation_gate_mode": str(evaluator.get("implementation_gate_mode", "blocking")),
         "result_thresholds": evaluator.get("result_thresholds", {}),
     }
 
