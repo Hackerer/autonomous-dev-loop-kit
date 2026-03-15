@@ -715,7 +715,7 @@
     "id": "iteration-66-validator-and-review-closeout",
     "title": "Expand validator coverage for reliability fixes and publish a final remediation review",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "validate-kit.py covers clean post-publish state, failed publish rollback expectations, session reset behavior, and malformed usage-log handling",
       "Full validation remains green after all remediation changes",

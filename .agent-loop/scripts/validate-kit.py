@@ -1185,6 +1185,18 @@ def validate_usage_logging(failures: list[str]) -> None:
             check=False,
         )
         check(publish.returncode == 0, "publish-iteration.py records a publish usage event", failures)
+        clean_after_iteration = subprocess.run(
+            ["git", "status", "--short"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(
+            clean_after_iteration.returncode == 0 and clean_after_iteration.stdout.strip() == "",
+            "publish-iteration.py leaves a clean worktree after a successful commit-only publish",
+            failures,
+        )
 
         config["validation"]["commands"] = [
             {

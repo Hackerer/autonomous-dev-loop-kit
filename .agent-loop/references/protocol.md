@@ -99,6 +99,7 @@ Every bundled release is delivered through repeated task iterations plus one rel
    - Record the research findings, committee feedback, goal, key observations, delivered behavior, validation evidence, reflection, and a proposed next task.
 11. `publish`
    - Commit the complete task iteration.
+   - For a successful publish, the committed artifact should already contain the durable state transition instead of leaving `.agent-loop/state.json` dirty afterward.
    - Refuse to publish if committee review is required but no matching recorded review state exists for the draft goal.
    - Refuse to publish if evaluator pass is required but no matching passing evaluator result exists for the draft goal.
    - Push or otherwise publish according to config.
@@ -109,6 +110,8 @@ Every bundled release is delivered through repeated task iterations plus one rel
 13. `loop-reflect`
    - Update `PLANS.md` and `.agent-loop/backlog.json`.
    - Decide whether the next version should start or whether the loop should stop.
+
+Starting a new session with `set-loop-session.py` should reset transient review pressure for that session, while leaving longer-lived release history intact.
 
 When a session is blocked or confusing, inspect it before editing:
 
@@ -125,7 +128,7 @@ A bundled release is publishable only if all of these are true:
 - The configured full-validation suite passes.
 - Task reports exist in `docs/reports/` for the included task iterations.
 - A bundled release report exists in `docs/releases/`.
-- The worktree state being published is intentional and understood.
+- The worktree state being published is intentional and understood, and a successful publish should not leave post-publish state drift behind in the worktree.
 
 ## Report Requirements
 

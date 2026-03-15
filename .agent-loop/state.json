@@ -1,13 +1,13 @@
 {
-  "iteration": 64,
-  "status": "release_published",
+  "iteration": 65,
+  "status": "published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
     "completed_releases": 3,
     "target_iterations": null,
-    "completed_iterations": 3,
+    "completed_iterations": 4,
     "started_at": "2026-03-15T18:59:11Z",
     "ended_at": null
   },
@@ -20,28 +20,57 @@
   },
   "current_goal": null,
   "release": {
-    "number": null,
-    "title": "",
-    "summary": "",
-    "status": "not_planned",
+    "number": 4,
+    "title": "R4: Expand validator coverage for reliability fixes and publish a final remediation review",
+    "summary": "Ship the single high-priority goal `Expand validator coverage for reliability fixes and publish a final remediation review` as a standalone bundled release.",
+    "status": "ready_to_release",
     "brief": {
-      "archetype": "",
-      "objective": "",
-      "target_user_value": "",
-      "why_now": "",
-      "packaging_rationale": "",
-      "packaging_signals": [],
-      "scope_in": [],
-      "scope_out": [],
-      "release_acceptance": [],
-      "launch_story": "",
+      "archetype": "stability",
+      "objective": "Close the remediation run by proving the repaired reliability guarantees and publishing a fresh clean code review.",
+      "target_user_value": "Operators and future maintainers can trust that the repaired behaviors are continuously verified and that the remediation run ended with an explicit clean review.",
+      "why_now": "The previous three releases repaired the concrete bugs; the final step is to lock those guarantees into validator coverage and record the post-remediation review outcome.",
+      "packaging_rationale": "Validator hardening and remediation review belong together because they both define whether this repair wave is actually complete and trustworthy.",
+      "packaging_signals": [
+        "Archetype: stability",
+        "Matched keywords: fix, reliability, validation",
+        "Shared theme: validator",
+        "Bundled goals: 1"
+      ],
+      "scope_in": [
+        "Add final validator coverage for clean successful iteration publish behavior.",
+        "Refresh protocol notes for the repaired publish and session-reset guarantees.",
+        "Publish a final remediation code review report."
+      ],
+      "scope_out": [
+        "Do not change publish semantics, committee semantics, or operator tooling behavior."
+      ],
+      "release_acceptance": [
+        "validate-kit.py covers the final reliability assumptions from the remediation run.",
+        "The repo includes a fresh remediation code review report with no remaining significant findings.",
+        "Full validation remains green after the review closeout artifacts are added."
+      ],
+      "launch_story": "This release closes the remediation cycle by proving the fixes and documenting that the core loop is clean again.",
       "deferred_items": []
     },
-    "goal_ids": [],
-    "goal_titles": [],
-    "completed_goal_ids": [],
-    "task_iterations": [],
-    "selected_at": null,
+    "goal_ids": [
+      "iteration-66-validator-and-review-closeout"
+    ],
+    "goal_titles": [
+      "Expand validator coverage for reliability fixes and publish a final remediation review"
+    ],
+    "completed_goal_ids": [
+      "iteration-66-validator-and-review-closeout"
+    ],
+    "task_iterations": [
+      {
+        "iteration": 65,
+        "goal": "Expand validator coverage for reliability fixes and publish a final remediation review",
+        "goal_id": "iteration-66-validator-and-review-closeout",
+        "report": "docs/reports/v65.md",
+        "published_at": "2026-03-15T19:34:08Z"
+      }
+    ],
+    "selected_at": "2026-03-15T19:30:33Z",
     "published_at": null,
     "report_path": null
   },
@@ -51,46 +80,46 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T19:27:16Z",
+    "captured_at": "2026-03-15T19:30:57Z",
     "research_findings": [
-      "Operational tooling should not become the new failure source: usage-log analysis must survive malformed rows, and doctor should expose the same remote blockers that the publish scripts enforce."
+      "After the first three remediation releases, a fresh full review did not surface any remaining blocking, high, or medium code issues in the repaired paths."
     ],
     "committee_feedback": [
-      "The committee aligned on resilient read-only tooling instead of corrective automation."
+      "The committee aligned on ending the repair wave with proof and documentation instead of another behavioral tweak."
     ],
     "committee_decision": [
-      "Approve the release once validator coverage proves tolerant analysis and truthful doctor blockers."
+      "Approve the closeout release once validation stays green and the clean review report is durable."
     ],
     "reflection_notes": [
-      "Recovery tooling should fail softer than the workflow it is inspecting."
+      "A remediation loop is only complete when the repaired baseline is both tested and explicitly re-reviewed."
     ],
     "research_gate": {
       "status": "captured",
-      "summary": "The operator recovery layer still had two trust gaps: malformed JSONL rows could crash analysis, and doctor under-reported remote misconfiguration compared with the real publish gates.",
+      "summary": "The remaining work is closeout work: prove the final reliability assumptions in validator coverage and publish a durable remediation review report.",
       "evidence_refs": [
-        ".agent-loop/scripts/analyze-usage-logs.py",
-        ".agent-loop/scripts/loop-doctor.py",
-        ".agent-loop/scripts/validate-kit.py"
+        "docs/reviews/remediation-code-review-2026-03-16.md",
+        ".agent-loop/scripts/validate-kit.py",
+        ".agent-loop/references/protocol.md"
       ],
-      "data_quality_score": 4.8,
+      "data_quality_score": 4.9,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Recovery tooling only helps if it keeps working under messy real-world state and tells the truth about publish blockers.",
+        "summary": "The repair wave should end with explicit proof and a clean review, otherwise operators still have to infer whether the fixes are complete.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "The fix should stay read-only: skip malformed log rows with explicit counts and reuse publish-target policy semantics in doctor diagnostics without adding auto-repair.",
+        "summary": "A final closeout release should avoid new behavior changes and focus on validator hardening plus a durable review artifact.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operators need analysis to degrade gracefully and doctor output to match the blockers they will actually hit at publish time.",
+        "summary": "Operators benefit from a clear signal that the loop is clean again and from validator coverage that protects the repaired guarantees.",
         "decision": "approve",
         "dissent": []
       }
@@ -98,15 +127,15 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Harden analyzer parsing, align doctor remote checks, and prove both behaviors with validator fixtures.",
-        "next_action": "Run full validation and publish the release if malformed-row and doctor-remote fixtures remain green."
+        "summary": "Publish the final validator hardening and remediation review without changing loop semantics again.",
+        "next_action": "Run full validation and publish the closeout release if the repo stays green."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "The operator surfaces remain read-only and auditable: skipped rows are counted, and doctor findings stay explicit and structured.",
-        "decision_record": "Approve the operational resilience release with scope limited to analyzer tolerance, doctor parity, and validator coverage.",
+        "summary": "The closeout is low risk because it packages only validator coverage, protocol notes, and an explicit remediation review report.",
+        "decision_record": "Approve the remediation closeout release with scope limited to final validation coverage and review documentation.",
         "evidence_refs": [
-          ".agent-loop/scripts/validate-kit.py"
+          "docs/reviews/remediation-code-review-2026-03-16.md"
         ],
         "open_gaps": [],
         "dissent_record": []
@@ -115,66 +144,66 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "iteration-65-operational-resilience",
-      "why_selected": "This is the next highest-value reliability fix because it directly affects whether operators can trust and use the recovery tooling.",
+      "selected_goal": "iteration-66-validator-and-review-closeout",
+      "why_selected": "This is the final step needed to turn the repair wave into a durable, review-backed baseline.",
       "scope_in": [
-        "Skip malformed usage-log rows and report invalid_row_count.",
-        "Flag missing configured remotes, unresolved URLs, and non-GitHub publish targets in loop-doctor.py.",
-        "Add validator coverage for malformed rows and remote doctor findings."
+        "Cover the final successful iteration publish clean-worktree behavior in validator fixtures.",
+        "Document the repaired publish and fresh-session guarantees in protocol guidance.",
+        "Publish a durable remediation code review report."
       ],
       "scope_out": [
-        "Do not add auto-repair behavior or change publish policy."
+        "Do not change publish semantics, committee semantics, or operator tooling behavior."
       ],
       "assumptions": [
-        "Operator tooling should stay diagnostic and read-only even when it becomes more aligned with publish enforcement."
+        "No additional material bugs remain in the remediated code paths after the fresh review."
       ],
       "risks": [
-        "Doctor messaging could drift from publish-script wording if the checks are implemented separately."
+        "The closeout could accidentally drift back into behavior change if validator or protocol edits go beyond the repaired guarantees."
       ],
       "required_validation": [
-        "validate-kit.py must prove malformed log rows do not crash analysis.",
-        "validate-kit.py must prove doctor reports non-GitHub publish blockers."
+        "validate-kit.py must remain fully green after the closeout artifacts are added.",
+        "run-full-validation.py must remain green after the final review report is added."
       ],
       "stop_conditions": [
-        "Stop if the fix requires mutating usage logs or auto-rewriting remotes."
+        "Stop if the closeout uncovers a new significant code issue that requires another repair wave."
       ],
       "dissent": [
-        "Keep malformed-row handling lossy-but-explicit rather than trying to salvage partially written JSON payloads."
+        "Keep the closeout factual; do not oversell the review beyond the paths that were actually re-checked."
       ],
-      "next_action": "Publish the release if analyzer and doctor fixtures remain green."
+      "next_action": "Publish the final remediation release if validation stays green and no new review findings emerge."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.8,
-        "scope_fitness": 4.8,
-        "repo_safety": 4.8,
-        "validation_readiness": 4.9,
-        "state_durability": 4.7,
-        "publish_safety": 4.8
+        "goal_clarity": 4.9,
+        "scope_fitness": 4.9,
+        "repo_safety": 4.9,
+        "validation_readiness": 5.0,
+        "state_durability": 4.8,
+        "publish_safety": 4.9
       },
-      "weighted_score": 4.8,
+      "weighted_score": 4.9,
       "result": "pass",
       "critique": [
-        "The fix strengthens operator trust without expanding the protocol surface."
+        "The closeout scope is narrow, evidence-based, and appropriate for ending the remediation run."
       ],
       "minimum_fixes_required": [
-        "Keep both changes read-only and validator-backed."
+        "Keep the closeout limited to proof and review artifacts."
       ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": "Proceed to validation and publish if the operator recovery fixtures remain green."
+      "recommended_action": "Proceed to publish if the full validator and fresh review stay clean."
     },
-    "goal_id": "iteration-65-operational-resilience",
-    "goal_title": "Harden usage-log analysis and align doctor diagnostics with real publish blockers"
+    "goal_id": "iteration-66-validator-and-review-closeout",
+    "goal_title": "Expand validator coverage for reliability fixes and publish a final remediation review"
   },
-  "last_report": "docs/reports/v64.md",
+  "last_report": "docs/reports/v65.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T19:27:33Z",
+    "ran_at": "2026-03-15T19:31:16Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -864,6 +893,21 @@
       "branch": "main",
       "published_at": "2026-03-15T19:27:50Z",
       "session_progress": "2/4 releases"
+    },
+    {
+      "session_id": "session-20260315-185911",
+      "iteration": 65,
+      "goal": "Expand validator coverage for reliability fixes and publish a final remediation review",
+      "goal_id": "iteration-66-validator-and-review-closeout",
+      "release_number": 4,
+      "release_title": "R4: Expand validator coverage for reliability fixes and publish a final remediation review",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v65.md",
+      "branch": "main",
+      "published_at": "2026-03-15T19:34:08Z",
+      "session_progress": "3/4 releases"
     }
   ],
   "release_history": [
