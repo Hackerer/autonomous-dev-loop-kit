@@ -293,6 +293,33 @@ def validate_evaluator_gate(failures: list[str]) -> None:
             failures,
         )
 
+        report_attempt = subprocess.run(
+            [
+                "python3",
+                ".agent-loop/scripts/write-report.py",
+                "--analysis",
+                "Advisory mode test",
+                "--acceptance",
+                "Advisory mode test",
+                "--delivered",
+                "Advisory mode test",
+                "--reflection",
+                "Advisory mode test",
+                "--next-goal",
+                "Advisory mode test",
+            ],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(report_attempt.returncode != 0, "write-report.py still blocks advisory evaluator results without pass", failures)
+        check(
+            "evaluator" in report_attempt.stderr.lower() or "evaluation" in report_attempt.stderr.lower(),
+            "write-report.py explains that report safety still requires evaluator pass",
+            failures,
+        )
+
 
 def validate_structured_committee_flow(failures: list[str]) -> None:
     goal_id = "structured-committee-flow"

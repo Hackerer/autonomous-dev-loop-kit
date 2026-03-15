@@ -459,7 +459,7 @@
     "id": "iteration-49-committee-v3-validation-refresh",
     "title": "Extend validation and baseline docs for the next-stage lightweight committee enhancements",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "validate-kit exercises archetype-aware scoring, secretariat capture, and readiness-mode behavior",
       "Baseline docs describe the upgraded lightweight committee flow accurately",

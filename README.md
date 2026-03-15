@@ -69,7 +69,9 @@ The current lightweight committee V2 baseline includes:
 - Product, Architecture, and Operator councils plus secretariat and independent evaluator roles
 - lightweight repo archetype profiles that can tune quality expectations and committee emphasis
 - a live committee review packet that includes the active goal, quality context, and recent repo evidence
+- explicit delivery and audit secretary summaries in durable state, project snapshots, and reports
 - a dedicated evaluator brief before readiness checks
+- a deterministic evaluator score helper driven by the committed rubric
 - configurable implementation readiness gate mode while keeping report and publish safety strict
 - evaluator-pass gating remains strict for reporting and publication
 - stop and escalation assessment plus report rendering

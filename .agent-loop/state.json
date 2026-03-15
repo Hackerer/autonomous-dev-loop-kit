@@ -1,17 +1,17 @@
 {
-  "iteration": 48,
-  "status": "published",
+  "iteration": 49,
+  "status": "session_completed",
   "session": {
-    "status": "active",
+    "status": "completed",
     "target_iterations": 10,
-    "completed_iterations": 9,
+    "completed_iterations": 10,
     "started_at": "2026-03-15T07:05:03Z",
-    "ended_at": null
+    "ended_at": "2026-03-15T07:43:22Z"
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:41:25Z",
+    "last_collected_at": "2026-03-15T07:43:10Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:41:09Z",
+    "captured_at": "2026-03-15T07:42:56Z",
     "research_findings": [
-      "The kit now supports archetype-aware quality and advisory implementation mode, but the installer and bootstrap guidance still underspecify how a target repo should use those defaults.",
-      "The smallest next step is guidance only: align install output, README bootstrap, and the example workflow around archetype profiles, evaluator scoring, and readiness modes.",
-      "This should stay lightweight and repo-portable by pointing operators to a few config keys and commands rather than adding a setup wizard."
+      "The next-stage lightweight committee flow is mostly implemented now, but the final baseline still needs one explicit closeout step: prove the advisory-mode safety boundary in validation and refresh the baseline docs to match the shipped system.",
+      "The highest-value final improvement is to test that advisory implementation mode still cannot report without evaluator pass, then update the baseline summaries.",
+      "This version should avoid new features and end the session with a clean explainable baseline."
     ],
     "committee_feedback": [
-      "Product Council: target-repo operators need one coherent bootstrap path now that the model has archetype and readiness choices.",
-      "Architecture Council: keep the guidance repo-portable and avoid embedding project-specific policy in the installer.",
-      "Operator Council: the bootstrap text should explain advisory mode clearly enough that users do not confuse it with publish permission."
+      "Product Council: the session should end by proving the new flow rather than adding one more mechanism.",
+      "Architecture Council: advisory implementation mode must be explicitly tested as non-authoritative for report safety.",
+      "Operator Council: the baseline docs should describe the upgraded lightweight committee flow as it exists now, not as a roadmap fragment."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes.",
+      "summary": "Close the session by validating the advisory-mode safety boundary and refreshing baseline docs for the upgraded lightweight committee flow.",
       "evidence_refs": [
-        "scripts/install-into-project.sh",
+        ".agent-loop/scripts/validate-kit.py",
         "README.md",
-        ".agent-loop/references/example-data-acquisition-workflow.md"
+        "PLANS.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,33 +48,33 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Make the stronger committee model installable without forcing operators to read the full protocol first.",
-        "decision": "Approve bootstrap-guidance alignment only.",
+        "summary": "Finish the session by proving the strongest new control boundary and documenting the actual baseline clearly.",
+        "decision": "Approve a closeout version focused on validation and baseline docs only.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Align installer stdout, README bootstrap, and example workflow around the same archetype-profile and readiness-mode steps.",
-        "decision": "Point to config keys and commands instead of adding more automation.",
+        "summary": "Add one more validation path for advisory-mode safety, then refresh the baseline summaries to match the shipped system.",
+        "decision": "Do not introduce new protocol mechanics in the closeout version.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operators should know where to review archetype defaults, how to compute evaluator scores, and what advisory mode does.",
-        "decision": "Approve if the guidance remains short and portable.",
+        "summary": "The next session should inherit a repo that already explains what is true, what is strict, and what remains open.",
+        "decision": "Approve if the closeout remains factual and concise.",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "The protocol is stronger now; bootstrap guidance needs to catch up so target repos can adopt it correctly.",
-        "next_action": "Refresh the installer and bootstrap references before the final validation closeout."
+        "summary": "The repo now needs proof and explanation more than more mechanics.",
+        "next_action": "Validate advisory-mode report blocking and refresh the baseline docs."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "Guidance should state the control boundary clearly: advisory mode may allow implementation, but publish remains strict.",
-        "decision_record": "Target-repo bootstrap now needs explicit mention of archetype profiles, evaluator scoring, and implementation gate mode.",
+        "summary": "The closeout should verify that implementation advisory mode does not weaken report-time evaluator-pass enforcement.",
+        "decision_record": "The session ends cleanly once the control boundary is tested and the baseline documents describe the upgraded lightweight flow accurately.",
         "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
@@ -83,16 +83,16 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes",
-      "why_selected": "The repo now has more configurable committee behavior, but the install path still does not explain those settings clearly enough for target-project operators.",
+      "selected_goal": "Extend validation and baseline docs for the next-stage lightweight committee enhancements",
+      "why_selected": "The upgraded lightweight committee flow is in place; the remaining high-value work is to prove the final safety boundary and document the actual baseline cleanly.",
       "scope_in": [
-        "Update install-into-project.sh bootstrap output.",
-        "Update README bootstrap guidance.",
-        "Update the example workflow to mention archetype profiles, evaluator scoring, and advisory implementation mode."
+        "Extend validate-kit to prove advisory implementation mode still blocks report without pass.",
+        "Refresh README and PLANS baseline summaries.",
+        "Close the session with a clean explainable baseline."
       ],
       "scope_out": [
-        "Do not add new automation or state.",
-        "Do not change the underlying protocol semantics."
+        "Do not add new mechanics or gates.",
+        "Do not expand the protocol beyond current shipped behavior."
       ],
       "assumptions": [],
       "risks": [],
@@ -100,31 +100,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the guidance becomes longer than the workflow it is trying to clarify."
+        "Stop if the closeout starts introducing new mechanics instead of documenting and validating the current baseline."
       ],
       "dissent": [
-        "Keep the bootstrap guidance concise; it should point operators to the right knobs, not restate the whole protocol."
+        "Keep the baseline refresh concise and factual."
       ],
-      "next_action": "Close the session by refreshing validation and baseline docs around the upgraded lightweight committee flow."
+      "next_action": "End the session and start a new backlog only when new committee capabilities are worth pursuing."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.8,
-        "scope_fitness": 4.8,
-        "repo_safety": 4.8,
-        "validation_readiness": 4.8,
-        "state_durability": 4.8,
-        "publish_safety": 4.8
+        "goal_clarity": 4.9,
+        "scope_fitness": 4.9,
+        "repo_safety": 4.9,
+        "validation_readiness": 4.9,
+        "state_durability": 4.9,
+        "publish_safety": 4.9
       },
-      "weighted_score": 4.8,
+      "weighted_score": 4.9,
       "result": "pass",
       "critique": [
-        "This reduces adoption friction without changing the execution engine."
+        "This is the right end-of-session version: prove the boundary and leave the repo easy to resume."
       ],
       "minimum_fixes_required": [
-        "Keep the installer and bootstrap guidance concise and repo-portable."
+        "Keep the closeout focused on validation and baseline accuracy."
       ]
     },
     "escalation": {
@@ -132,13 +132,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-48-install-profile-alignment",
-    "goal_title": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes"
+    "goal_id": "iteration-49-committee-v3-validation-refresh",
+    "goal_title": "Extend validation and baseline docs for the next-stage lightweight committee enhancements"
   },
-  "last_report": "docs/reports/v48.md",
+  "last_report": "docs/reports/v49.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:41:25Z",
+    "ran_at": "2026-03-15T07:43:09Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -604,6 +604,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:41:44Z",
       "session_progress": "9/10"
+    },
+    {
+      "iteration": 49,
+      "goal": "Extend validation and baseline docs for the next-stage lightweight committee enhancements",
+      "goal_id": "iteration-49-committee-v3-validation-refresh",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v49.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:43:22Z",
+      "session_progress": "10/10"
     }
   ]
 }

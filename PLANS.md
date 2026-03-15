@@ -17,6 +17,7 @@ Updated: 2026-03-15
 - The repo now has a repo-local installer path for target projects while preserving target-specific loop config by default.
 - The loop now enforces matching review-state capture before report writing and publication when committee review is required.
 - The committee layer is now a lightweight V2 baseline with councils, secretariat, evaluator briefs, readiness gating, escalation assessment, stop-and-escalation reporting, and goal-bound review-state capture.
+- The committee layer now also includes archetype-aware quality profiles, live review packets, explicit secretariat durability and visibility, evaluator score helpers, and configurable implementation readiness mode with strict report/publish safety.
 - The repo now supports non-destructive session continuation for longer autonomous runs.
 - The installer, example workflow, and entrypoint skills now point to the same research-gated, evaluator-aware lightweight committee V2 flow.
 - Target repos still need repository-specific validation commands instead of the placeholder validation step when installed from this kit.
@@ -53,6 +54,7 @@ Updated: 2026-03-15
 - 2026-03-15: Start a lighter-weight committee V2 roadmap focused on structured councils, scope decisions, dissent, evaluator scoring, and escalation without overloading the kit.
 - 2026-03-15: Finish the lightweight committee V2 baseline with research blocking, evaluator briefs, escalation assessment, stop-and-escalation reporting, session continuation, aligned installer guidance, and goal-bound review resets.
 - 2026-03-15: Start the next committee session with a lighter-weight enhancement track focused on archetype-aware thresholds, richer review packets, explicit secretariat artifacts, and better evaluator ergonomics.
+- 2026-03-15: Extend the lightweight baseline with archetype-aware quality scoring, live review packets, explicit secretariat visibility, deterministic evaluator scoring, configurable implementation readiness mode, and aligned bootstrap guidance.
 
 ## Backlog Notes
 
