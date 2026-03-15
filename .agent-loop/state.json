@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T14:02:37Z",
+    "last_collected_at": "2026-03-15T14:10:12Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -87,12 +87,13 @@
   },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T14:04:12Z",
+    "captured_at": "2026-03-15T14:11:26Z",
     "research_findings": [
       "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state",
       "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall.",
       "Runtime profiles already defined in lab/config/policies/runtime-profiles.json: container-dev, host-chat, host-gateway, container-clean. Need to verify agents reference these profiles instead of inline config.",
-      "Capability registry is mostly complete. Plugins: acpx, diffs, memory-core, memory-lancedb, open-prose. Skills: excel-export, long-job-runner, research-ecom, task-dispatch. Missing: autonomous-dev-loop skill needs registration."
+      "Capability registry is mostly complete. Plugins: acpx, diffs, memory-core, memory-lancedb, open-prose. Skills: excel-export, long-job-runner, research-ecom, task-dispatch. Missing: autonomous-dev-loop skill needs registration.",
+      "Job Layer is defined in lab/config/jobs/defaults.json. Profiles: interactive-default (45s, no checkpoint), managed-default (180s, checkpoint, status/cancel/retry/continue). Kinds: coding, research, analysis, ops, finance."
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -107,13 +108,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve - Registry is well structured",
+        "summary": "Approve - Job profiles well defined",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve - Need to add autonomous-dev-loop",
+        "summary": "Approve - Long-running tasks can use Job Layer",
         "decision": "Approve",
         "dissent": []
       },
@@ -142,8 +143,8 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Complete Capability Registry with all plugins and skills",
-      "why_selected": "New capabilities must be registered before routing",
+      "selected_goal": "Deep integrate Job Layer for long-running tasks",
+      "why_selected": "OpenClaw architecture: Long-running work must move through job layer",
       "scope_in": [
         "Verify project configuration is complete",
         "Check project isolation boundaries",
@@ -156,7 +157,10 @@
         "Document profile usage",
         "Verify existing capabilities",
         "Add autonomous-dev-loop skill",
-        "Document dependencies"
+        "Document dependencies",
+        "Verify job profiles are complete",
+        "Check long-job-runner skill integration",
+        "Verify job status observable"
       ],
       "scope_out": [
         "Do not modify live runtime yet",
@@ -170,7 +174,8 @@
         "python3 ~/.openclaw/lab/scripts/validate_config.py",
         "Check OPENAI_API_KEY is set",
         "Check profile references in agents",
-        "Check capability registry completeness"
+        "Check capability registry completeness",
+        "Check job layer configuration"
       ],
       "stop_conditions": [],
       "dissent": [],
@@ -180,13 +185,14 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 4.8,
+      "weighted_score": 5.0,
       "result": "pass",
       "critique": [
         "Project configuration verified against OpenClaw official architecture",
         "Memory Scale integration plan is ready",
         "Runtime profiles are well-defined and ready for agent reference",
-        "Capability registry is complete"
+        "Capability registry is complete",
+        "Job Layer is properly configured with profiles and kinds"
       ],
       "minimum_fixes_required": []
     },
@@ -201,7 +207,7 @@
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T14:04:40Z",
+    "ran_at": "2026-03-15T14:11:59Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
