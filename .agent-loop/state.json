@@ -1,17 +1,17 @@
 {
-  "iteration": 33,
+  "iteration": 34,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 18,
+    "completed_iterations": 19,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:06:34Z",
+    "last_collected_at": "2026-03-15T06:09:33Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,16 +21,21 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:05:21Z",
+    "captured_at": "2026-03-15T06:09:28Z",
     "research_findings": [
       "The loop already stored open gaps, stop conditions, and escalation state durably, but the human-facing report still made operators read JSON to understand why a run was blocked.",
       "The smallest fix is to render those fields explicitly in the report rather than inventing a new workflow layer.",
-      "The temp structured-flow report in validate-kit is the right proof point because it verifies the final human-visible output, not just the stored state."
+      "The temp structured-flow report in validate-kit is the right proof point because it verifies the final human-visible output, not just the stored state.",
+      "The repo entrypoints still described a flatter loop than the scripts now actually enforce.",
+      "The highest-signal fix is to update the Codex and Claude skills plus top-level trigger docs so operators see research blocking, evaluator brief rendering, readiness gating, and escalation assessment up front."
     ],
     "committee_feedback": [
       "Product council wants blocked or risky loop states to be visible to the next operator without reading raw state.",
       "Architecture council wants reporting to reuse existing durable fields rather than create another stop-state store.",
-      "Operator council wants the report to answer one question quickly: why did this version stop, or what would stop the next one?"
+      "Operator council wants the report to answer one question quickly: why did this version stop, or what would stop the next one?",
+      "Product council wants the operator-facing entrypoints to match the real flow, or the stronger committee design will still feel hidden.",
+      "Architecture council wants the guidance updated without adding new wrapper-specific rules that diverge from protocol.",
+      "Operator council wants concise entrypoint docs that mention the new gates without reading like enterprise process."
     ],
     "committee_decision": [
       "Render durable stop and escalation signals into reports so blocked or risky loop states are visible without inspecting raw JSON."
@@ -38,12 +43,16 @@
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Render durable open gaps, stop conditions, and escalation state directly into reports so human operators can see why a loop would stop or escalate.",
+      "summary": "Align wrapper and skill entrypoints with the actual lightweight committee V2 flow so operators see the right sequence before acting.",
       "evidence_refs": [
         ".agent-loop/scripts/write-report.py",
         ".agent-loop/references/protocol.md",
         ".agent-loop/templates/report-template.md",
-        ".agent-loop/scripts/validate-kit.py"
+        ".agent-loop/scripts/validate-kit.py",
+        ".agents/skills/autonomous-dev-loop/SKILL.md",
+        ".claude/skills/autonomous-dev-loop/SKILL.md",
+        "AGENTS.md",
+        "CLAUDE.md"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -77,17 +86,21 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
-      "why_selected": "The durable state already captures these signals, but the human handoff path still hides them too deeply.",
+      "selected_goal": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
+      "why_selected": "The scripts already enforce a stronger flow, so the entrypoint docs need to stop lagging behind the actual loop behavior.",
       "scope_in": [
         "Render open gaps, stop conditions, and escalation status in write-report.py.",
         "Update protocol and report template to mention stop and escalation reporting.",
-        "Validate the rendered report content in the structured-flow temp target."
+        "Validate the rendered report content in the structured-flow temp target.",
+        "Update Codex and Claude skill docs to mention research blocking, evaluator brief rendering, readiness gating, and escalation assessment.",
+        "Update AGENTS.md and CLAUDE.md trigger instructions to reflect the stronger lightweight committee V2 flow."
       ],
       "scope_out": [
         "Do not change escalation policy thresholds in this version.",
         "Do not add new stop-state fields.",
-        "Do not redesign the full report structure beyond one additional section."
+        "Do not redesign the full report structure beyond one additional section.",
+        "Do not add new wrapper-only behavior.",
+        "Do not rewrite the full protocol again in this version."
       ],
       "assumptions": [
         "The existing review_state fields are sufficient for human-readable stop and escalation output.",
@@ -102,31 +115,35 @@
       ],
       "stop_conditions": [
         "Stop if the report section starts duplicating the full raw review state.",
-        "Stop if the new reporting path requires new durable fields rather than reusing existing ones."
+        "Stop if the new reporting path requires new durable fields rather than reusing existing ones.",
+        "Stop if the new entrypoint wording diverges from the shared protocol."
       ],
       "dissent": [
-        "Keep the output compact; operators need reasons, not a second state dump."
+        "Keep the output compact; operators need reasons, not a second state dump.",
+        "Keep the entrypoint docs concise; they should orient the operator, not duplicate the entire protocol."
       ],
-      "next_action": "Publish the reporting change, then align wrapper and skill entrypoints with the stronger committee and evaluator flow."
+      "next_action": "Refresh the baseline plan and remaining docs around the finalized lightweight committee V2 model."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.7,
-        "scope_fitness": 4.7,
-        "repo_safety": 4.7,
+        "scope_fitness": 4.8,
+        "repo_safety": 4.8,
         "validation_readiness": 4.8,
-        "state_durability": 4.8,
+        "state_durability": 4.7,
         "publish_safety": 4.7
       },
-      "weighted_score": 4.73,
+      "weighted_score": 4.76,
       "result": "pass",
       "critique": [
-        "This version improves human handoff without widening the underlying protocol."
+        "This version improves human handoff without widening the underlying protocol.",
+        "This version closes a documentation mismatch without broadening the technical workflow."
       ],
       "minimum_fixes_required": [
-        "Keep the report section concise and driven from existing state."
+        "Keep the report section concise and driven from existing state.",
+        "Keep wrapper language aligned with protocol and avoid wrapper-specific drift."
       ]
     },
     "escalation": {
@@ -134,10 +151,10 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-28-stop-and-escalation-reporting",
-    "goal_title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs"
+    "goal_id": "iteration-34-wrapper-and-skill-alignment",
+    "goal_title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking"
   },
-  "last_report": "docs/reports/v33.md",
+  "last_report": "docs/reports/v34.md",
   "last_validation": {
     "status": "passed",
     "ran_at": "2026-03-15T05:55:12Z",
@@ -426,6 +443,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:06:59Z",
       "session_progress": "18/24"
+    },
+    {
+      "iteration": 34,
+      "goal": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
+      "goal_id": "iteration-34-wrapper-and-skill-alignment",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v34.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:10:03Z",
+      "session_progress": "19/24"
     }
   ]
 }

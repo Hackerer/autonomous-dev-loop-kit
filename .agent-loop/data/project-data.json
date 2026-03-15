@@ -1,6 +1,6 @@
 {
   "snapshot_version": 1,
-  "collected_at": "2026-03-15T06:06:34Z",
+  "collected_at": "2026-03-15T06:09:33Z",
   "repo": {
     "root": "/Users/max/Documents/coding/autonomous-dev-loop-kit",
     "name": "autonomous-dev-loop-kit",
@@ -102,15 +102,15 @@
   },
   "latest_review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:05:21Z",
-    "goal_id": "iteration-28-stop-and-escalation-reporting",
-    "goal_title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
+    "captured_at": "2026-03-15T06:09:28Z",
+    "goal_id": "iteration-34-wrapper-and-skill-alignment",
+    "goal_title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
     "matches_current_goal": true,
-    "current_goal_id": "iteration-28-stop-and-escalation-reporting",
-    "current_goal_title": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
+    "current_goal_id": "iteration-34-wrapper-and-skill-alignment",
+    "current_goal_title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
     "research_gate": {
       "status": "captured",
-      "summary": "Render durable open gaps, stop conditions, and escalation state directly into reports so human operators can see why a loop would stop or escalate.",
+      "summary": "Align wrapper and skill entrypoints with the actual lightweight committee V2 flow so operators see the right sequence before acting.",
       "data_quality_score": 100.0,
       "open_gaps": []
     },
@@ -121,22 +121,23 @@
     },
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Surface stop conditions, open gaps, and escalation reasons in reports and docs",
-      "scope_in_count": 3,
-      "scope_out_count": 3,
+      "selected_goal": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
+      "scope_in_count": 5,
+      "scope_out_count": 5,
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
         "Stop if the report section starts duplicating the full raw review state.",
-        "Stop if the new reporting path requires new durable fields rather than reusing existing ones."
+        "Stop if the new reporting path requires new durable fields rather than reusing existing ones.",
+        "Stop if the new entrypoint wording diverges from the shared protocol."
       ],
-      "dissent_count": 1
+      "dissent_count": 2
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "weighted_score": 4.73,
+      "weighted_score": 4.76,
       "result": "pass"
     },
     "escalation": {

@@ -279,7 +279,7 @@
     "id": "iteration-34-wrapper-and-skill-alignment",
     "title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Codex and Claude skill guidance reflects councils, evaluator, and readiness blocking",
       "The wrapper protocol stays consistent with the stronger V2 flow",

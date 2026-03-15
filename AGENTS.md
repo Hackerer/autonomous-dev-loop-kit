@@ -31,8 +31,12 @@ Within each iteration, require:
 - deep analysis before execution
 - explicit research before goal selection
 - product-manager, technical-architect, and user committee review before implementation
+- explicit blocking when research says `need_more_context`
+- rendering the independent evaluator brief before readiness judgment
+- readiness gating before implementation
 - short reason -> act -> observe -> update cycles
 - post-validation reflection
+- escalation assessment when repeated review or validation failures appear
 - key observations from research, committee review, and execution written into the report
 
 Git publication must target the current project's own GitHub repository. If the current project's remote or publication target is unclear, stop and ask the user before publishing.

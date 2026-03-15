@@ -54,17 +54,19 @@ Run this order exactly:
 2. If the user provided or implied a loop count and the session is not configured yet, run `python3 .agent-loop/scripts/set-loop-session.py --iterations N`.
 3. If project data is missing, stale, or low-quality, run `python3 .agent-loop/scripts/collect-project-data.py` and `python3 .agent-loop/scripts/score-data-quality.py`.
 4. Run `python3 .agent-loop/scripts/render-committee.py`, do explicit research, and challenge the candidate scope through the product-manager, technical-architect, and user committees.
-5. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
-6. Capture the scope decision and evaluator result, then run `python3 .agent-loop/scripts/assert-implementation-readiness.py`. Do not implement if it fails.
-7. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
-8. Implement the smallest coherent change set.
-9. Add or update tests for the real behavior.
-10. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
-11. If validation fails, do not commit or push.
-12. Reflect on what the research and committee review got right, wrong, or incomplete.
-13. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings and committee observations.
-14. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
-15. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
+5. If research still says the repo lacks enough context, record that explicitly with `python3 .agent-loop/scripts/capture-review.py --research-status need_more_context ...` and stop goal selection until the missing context is gathered.
+6. Select one scoped version goal. Use `python3 .agent-loop/scripts/select-next-goal.py` unless the user fixed the goal.
+7. Capture the scope decision, render the independent evaluator input with `python3 .agent-loop/scripts/render-evaluator-brief.py`, then capture the evaluator result and run `python3 .agent-loop/scripts/assert-implementation-readiness.py`. Do not implement if it fails.
+8. Execute the version in short ReAct cycles: reason from evidence, take one concrete action, observe the result, then update the next action.
+9. Implement the smallest coherent change set.
+10. Add or update tests for the real behavior.
+11. Run full validation with `python3 .agent-loop/scripts/run-full-validation.py`.
+12. If validation fails, do not commit or push.
+13. Run `python3 .agent-loop/scripts/assess-escalation.py` when validation, evaluator review, or repeated goal churn suggests the loop may need to watch or escalate.
+14. Reflect on what the research and committee review got right, wrong, or incomplete.
+15. Refresh project data if the repo changed materially, then write the report with `python3 .agent-loop/scripts/write-report.py`, including research findings, committee observations, and stop/escalation signals.
+16. Publish with `python3 .agent-loop/scripts/publish-iteration.py`.
+17. Reflect in PLANS.md and .agent-loop/backlog.json, then decide whether another version should start.
 </iteration_loop>
 
 <non_negotiable_rules>
