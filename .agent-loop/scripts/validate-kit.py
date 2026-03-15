@@ -791,6 +791,7 @@ def main() -> int:
     review_state = state.get("review_state", {})
     check(isinstance(review_state.get("research_gate"), dict), "State normalization exposes research_gate", failures)
     check(isinstance(review_state.get("councils"), dict), "State normalization exposes council summaries", failures)
+    check(isinstance(review_state.get("secretariat"), dict), "State normalization exposes secretariat summaries", failures)
     check(isinstance(review_state.get("scope_decision"), dict), "State normalization exposes scope_decision", failures)
     check(isinstance(review_state.get("evaluation"), dict), "State normalization exposes evaluation", failures)
     check(isinstance(review_state.get("escalation"), dict), "State normalization exposes escalation", failures)
@@ -900,6 +901,20 @@ def main() -> int:
             "Sample architecture summary",
             "--operator-summary",
             "Sample operator summary",
+            "--delivery-summary",
+            "Sample delivery secretary summary",
+            "--delivery-next-action",
+            "Sample delivery next action",
+            "--audit-summary",
+            "Sample audit secretary summary",
+            "--decision-record",
+            "Sample audit decision record",
+            "--audit-evidence-ref",
+            "README.md",
+            "--audit-open-gap",
+            "Sample audit gap",
+            "--audit-dissent",
+            "Sample audit dissent",
             "--selected-goal",
             "Sample selected goal",
             "--why-selected",
@@ -958,6 +973,18 @@ def main() -> int:
         check(isinstance(councils, dict), "capture-review.py emits council payloads", failures)
         check(councils.get("product_council", {}).get("summary") == "Sample product summary", "capture-review.py records product council summary", failures)
         check("Sample product dissent" in councils.get("product_council", {}).get("dissent", []), "capture-review.py records product council dissent", failures)
+        secretariat = captured.get("secretariat", {})
+        check(isinstance(secretariat, dict), "capture-review.py emits secretariat payloads", failures)
+        check(
+            secretariat.get("delivery_secretary", {}).get("summary") == "Sample delivery secretary summary",
+            "capture-review.py records delivery secretary summary",
+            failures,
+        )
+        check(
+            secretariat.get("audit_secretary", {}).get("decision_record") == "Sample audit decision record",
+            "capture-review.py records audit secretary decision record",
+            failures,
+        )
         scope_decision = captured.get("scope_decision", {})
         check(isinstance(scope_decision, dict), "capture-review.py emits scope_decision payload", failures)
         check(scope_decision.get("selected_goal") == "Sample selected goal", "capture-review.py records selected_goal", failures)

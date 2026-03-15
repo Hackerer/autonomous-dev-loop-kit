@@ -73,6 +73,13 @@ def main() -> int:
     parser.add_argument("--operator-summary", help="Structured operator council summary.")
     parser.add_argument("--operator-decision", help="Structured operator council decision.")
     parser.add_argument("--operator-dissent", action="append", default=[], help="Operator council dissent bullet.")
+    parser.add_argument("--delivery-summary", help="Delivery secretary summary.")
+    parser.add_argument("--delivery-next-action", help="Delivery secretary next action.")
+    parser.add_argument("--audit-summary", help="Audit secretary summary.")
+    parser.add_argument("--decision-record", help="Audit secretary decision record.")
+    parser.add_argument("--audit-evidence-ref", action="append", default=[], help="Audit secretary evidence reference.")
+    parser.add_argument("--audit-open-gap", action="append", default=[], help="Audit secretary open gap.")
+    parser.add_argument("--audit-dissent", action="append", default=[], help="Audit secretary dissent record.")
     parser.add_argument("--selected-goal", help="Structured selected goal for the scope decision.")
     parser.add_argument("--why-selected", help="Why this goal was selected now.")
     parser.add_argument("--scope-in", action="append", default=[], help="Structured scope-in bullet.")
@@ -119,6 +126,13 @@ def main() -> int:
         and not args.operator_summary
         and not args.operator_decision
         and not args.operator_dissent
+        and not args.delivery_summary
+        and not args.delivery_next_action
+        and not args.audit_summary
+        and not args.decision_record
+        and not args.audit_evidence_ref
+        and not args.audit_open_gap
+        and not args.audit_dissent
         and not args.selected_goal
         and not args.why_selected
         and not args.scope_in
@@ -206,6 +220,52 @@ def main() -> int:
         list(args.operator_dissent),
     )
     payload["councils"] = councils
+
+    secretariat = payload.get("secretariat", {})
+    if not isinstance(secretariat, dict):
+        secretariat = {}
+    delivery_secretary = secretariat.get("delivery_secretary", {})
+    if not isinstance(delivery_secretary, dict):
+        delivery_secretary = {}
+    if args.delivery_summary:
+        delivery_secretary["summary"] = args.delivery_summary
+        delivery_secretary["status"] = "captured"
+    if args.delivery_next_action:
+        delivery_secretary["next_action"] = args.delivery_next_action
+        delivery_secretary["status"] = "captured"
+    else:
+        delivery_secretary["status"] = delivery_secretary.get("status", "not_started")
+    secretariat["delivery_secretary"] = delivery_secretary
+
+    audit_secretary = secretariat.get("audit_secretary", {})
+    if not isinstance(audit_secretary, dict):
+        audit_secretary = {}
+    has_audit_inputs = any(
+        [
+            args.audit_summary,
+            args.decision_record,
+            args.audit_evidence_ref,
+            args.audit_open_gap,
+            args.audit_dissent,
+        ]
+    )
+    if has_audit_inputs:
+        audit_secretary["status"] = "captured"
+    else:
+        audit_secretary["status"] = audit_secretary.get("status", "not_started")
+    if args.audit_summary:
+        audit_secretary["summary"] = args.audit_summary
+    if args.decision_record:
+        audit_secretary["decision_record"] = args.decision_record
+    audit_secretary["evidence_refs"] = merge_unique(
+        list(audit_secretary.get("evidence_refs", [])), list(args.audit_evidence_ref)
+    )
+    audit_secretary["open_gaps"] = merge_unique(list(audit_secretary.get("open_gaps", [])), list(args.audit_open_gap))
+    audit_secretary["dissent_record"] = merge_unique(
+        list(audit_secretary.get("dissent_record", [])), list(args.audit_dissent)
+    )
+    secretariat["audit_secretary"] = audit_secretary
+    payload["secretariat"] = secretariat
 
     scope_decision = payload.get("scope_decision", {})
     if not isinstance(scope_decision, dict):

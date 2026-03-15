@@ -127,6 +127,21 @@ def default_state() -> dict[str, Any]:
                     "dissent": [],
                 },
             },
+            "secretariat": {
+                "delivery_secretary": {
+                    "status": "not_started",
+                    "summary": "",
+                    "next_action": "",
+                },
+                "audit_secretary": {
+                    "status": "not_started",
+                    "summary": "",
+                    "decision_record": "",
+                    "evidence_refs": [],
+                    "open_gaps": [],
+                    "dissent_record": [],
+                },
+            },
             "cross_committee_tensions": [],
             "scope_decision": {
                 "status": "not_started",
@@ -225,6 +240,23 @@ def load_state(root: Path) -> dict[str, Any]:
             normalized_council["dissent"] = []
         normalized_councils[council_key] = normalized_council
     normalized_review_state["councils"] = normalized_councils
+
+    secretariat = normalized_review_state.get("secretariat")
+    if not isinstance(secretariat, dict):
+        secretariat = {}
+    default_secretariat = default_review_state["secretariat"]
+    normalized_secretariat: dict[str, Any] = {}
+    for secretariat_key, default_secretary in default_secretariat.items():
+        secretariat_value = secretariat.get(secretariat_key)
+        if not isinstance(secretariat_value, dict):
+            secretariat_value = {}
+        normalized_secretary = dict(default_secretary)
+        normalized_secretary.update(secretariat_value)
+        for key in ("evidence_refs", "open_gaps", "dissent_record"):
+            if key in normalized_secretary and not isinstance(normalized_secretary.get(key), list):
+                normalized_secretary[key] = []
+        normalized_secretariat[secretariat_key] = normalized_secretary
+    normalized_review_state["secretariat"] = normalized_secretariat
 
     for key in ("cross_committee_tensions",):
         value = normalized_review_state.get(key)

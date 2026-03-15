@@ -61,6 +61,21 @@
       "architecture_council": "not_started",
       "operator_council": "not_started"
     },
+    "secretariat": {
+      "delivery_secretary": {
+        "status": "not_started",
+        "summary": "",
+        "next_action": ""
+      },
+      "audit_secretary": {
+        "status": "not_started",
+        "summary": "",
+        "decision_record": "",
+        "evidence_refs": [],
+        "open_gaps": [],
+        "dissent_record": []
+      }
+    },
     "scope_decision": {
       "status": "not_started",
       "selected_goal": "",

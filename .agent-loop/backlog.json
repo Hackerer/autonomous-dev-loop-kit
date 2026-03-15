@@ -387,7 +387,7 @@
     "id": "iteration-43-secretariat-capture",
     "title": "Persist explicit delivery and audit secretary outputs in review state",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "review_state stores explicit delivery-secretary and audit-secretary summaries",
       "capture-review.py can write those artifacts without requiring verbose transcripts",

@@ -133,6 +133,7 @@ The committee system should populate these durable lanes in `review_state`:
 
 - `research_gate`
 - `councils`
+- `secretariat`
 - `scope_decision`
 - `evaluation`
 - `escalation`

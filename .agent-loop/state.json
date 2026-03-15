@@ -1,17 +1,17 @@
 {
-  "iteration": 42,
+  "iteration": 43,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 10,
-    "completed_iterations": 3,
+    "completed_iterations": 4,
     "started_at": "2026-03-15T07:05:03Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T07:24:42Z",
+    "last_collected_at": "2026-03-15T07:27:32Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,26 +21,26 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T07:24:12Z",
+    "captured_at": "2026-03-15T07:26:44Z",
     "research_findings": [
-      "The committee renderer now knows the active goal, quality context, and recent iteration state internally, but it still exposes mostly static structure to operators.",
-      "The highest-value improvement is to package live context directly into the committee brief so councils review the current iteration instead of reconstructing it from separate files.",
-      "This can stay lightweight by reusing state, project-data, and quality artifacts already on disk instead of adding new storage."
+      "The committee design already names delivery and audit secretary roles, but their output is still implicit in scope_decision and flat summaries.",
+      "The smallest durable improvement is to add explicit secretariat slots to review_state and teach capture-review.py to write them.",
+      "This version should stop at schema plus capture path; reports and snapshots can consume the new fields in a later iteration."
     ],
     "committee_feedback": [
-      "Product Council: councils should see the active goal and current blockers immediately so the review can stay about this iteration.",
-      "Architecture Council: reuse the existing snapshot and quality artifacts rather than creating another state file.",
-      "Operator Council: the packet must stay terminal-friendly and concise even after adding more context."
+      "Product Council: explicit secretary output will make the convergence step auditable instead of inferred.",
+      "Architecture Council: the new fields should stay narrow and fit the existing review_state shape.",
+      "Operator Council: keep secretary capture structured and low-ceremony so it does not become transcript storage."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Turn render-committee.py into a live review packet that includes active-goal, quality, project, and recent-iteration context.",
+      "summary": "Persist explicit delivery-secretary and audit-secretary outputs in review_state and capture-review.py.",
       "evidence_refs": [
-        ".agent-loop/scripts/render-committee.py",
-        ".agent-loop/data/project-data.json",
-        ".agent-loop/data/data-quality.json"
+        ".agent-loop/scripts/common.py",
+        ".agent-loop/scripts/capture-review.py",
+        ".agent-loop/templates/project-data-template.json"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
@@ -48,36 +48,57 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Make the committee brief actionable for the current iteration by adding active-goal and blocker context.",
-        "decision": "Approve a renderer-focused version that adds live packet data without changing capture or gate semantics.",
+        "summary": "Make the convergence layer explicit in durable state so later reports and tooling can reference it cleanly.",
+        "decision": "Approve schema and capture-path work only; defer visibility changes to the next version.",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Assemble the packet from existing durable artifacts: state, project-data snapshot, quality report, and recent history.",
-        "decision": "Keep the packet read-only and compact; this version should not introduce new persistence.",
+        "summary": "Add normalized secretariat slots to review_state and extend capture-review.py with explicit flags for each secretary role.",
+        "decision": "Keep delivery and audit artifacts compact and compatible with existing scope_decision fields.",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "The packet should help operators review scope faster, not force them to read more files.",
-        "decision": "Approve if the text output stays concise and the JSON output remains scriptable.",
+        "summary": "The new fields should improve traceability without adding mandatory ceremony to every operator action.",
+        "decision": "Approve if capture-review.py can write secretary output in the same lightweight style as current council summaries.",
         "dissent": []
+      }
+    },
+    "secretariat": {
+      "delivery_secretary": {
+        "status": "captured",
+        "summary": "Converged the councils on one narrow step: make secretary output durable before expanding where it is rendered.",
+        "next_action": "Validate the new review_state.secretariat schema and publish it as a compatible extension."
+      },
+      "audit_secretary": {
+        "status": "captured",
+        "summary": "Record explicit secretary summaries, evidence refs, open gaps, and dissent in review_state without replacing scope_decision.",
+        "decision_record": "The convergence and audit outputs now need dedicated durable fields so later tools can read them directly.",
+        "evidence_refs": [
+          ".agent-loop/references/committee-driven-delivery.md"
+        ],
+        "open_gaps": [
+          "Reports and project-data snapshots do not render secretariat output yet."
+        ],
+        "dissent_record": [
+          "Do not let the new secretariat fields drift into verbose meeting notes."
+        ]
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Render a live committee review packet with active goal, recent evidence, and current blockers",
-      "why_selected": "The committee architecture is already durable, but the operator-facing brief still lacks enough live context to review a version directly from the terminal.",
+      "selected_goal": "Persist explicit delivery and audit secretary outputs in review state",
+      "why_selected": "The secretary roles are already part of the architecture, but their output is still implicit and therefore harder to inspect or reuse.",
       "scope_in": [
-        "Load active goal, project-data snapshot, quality report, and recent iteration state into the committee renderer.",
-        "Expose the live review packet in both JSON and text output.",
-        "Add validation coverage for the new packet fields."
+        "Add secretariat slots to normalized review_state.",
+        "Teach capture-review.py to write delivery-secretary and audit-secretary artifacts.",
+        "Cover the new fields in validation and templates."
       ],
       "scope_out": [
-        "Do not add new durable state or secretariat fields yet.",
-        "Do not change evaluator or readiness behavior."
+        "Do not render secretariat output in reports or project-data snapshots yet.",
+        "Do not change readiness or publication gates."
       ],
       "assumptions": [],
       "risks": [],
@@ -85,31 +106,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the review packet duplicates too much state or becomes difficult to scan in the terminal."
+        "Stop if secretariat capture starts duplicating entire scope decisions or full narrative transcripts."
       ],
       "dissent": [
-        "Prefer concise summaries over dumping full project-data artifacts into the committee packet."
+        "Keep the secretariat schema compact; it should store conclusions, not meeting minutes."
       ],
-      "next_action": "Validate the enriched renderer output and publish the packet as the new committee review entrypoint."
+      "next_action": "Use the new durable secretariat fields in reports and project snapshots in the next version."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
         "goal_clarity": 4.8,
-        "scope_fitness": 4.7,
+        "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.7,
-        "state_durability": 4.7,
+        "state_durability": 4.9,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.77,
+      "weighted_score": 4.81,
       "result": "pass",
       "critique": [
-        "This improves the usefulness of committee review without broadening scope into new state mechanics."
+        "This closes an audit gap in the committee model without broadening scope into new rendering or gate behavior."
       ],
       "minimum_fixes_required": [
-        "Keep the review packet concise and sourced from existing durable artifacts only."
+        "Keep the secretariat fields compact and compatible with the existing scope-decision contract."
       ]
     },
     "escalation": {
@@ -117,13 +138,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-42-review-context-packet",
-    "goal_title": "Render a live committee review packet with active goal, recent evidence, and current blockers"
+    "goal_id": "iteration-43-secretariat-capture",
+    "goal_title": "Persist explicit delivery and audit secretary outputs in review state"
   },
-  "last_report": "docs/reports/v42.md",
+  "last_report": "docs/reports/v43.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T07:24:27Z",
+    "ran_at": "2026-03-15T07:26:52Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -517,6 +538,18 @@
       "branch": "main",
       "published_at": "2026-03-15T07:24:49Z",
       "session_progress": "3/10"
+    },
+    {
+      "iteration": 43,
+      "goal": "Persist explicit delivery and audit secretary outputs in review state",
+      "goal_id": "iteration-43-secretariat-capture",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v43.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:27:38Z",
+      "session_progress": "4/10"
     }
   ]
 }
