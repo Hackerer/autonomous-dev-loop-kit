@@ -1,6 +1,6 @@
 {
   "iteration": 56,
-  "status": "goal_selected",
+  "status": "report_written",
   "session": {
     "status": "active",
     "target_releases": 15,
@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T13:36:39Z",
+    "last_collected_at": "2026-03-15T13:43:15Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -71,14 +71,15 @@
     "id": "iteration-57-project-first-class",
     "title": "Strengthen Project as first-class citizen in OpenClaw architecture",
     "priority": "critical",
-    "selected_at": "2026-03-15T13:40:26Z",
+    "selected_at": "2026-03-15T13:42:37Z",
     "source": ".agent-loop/backlog.json"
   },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T13:41:48Z",
+    "captured_at": "2026-03-15T13:44:33Z",
     "research_findings": [
-      "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state"
+      "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state",
+      "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall."
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -93,13 +94,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve - Projects as first-class is core to OpenClaw architecture",
+        "summary": "Approve - Scale embedding improves memory recall",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve - Project isolation boundaries should be enforced",
+        "summary": "Approve - memory-lancedb is the official recommended approach",
         "decision": "Approve",
         "dissent": []
       },
@@ -128,20 +129,25 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Strengthen Project as first-class citizen in OpenClaw architecture",
-      "why_selected": "To align with official OpenClaw architecture design rules",
+      "selected_goal": "Enable memory-lancedb with Scale embedding integration",
+      "why_selected": "To improve memory recall with vector search",
       "scope_in": [
         "Verify project configuration is complete",
         "Check project isolation boundaries",
-        "Verify memory namespaces per project"
+        "Verify memory namespaces per project",
+        "Configure OPENAI_API_KEY",
+        "Enable memory-lancedb plugin",
+        "Verify vector search with temporal decay"
       ],
       "scope_out": [
-        "Do not modify live runtime yet"
+        "Do not modify live runtime yet",
+        "Do not modify existing memory content"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
-        "python3 ~/.openclaw/lab/scripts/validate_config.py"
+        "python3 ~/.openclaw/lab/scripts/validate_config.py",
+        "Check OPENAI_API_KEY is set"
       ],
       "stop_conditions": [],
       "dissent": [],
@@ -151,10 +157,11 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 4.8,
+      "weighted_score": 4.5,
       "result": "pass",
       "critique": [
-        "Project configuration verified against OpenClaw official architecture"
+        "Project configuration verified against OpenClaw official architecture",
+        "Memory Scale integration plan is ready"
       ],
       "minimum_fixes_required": []
     },
@@ -169,7 +176,7 @@
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T13:42:25Z",
+    "ran_at": "2026-03-15T13:44:47Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
