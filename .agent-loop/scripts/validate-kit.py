@@ -606,6 +606,61 @@ def validate_escalation_policy(failures: list[str]) -> None:
             )
 
 
+def validate_review_reset_on_goal_change(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a review-reset target", failures)
+
+        state = load_state(target)
+        state["session"] = {
+            "status": "active",
+            "target_iterations": 2,
+            "completed_iterations": 0,
+            "started_at": "2026-03-15T00:00:00Z",
+            "ended_at": None,
+        }
+        state["current_goal"] = {
+            "id": "goal-a",
+            "title": "First goal",
+            "selected_at": "2026-03-15T00:00:00Z",
+            "source": ".agent-loop/backlog.json",
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        first_capture = subprocess.run(
+            ["python3", ".agent-loop/scripts/capture-review.py", "--research", "First goal finding"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(first_capture.returncode == 0, "capture-review.py records the first goal review state", failures)
+
+        state = load_state(target)
+        state["current_goal"] = {
+            "id": "goal-b",
+            "title": "Second goal",
+            "selected_at": "2026-03-15T00:01:00Z",
+            "source": ".agent-loop/backlog.json",
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        second_capture = subprocess.run(
+            ["python3", ".agent-loop/scripts/capture-review.py", "--research", "Second goal finding"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(second_capture.returncode == 0, "capture-review.py records the second goal review state", failures)
+        if second_capture.returncode == 0:
+            updated_state = load_state(target)
+            findings = updated_state.get("review_state", {}).get("research_findings", [])
+            check("Second goal finding" in findings, "capture-review.py keeps the new goal finding", failures)
+            check("First goal finding" not in findings, "capture-review.py resets review state when the goal changes", failures)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -920,6 +975,7 @@ def main() -> int:
     validate_goal_selection_readiness(failures)
     validate_evaluator_brief(failures)
     validate_escalation_policy(failures)
+    validate_review_reset_on_goal_change(failures)
     validate_structured_committee_flow(failures)
 
     if failures:

@@ -291,7 +291,7 @@
     "id": "iteration-35-committee-v2-closeout",
     "title": "Close the committee V2 loop with end-to-end guardrails and plan refresh",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Backlog, plan, and validation reflect the finalized committee V2 baseline",
       "The repo can describe the end-to-end lightweight committee architecture cleanly",

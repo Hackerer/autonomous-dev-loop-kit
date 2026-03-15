@@ -1,17 +1,17 @@
 {
-  "iteration": 34,
+  "iteration": 35,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 19,
+    "completed_iterations": 20,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:09:33Z",
+    "last_collected_at": "2026-03-15T06:11:59Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,129 +21,93 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:09:28Z",
+    "captured_at": "2026-03-15T06:11:54Z",
     "research_findings": [
-      "The loop already stored open gaps, stop conditions, and escalation state durably, but the human-facing report still made operators read JSON to understand why a run was blocked.",
-      "The smallest fix is to render those fields explicitly in the report rather than inventing a new workflow layer.",
-      "The temp structured-flow report in validate-kit is the right proof point because it verifies the final human-visible output, not just the stored state.",
-      "The repo entrypoints still described a flatter loop than the scripts now actually enforce.",
-      "The highest-signal fix is to update the Codex and Claude skills plus top-level trigger docs so operators see research blocking, evaluator brief rendering, readiness gating, and escalation assessment up front."
+      "Committee V2 was mostly complete, but one remaining operational seam was cross-goal review_state contamination during long autonomous sessions.",
+      "The cleanest closeout guardrail is to reset the review payload automatically when the active goal changes, while preserving the existing same-goal merge behavior."
     ],
     "committee_feedback": [
-      "Product council wants blocked or risky loop states to be visible to the next operator without reading raw state.",
-      "Architecture council wants reporting to reuse existing durable fields rather than create another stop-state store.",
-      "Operator council wants the report to answer one question quickly: why did this version stop, or what would stop the next one?",
-      "Product council wants the operator-facing entrypoints to match the real flow, or the stronger committee design will still feel hidden.",
-      "Architecture council wants the guidance updated without adding new wrapper-specific rules that diverge from protocol.",
-      "Operator council wants concise entrypoint docs that mention the new gates without reading like enterprise process."
+      "Product council wants each iteration report to describe its own decision record, not a blended history of prior goals.",
+      "Architecture council wants the reset to happen only when the active goal changes, not on every capture call.",
+      "Operator council wants the fix to remove manual cleanup work from longer autonomous runs."
     ],
-    "committee_decision": [
-      "Render durable stop and escalation signals into reports so blocked or risky loop states are visible without inspecting raw JSON."
-    ],
+    "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Align wrapper and skill entrypoints with the actual lightweight committee V2 flow so operators see the right sequence before acting.",
+      "summary": "Close the lightweight committee V2 loop by enforcing review_state boundaries per goal instead of relying on manual cleanup between iterations.",
       "evidence_refs": [
-        ".agent-loop/scripts/write-report.py",
-        ".agent-loop/references/protocol.md",
-        ".agent-loop/templates/report-template.md",
-        ".agent-loop/scripts/validate-kit.py",
-        ".agents/skills/autonomous-dev-loop/SKILL.md",
-        ".claude/skills/autonomous-dev-loop/SKILL.md",
-        "AGENTS.md",
-        "CLAUDE.md"
+        ".agent-loop/scripts/capture-review.py",
+        ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
-        "status": "captured",
-        "summary": "Approve a narrow reporting change that exposes existing stop and escalation state to humans.",
-        "decision": "Proceed with report rendering, protocol wording, and validation coverage only.",
-        "dissent": [
-          "Do not let the council schema turn into a transcript archive."
-        ]
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
+        "dissent": []
       },
       "architecture_council": {
-        "status": "captured",
-        "summary": "Render open gaps from research_gate, stop conditions from scope_decision, and escalation fields from review_state.escalation into one report section.",
-        "decision": "Prove the behavior in the existing structured-flow temp target by reading the generated report content.",
-        "dissent": [
-          "Do not force all downstream scripts to migrate in the same iteration."
-        ]
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
+        "dissent": []
       },
       "operator_council": {
-        "status": "captured",
-        "summary": "Keep the section compact and explicit so later maintainers can scan it fast.",
-        "decision": "Proceed if the report shows stop conditions and escalation reason without dumping raw JSON.",
-        "dissent": [
-          "Do not increase operator typing cost more than necessary."
-        ]
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
+        "dissent": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Align wrappers and skill docs with councils, evaluator, and readiness blocking",
-      "why_selected": "The scripts already enforce a stronger flow, so the entrypoint docs need to stop lagging behind the actual loop behavior.",
+      "selected_goal": "Close the committee V2 loop with end-to-end guardrails and plan refresh",
+      "why_selected": "The V2 architecture is close to baseline quality, and this guardrail removes one of the remaining operational rough edges in repeated sessions.",
       "scope_in": [
-        "Render open gaps, stop conditions, and escalation status in write-report.py.",
-        "Update protocol and report template to mention stop and escalation reporting.",
-        "Validate the rendered report content in the structured-flow temp target.",
-        "Update Codex and Claude skill docs to mention research blocking, evaluator brief rendering, readiness gating, and escalation assessment.",
-        "Update AGENTS.md and CLAUDE.md trigger instructions to reflect the stronger lightweight committee V2 flow."
+        "Reset review_state payload automatically when capture-review.py sees a new active goal.",
+        "Keep same-goal merge behavior for iterative captures within one version.",
+        "Validate goal-boundary reset behavior in validate-kit."
       ],
       "scope_out": [
-        "Do not change escalation policy thresholds in this version.",
-        "Do not add new stop-state fields.",
-        "Do not redesign the full report structure beyond one additional section.",
-        "Do not add new wrapper-only behavior.",
-        "Do not rewrite the full protocol again in this version."
+        "Do not redesign the review_state schema again.",
+        "Do not change same-goal accumulation behavior."
       ],
-      "assumptions": [
-        "The existing review_state fields are sufficient for human-readable stop and escalation output.",
-        "A dedicated report section is easier to scan than scattering these signals across Research and Scope Decision only."
-      ],
-      "risks": [
-        "If the section duplicates too much existing content, reports become noisy.",
-        "If the validation only checks state and not rendered report content, regressions will slip through."
-      ],
+      "assumptions": [],
+      "risks": [],
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the report section starts duplicating the full raw review state.",
-        "Stop if the new reporting path requires new durable fields rather than reusing existing ones.",
-        "Stop if the new entrypoint wording diverges from the shared protocol."
+        "Stop if the reset discards updates for the same active goal."
       ],
       "dissent": [
-        "Keep the output compact; operators need reasons, not a second state dump.",
-        "Keep the entrypoint docs concise; they should orient the operator, not duplicate the entire protocol."
+        "Keep the reset tied strictly to goal identity so review capture remains predictable."
       ],
-      "next_action": "Refresh the baseline plan and remaining docs around the finalized lightweight committee V2 model."
+      "next_action": "Use the cleaned-up baseline to finish session ergonomics and final documentation refresh."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.7,
+        "goal_clarity": 4.8,
         "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.8,
-        "state_durability": 4.7,
+        "state_durability": 4.9,
         "publish_safety": 4.7
       },
-      "weighted_score": 4.76,
+      "weighted_score": 4.81,
       "result": "pass",
       "critique": [
-        "This version improves human handoff without widening the underlying protocol.",
-        "This version closes a documentation mismatch without broadening the technical workflow."
+        "This closes a real long-run gap without changing the visible protocol shape."
       ],
       "minimum_fixes_required": [
-        "Keep the report section concise and driven from existing state.",
-        "Keep wrapper language aligned with protocol and avoid wrapper-specific drift."
+        "Keep reset behavior limited to goal changes."
       ]
     },
     "escalation": {
@@ -151,18 +115,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-34-wrapper-and-skill-alignment",
-    "goal_title": "Align wrappers and skill docs with councils, evaluator, and readiness blocking"
+    "goal_id": "iteration-35-committee-v2-closeout",
+    "goal_title": "Close the committee V2 loop with end-to-end guardrails and plan refresh"
   },
-  "last_report": "docs/reports/v34.md",
+  "last_report": "docs/reports/v35.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T05:55:12Z",
+    "ran_at": "2026-03-15T06:11:26Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS] Project data includes evaluation readiness summary\n[PASS] Project data includes scope decision summary\n[PASS] score-data-quality.py r\n...[truncated]...\nrt\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-data.py runs successfully\n[PASS] JSON parse: .agent-loop/data/project-data.generated.json\n[PASS] Project data includes latest_review_state\n[PASS]\n...[truncated]...\nns\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -455,6 +419,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:10:03Z",
       "session_progress": "19/24"
+    },
+    {
+      "iteration": 35,
+      "goal": "Close the committee V2 loop with end-to-end guardrails and plan refresh",
+      "goal_id": "iteration-35-committee-v2-closeout",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v35.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:12:21Z",
+      "session_progress": "20/24"
     }
   ]
 }

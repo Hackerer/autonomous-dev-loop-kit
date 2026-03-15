@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 
-from common import LoopError, find_repo_root, load_state, save_state, utc_now
+from common import LoopError, default_state, find_repo_root, load_state, save_state, utc_now
 
 
 def merge_unique(existing: list[str], new_values: list[str]) -> list[str]:
@@ -146,9 +146,21 @@ def main() -> int:
     state = load_state(root)
     goal = state.get("current_goal")
     existing = state.get("review_state", {})
-    payload = dict(existing if isinstance(existing, dict) else {})
-    payload["goal_id"] = goal.get("id") if isinstance(goal, dict) else payload.get("goal_id")
-    payload["goal_title"] = goal.get("title") if isinstance(goal, dict) else payload.get("goal_title")
+    if not isinstance(existing, dict):
+        existing = {}
+
+    goal_id = goal.get("id") if isinstance(goal, dict) else None
+    goal_title = goal.get("title") if isinstance(goal, dict) else None
+    existing_goal_id = existing.get("goal_id")
+    existing_goal_title = existing.get("goal_title")
+    reset_for_new_goal = bool(goal) and (
+        (goal_id and existing_goal_id and goal_id != existing_goal_id)
+        or (goal_title and existing_goal_title and goal_title != existing_goal_title)
+    )
+
+    payload = dict(default_state()["review_state"] if reset_for_new_goal else existing)
+    payload["goal_id"] = goal_id if goal_id is not None else payload.get("goal_id")
+    payload["goal_title"] = goal_title if goal_title is not None else payload.get("goal_title")
     payload["captured_at"] = utc_now()
     payload["research_findings"] = merge_unique(list(payload.get("research_findings", [])), list(args.research))
     payload["committee_feedback"] = merge_unique(list(payload.get("committee_feedback", [])), list(args.committee_feedback))
