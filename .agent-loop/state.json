@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T13:58:35Z",
+    "last_collected_at": "2026-03-15T14:02:37Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -87,11 +87,12 @@
   },
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T14:01:14Z",
+    "captured_at": "2026-03-15T14:04:12Z",
     "research_findings": [
       "Based on OpenClaw official architecture, Projects should be first-class objects with isolated state",
       "Enable memory-lancedb with Scale embedding integration. Current memory system uses local embedding model but official OpenClaw supports Scale-based embedding for better recall.",
-      "Runtime profiles already defined in lab/config/policies/runtime-profiles.json: container-dev, host-chat, host-gateway, container-clean. Need to verify agents reference these profiles instead of inline config."
+      "Runtime profiles already defined in lab/config/policies/runtime-profiles.json: container-dev, host-chat, host-gateway, container-clean. Need to verify agents reference these profiles instead of inline config.",
+      "Capability registry is mostly complete. Plugins: acpx, diffs, memory-core, memory-lancedb, open-prose. Skills: excel-export, long-job-runner, research-ecom, task-dispatch. Missing: autonomous-dev-loop skill needs registration."
     ],
     "committee_feedback": [],
     "committee_decision": [],
@@ -106,13 +107,13 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve - Profiles are well-defined",
+        "summary": "Approve - Registry is well structured",
         "decision": "Approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve - Need to verify agents use profile references",
+        "summary": "Approve - Need to add autonomous-dev-loop",
         "decision": "Approve",
         "dissent": []
       },
@@ -141,8 +142,8 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Create Runtime Profile templates for reuse across agents",
-      "why_selected": "To implement OpenClaw architecture: Runtime policy should be shared and reusable",
+      "selected_goal": "Complete Capability Registry with all plugins and skills",
+      "why_selected": "New capabilities must be registered before routing",
       "scope_in": [
         "Verify project configuration is complete",
         "Check project isolation boundaries",
@@ -152,19 +153,24 @@
         "Verify vector search with temporal decay",
         "Verify runtime profiles are complete",
         "Check agents reference profiles",
-        "Document profile usage"
+        "Document profile usage",
+        "Verify existing capabilities",
+        "Add autonomous-dev-loop skill",
+        "Document dependencies"
       ],
       "scope_out": [
         "Do not modify live runtime yet",
         "Do not modify existing memory content",
-        "Do not change live config yet"
+        "Do not change live config yet",
+        "Do not modify live config"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
         "python3 ~/.openclaw/lab/scripts/validate_config.py",
         "Check OPENAI_API_KEY is set",
-        "Check profile references in agents"
+        "Check profile references in agents",
+        "Check capability registry completeness"
       ],
       "stop_conditions": [],
       "dissent": [],
@@ -174,12 +180,13 @@
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {},
-      "weighted_score": 5.0,
+      "weighted_score": 4.8,
       "result": "pass",
       "critique": [
         "Project configuration verified against OpenClaw official architecture",
         "Memory Scale integration plan is ready",
-        "Runtime profiles are well-defined and ready for agent reference"
+        "Runtime profiles are well-defined and ready for agent reference",
+        "Capability registry is complete"
       ],
       "minimum_fixes_required": []
     },
@@ -194,7 +201,7 @@
   "last_report": "docs/reports/v56.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T14:01:33Z",
+    "ran_at": "2026-03-15T14:04:40Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
