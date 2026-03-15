@@ -1,13 +1,13 @@
 {
-  "iteration": 63,
-  "status": "release_published",
+  "iteration": 64,
+  "status": "published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
     "completed_releases": 2,
     "target_iterations": null,
-    "completed_iterations": 2,
+    "completed_iterations": 3,
     "started_at": "2026-03-15T18:59:11Z",
     "ended_at": null
   },
@@ -20,28 +20,59 @@
   },
   "current_goal": null,
   "release": {
-    "number": null,
-    "title": "",
-    "summary": "",
-    "status": "not_planned",
+    "number": 3,
+    "title": "R3: Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+    "summary": "Ship the single high-priority goal `Harden usage-log analysis and align doctor diagnostics with real publish blockers` as a standalone bundled release.",
+    "status": "ready_to_release",
     "brief": {
-      "archetype": "",
-      "objective": "",
-      "target_user_value": "",
-      "why_now": "",
-      "packaging_rationale": "",
-      "packaging_signals": [],
-      "scope_in": [],
-      "scope_out": [],
-      "release_acceptance": [],
-      "launch_story": "",
-      "deferred_items": []
+      "archetype": "observability",
+      "objective": "Make operator-facing diagnostics resilient to dirty usage logs and aligned with the real publish gate.",
+      "target_user_value": "Operators can still analyze sessions when log files contain malformed rows, and doctor now flags the same remote blockers that would really stop publish.",
+      "why_now": "Once publish ordering and session scoping are fixed, the next user-facing reliability gap is tooling that fails on malformed data or under-reports real publish blockers.",
+      "packaging_rationale": "Usage-log robustness and doctor parity belong together because they are both operator recovery surfaces built on top of runtime evidence.",
+      "packaging_signals": [
+        "Archetype: observability",
+        "Matched keywords: doctor, log, report",
+        "Shared theme: usage",
+        "Bundled goals: 1"
+      ],
+      "scope_in": [
+        "Skip malformed usage-log rows while reporting how many were ignored.",
+        "Teach loop-doctor.py to flag missing configured remotes, unresolved remote URLs, and non-GitHub publish targets.",
+        "Extend validator coverage for malformed usage logs and publish-target doctor findings."
+      ],
+      "scope_out": [
+        "Do not add auto-repair behavior or change publish policy."
+      ],
+      "release_acceptance": [
+        "analyze-usage-logs.py survives malformed JSONL rows and reports invalid_row_count.",
+        "loop-doctor.py flags non-GitHub publish-target mismatches.",
+        "validate-kit.py covers both operator-facing behaviors."
+      ],
+      "launch_story": "This release makes the loop\u2019s recovery tools sturdier and more honest about what would really block a publish.",
+      "deferred_items": [
+        "Expand validator coverage for reliability fixes and publish a final remediation review"
+      ]
     },
-    "goal_ids": [],
-    "goal_titles": [],
-    "completed_goal_ids": [],
-    "task_iterations": [],
-    "selected_at": null,
+    "goal_ids": [
+      "iteration-65-operational-resilience"
+    ],
+    "goal_titles": [
+      "Harden usage-log analysis and align doctor diagnostics with real publish blockers"
+    ],
+    "completed_goal_ids": [
+      "iteration-65-operational-resilience"
+    ],
+    "task_iterations": [
+      {
+        "iteration": 64,
+        "goal": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+        "goal_id": "iteration-65-operational-resilience",
+        "report": "docs/reports/v64.md",
+        "published_at": "2026-03-15T19:27:50Z"
+      }
+    ],
+    "selected_at": "2026-03-15T19:18:53Z",
     "published_at": null,
     "report_path": null
   },
@@ -51,25 +82,25 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T19:13:03Z",
+    "captured_at": "2026-03-15T19:27:16Z",
     "research_findings": [
-      "The previous gate logic still privileged legacy flat review arrays, and new sessions could inherit stale failure pressure because escalation counted old state."
+      "Operational tooling should not become the new failure source: usage-log analysis must survive malformed rows, and doctor should expose the same remote blockers that the publish scripts enforce."
     ],
     "committee_feedback": [
-      "The committee aligned on preserving long-term history while making session-scoped behavior deterministic."
+      "The committee aligned on resilient read-only tooling instead of corrective automation."
     ],
     "committee_decision": [
-      "Approve the release once validator coverage proves clean session reset and structured review compatibility."
+      "Approve the release once validator coverage proves tolerant analysis and truthful doctor blockers."
     ],
     "reflection_notes": [
-      "The strongest repair was to scope active logic to the current session rather than trying to erase all historical data."
+      "Recovery tooling should fail softer than the workflow it is inspecting."
     ],
     "research_gate": {
       "status": "captured",
-      "summary": "The loop needed a cleaner definition of current-session state: fresh sessions must reset transient pressure, and gate checks must honor the structured review schema that the kit now persists.",
+      "summary": "The operator recovery layer still had two trust gaps: malformed JSONL rows could crash analysis, and doctor under-reported remote misconfiguration compared with the real publish gates.",
       "evidence_refs": [
-        ".agent-loop/scripts/common.py",
-        ".agent-loop/scripts/set-loop-session.py",
+        ".agent-loop/scripts/analyze-usage-logs.py",
+        ".agent-loop/scripts/loop-doctor.py",
         ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 4.8,
@@ -78,19 +109,19 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "A fresh session that still behaves like the previous one is a trust break for operators, so session reset correctness is product-critical.",
+        "summary": "Recovery tooling only helps if it keeps working under messy real-world state and tells the truth about publish blockers.",
         "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "The correct fix is to reset transient review state on session start while preserving long-term history, and to scope escalation counters to the current session id.",
+        "summary": "The fix should stay read-only: skip malformed log rows with explicit counts and reuse publish-target policy semantics in doctor diagnostics without adding auto-repair.",
         "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Operators should not need to manually clear stale review state, nor should they have to duplicate structured review content into legacy flat fields.",
+        "summary": "Operators need analysis to degrade gracefully and doctor output to match the blockers they will actually hit at publish time.",
         "decision": "approve",
         "dissent": []
       }
@@ -98,13 +129,13 @@
     "secretariat": {
       "delivery_secretary": {
         "status": "captured",
-        "summary": "Reset transient session state, honor structured review content, and cover both behaviors in validator fixtures.",
-        "next_action": "Run full validation and publish the release if the new session and review-content paths stay green."
+        "summary": "Harden analyzer parsing, align doctor remote checks, and prove both behaviors with validator fixtures.",
+        "next_action": "Run full validation and publish the release if malformed-row and doctor-remote fixtures remain green."
       },
       "audit_secretary": {
         "status": "captured",
-        "summary": "The behavior is now easy to audit: fresh session state is explicit, and structured review artifacts are accepted directly instead of through backwards-compatibility hacks.",
-        "decision_record": "Approve the session reset and structured review compatibility release with scope limited to active-session semantics and gate compatibility.",
+        "summary": "The operator surfaces remain read-only and auditable: skipped rows are counted, and doctor findings stay explicit and structured.",
+        "decision_record": "Approve the operational resilience release with scope limited to analyzer tolerance, doctor parity, and validator coverage.",
         "evidence_refs": [
           ".agent-loop/scripts/validate-kit.py"
         ],
@@ -115,33 +146,33 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "iteration-64-session-reset-and-review-compatibility",
-      "why_selected": "This is the next most important trust issue because stale state can make a supposedly fresh run act unpredictably.",
+      "selected_goal": "iteration-65-operational-resilience",
+      "why_selected": "This is the next highest-value reliability fix because it directly affects whether operators can trust and use the recovery tooling.",
       "scope_in": [
-        "Reset transient review_state and consecutive_failures when starting a fresh session.",
-        "Track escalation history against the current session id.",
-        "Accept structured research, council, secretariat, scope, and evaluator artifacts as valid review content."
+        "Skip malformed usage-log rows and report invalid_row_count.",
+        "Flag missing configured remotes, unresolved URLs, and non-GitHub publish targets in loop-doctor.py.",
+        "Add validator coverage for malformed rows and remote doctor findings."
       ],
       "scope_out": [
-        "Do not redesign escalation policy thresholds or release planning semantics."
+        "Do not add auto-repair behavior or change publish policy."
       ],
       "assumptions": [
-        "Long-term history can remain durable as long as current-session escalation logic scopes itself correctly."
+        "Operator tooling should stay diagnostic and read-only even when it becomes more aligned with publish enforcement."
       ],
       "risks": [
-        "Session scoping could accidentally weaken current-session escalation if new history entries do not record session ids."
+        "Doctor messaging could drift from publish-script wording if the checks are implemented separately."
       ],
       "required_validation": [
-        "validate-kit.py must prove fresh sessions clear review pressure.",
-        "validate-kit.py must prove structured review-state content satisfies readiness gates."
+        "validate-kit.py must prove malformed log rows do not crash analysis.",
+        "validate-kit.py must prove doctor reports non-GitHub publish blockers."
       ],
       "stop_conditions": [
-        "Stop if the fix requires deleting durable release history rather than scoping current-session logic correctly."
+        "Stop if the fix requires mutating usage logs or auto-rewriting remotes."
       ],
       "dissent": [
-        "Keep backward compatibility lightweight; do not reintroduce heavy dual-write requirements for flat and structured review fields."
+        "Keep malformed-row handling lossy-but-explicit rather than trying to salvage partially written JSON payloads."
       ],
-      "next_action": "Run validate-kit.py and publish the remediation release if both new fixtures remain green."
+      "next_action": "Publish the release if analyzer and doctor fixtures remain green."
     },
     "evaluation": {
       "status": "captured",
@@ -151,30 +182,30 @@
         "scope_fitness": 4.8,
         "repo_safety": 4.8,
         "validation_readiness": 4.9,
-        "state_durability": 4.9,
+        "state_durability": 4.7,
         "publish_safety": 4.8
       },
       "weighted_score": 4.8,
       "result": "pass",
       "critique": [
-        "The release is narrow and fixes a real mismatch between the stored schema and the enforced gates."
+        "The fix strengthens operator trust without expanding the protocol surface."
       ],
       "minimum_fixes_required": [
-        "Ensure validator fixtures cover both fresh-session reset and structured review content."
+        "Keep both changes read-only and validator-backed."
       ]
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": "Proceed to validation and publish if the session-reset and gate-compatibility fixtures remain green."
+      "recommended_action": "Proceed to validation and publish if the operator recovery fixtures remain green."
     },
-    "goal_id": "iteration-64-session-reset-and-review-compatibility",
-    "goal_title": "Reset new sessions cleanly and accept structured review-state artifacts as valid gate input"
+    "goal_id": "iteration-65-operational-resilience",
+    "goal_title": "Harden usage-log analysis and align doctor diagnostics with real publish blockers"
   },
-  "last_report": "docs/reports/v63.md",
+  "last_report": "docs/reports/v64.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T19:13:47Z",
+    "ran_at": "2026-03-15T19:27:33Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -849,6 +880,21 @@
       "branch": "main",
       "published_at": "2026-03-15T19:14:04Z",
       "session_progress": "1/4 releases"
+    },
+    {
+      "session_id": "session-20260315-185911",
+      "iteration": 64,
+      "goal": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+      "goal_id": "iteration-65-operational-resilience",
+      "release_number": 3,
+      "release_title": "R3: Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v64.md",
+      "branch": "main",
+      "published_at": "2026-03-15T19:27:50Z",
+      "session_progress": "2/4 releases"
     }
   ],
   "release_history": [

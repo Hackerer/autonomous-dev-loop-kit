@@ -122,14 +122,44 @@ def diagnose(config: dict, state: dict, root) -> list[dict[str, str]]:
         )
 
     remotes = git_remotes(root) if (root / ".git").exists() else {}
-    if config.get("git", {}).get("require_remote", True) and not remotes:
-        findings.append(
-            {
-                "severity": "warning",
-                "issue": "No Git remote is configured for this repo.",
-                "next_step": "Configure the correct project remote before attempting publish.",
-            }
-        )
+    git_config = config.get("git", {}) if isinstance(config.get("git"), dict) else {}
+    strategy = str(git_config.get("strategy", "push-branch")).strip() or "push-branch"
+    remote_name = str(git_config.get("remote", "origin")).strip() or "origin"
+    if strategy in {"push-branch", "direct-push"}:
+        if git_config.get("require_remote", True) and not remotes:
+            findings.append(
+                {
+                    "severity": "warning",
+                    "issue": "No Git remote is configured for this repo.",
+                    "next_step": "Configure the correct project remote before attempting publish.",
+                }
+            )
+        elif git_config.get("require_remote", True) and remote_name not in remotes:
+            findings.append(
+                {
+                    "severity": "blocker",
+                    "issue": f"The configured Git remote `{remote_name}` is missing.",
+                    "next_step": "Update `.agent-loop/config.json` or add the expected remote before publishing.",
+                }
+            )
+        else:
+            remote_urls = remotes.get(remote_name, [])
+            if not remote_urls:
+                findings.append(
+                    {
+                        "severity": "blocker",
+                        "issue": f"The configured Git remote `{remote_name}` has no resolved URLs.",
+                        "next_step": "Reconfigure the expected remote before publishing.",
+                    }
+                )
+            elif git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
+                findings.append(
+                    {
+                        "severity": "blocker",
+                        "issue": f"The configured Git remote `{remote_name}` does not point to GitHub.",
+                        "next_step": "Point the configured remote at the correct project GitHub repository before publishing.",
+                    }
+                )
 
     return findings
 

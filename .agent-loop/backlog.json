@@ -703,7 +703,7 @@
     "id": "iteration-65-operational-resilience",
     "title": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Usage-log analysis skips malformed JSONL rows without crashing and reports invalid-row counts clearly",
       "loop-doctor.py reports configured-remote, remote-url, and GitHub-target mismatches the same way publish scripts enforce them",

@@ -1223,6 +1223,19 @@ def validate_usage_logging(failures: list[str]) -> None:
             sessions = payload.get("sessions", [])
             check(isinstance(sessions, list) and bool(sessions), "Usage-log analysis exposes session summaries", failures)
 
+        usage_log.write_text(usage_log.read_text(encoding="utf-8") + "{not-json}\n", encoding="utf-8")
+        analyzer_with_invalid_row = subprocess.run(
+            ["python3", ".agent-loop/scripts/analyze-usage-logs.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(analyzer_with_invalid_row.returncode == 0, "analyze-usage-logs.py tolerates malformed usage-log rows", failures)
+        if analyzer_with_invalid_row.returncode == 0:
+            payload = json.loads(analyzer_with_invalid_row.stdout)
+            check(int(payload.get("invalid_row_count", 0)) >= 1, "Usage-log analysis reports skipped malformed rows", failures)
+
 
 def validate_operator_recovery_tools(failures: list[str]) -> None:
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1256,6 +1269,32 @@ def validate_operator_recovery_tools(failures: list[str]) -> None:
             findings = payload.get("findings", [])
             check(isinstance(findings, list), "loop-doctor.py exposes structured findings", failures)
             check(bool(findings), "loop-doctor.py detects missing session or release setup", failures)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "direct-push"
+        config["git"]["remote"] = "origin"
+        write_json(target / ".agent-loop/config.json", config)
+        subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(
+            ["git", "remote", "add", "origin", "https://example.com/not-github.git"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        doctor_remote = subprocess.run(
+            ["python3", ".agent-loop/scripts/loop-doctor.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(doctor_remote.returncode == 0, "loop-doctor.py can inspect publish-target remote issues", failures)
+        if doctor_remote.returncode == 0:
+            payload = json.loads(doctor_remote.stdout)
+            findings = payload.get("findings", [])
+            issues = " ".join(item.get("issue", "") for item in findings if isinstance(item, dict))
+            check("github" in issues.lower(), "loop-doctor.py reports non-GitHub publish blockers", failures)
 
 
 def main() -> int:

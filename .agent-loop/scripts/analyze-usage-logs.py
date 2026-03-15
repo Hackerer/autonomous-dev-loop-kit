@@ -12,18 +12,23 @@ from typing import Any
 from common import find_repo_root, load_config, usage_log_path, LoopError
 
 
-def load_jsonl(path: Path) -> list[dict[str, Any]]:
+def load_jsonl(path: Path) -> tuple[list[dict[str, Any]], int]:
     if not path.exists():
-        return []
+        return [], 0
     rows: list[dict[str, Any]] = []
+    invalid_rows = 0
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line:
             continue
-        payload = json.loads(line)
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            invalid_rows += 1
+            continue
         if isinstance(payload, dict):
             rows.append(payload)
-    return rows
+    return rows, invalid_rows
 
 
 def parse_timestamp(value: Any) -> datetime:
@@ -36,14 +41,17 @@ def parse_timestamp(value: Any) -> datetime:
         return datetime.min
 
 
-def normalize_rows(log_paths: list[Path]) -> list[dict[str, Any]]:
+def normalize_rows(log_paths: list[Path]) -> tuple[list[dict[str, Any]], dict[str, int]]:
     rows: list[dict[str, Any]] = []
+    invalid_rows_by_path: dict[str, int] = {}
     for path in log_paths:
-        for row in load_jsonl(path):
+        loaded_rows, invalid_rows = load_jsonl(path)
+        invalid_rows_by_path[str(path)] = invalid_rows
+        for row in loaded_rows:
             row["_log_path"] = str(path)
             rows.append(row)
     rows.sort(key=lambda item: (parse_timestamp(item.get("timestamp")), str(item.get("_log_path", ""))))
-    return rows
+    return rows, invalid_rows_by_path
 
 
 def session_id_for(row: dict[str, Any]) -> str | None:
@@ -159,7 +167,7 @@ def summarize_session(session_id: str, rows: list[dict[str, Any]]) -> dict[str, 
     }
 
 
-def summarize_usage(rows: list[dict[str, Any]], log_paths: list[Path]) -> dict[str, Any]:
+def summarize_usage(rows: list[dict[str, Any]], log_paths: list[Path], invalid_rows_by_path: dict[str, int]) -> dict[str, Any]:
     events = Counter(str(row.get("event", "")) for row in rows)
     repos = Counter(str(row.get("repo", {}).get("name", "")) for row in rows if isinstance(row.get("repo"), dict))
     clients = Counter(str(row.get("client", "") or "unknown") for row in rows)
@@ -181,10 +189,17 @@ def summarize_usage(rows: list[dict[str, Any]], log_paths: list[Path]) -> dict[s
         suspicious_patterns.append(
             f"{len(legacy_rows)} legacy events do not include a session_id, so per-session attribution is incomplete."
         )
+    invalid_row_count = sum(int(count) for count in invalid_rows_by_path.values())
+    if invalid_row_count:
+        suspicious_patterns.append(
+            f"{invalid_row_count} malformed usage-log row(s) were skipped during analysis."
+        )
 
     return {
         "log_paths": [str(path) for path in log_paths],
         "event_count": len(rows),
+        "invalid_row_count": invalid_row_count,
+        "invalid_rows_by_path": invalid_rows_by_path,
         "events_by_type": dict(events),
         "events_by_repo": dict(repos),
         "events_by_client": dict(clients),
@@ -215,8 +230,8 @@ def main() -> int:
         config = load_config(root)
         log_paths.append(usage_log_path(root, config))
 
-    rows = normalize_rows(log_paths)
-    summary = summarize_usage(rows, log_paths)
+    rows, invalid_rows_by_path = normalize_rows(log_paths)
+    summary = summarize_usage(rows, log_paths, invalid_rows_by_path)
 
     if args.json:
         print(json.dumps(summary, ensure_ascii=True, indent=2))
@@ -224,6 +239,8 @@ def main() -> int:
 
     print("Usage log summary")
     print(f"- Total events: {summary['event_count']}")
+    if summary["invalid_row_count"]:
+        print(f"- Malformed rows skipped: {summary['invalid_row_count']}")
     print(f"- Sessions with ids: {summary['session_count']}")
     if summary["legacy_event_count"]:
         print(f"- Legacy events without session ids: {summary['legacy_event_count']}")
