@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from common import (
+    archetype_profile_summary,
     committee_summary,
     discovery_config,
     current_branch,
@@ -217,8 +218,13 @@ def main() -> int:
         "package_managers": detect_package_managers(root),
         "runtime_files": detect_runtime_files(root),
         "repo_archetype": detect_repo_archetype(key_paths),
+        "archetype_profile": {},
         "key_paths": key_paths,
     }
+    snapshot["project"]["archetype_profile"] = archetype_profile_summary(
+        config,
+        repo_archetype=snapshot["project"]["repo_archetype"],
+    )
     snapshot["validation"] = {
         "configured_commands": config.get("validation", {}).get("commands", []),
         "blocking_gates": [item.get("name") for item in config.get("validation", {}).get("commands", []) if item.get("required", True)],

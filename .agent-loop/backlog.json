@@ -346,5 +346,125 @@
       "The repo capability summary matches the actual scripts and gates"
     ],
     "notes": "Finish the 10-version run with a clean baseline for the next session."
+  },
+  {
+    "id": "iteration-40-archetype-profiles",
+    "title": "Define lightweight repo archetype profiles for data quality and committee defaults",
+    "priority": "critical",
+    "status": "completed",
+    "acceptance": [
+      "Config defines a small set of repo archetype profiles with concise quality and review expectations",
+      "The profile model stays optional and backward compatible for repos that do not opt in",
+      "The new structure remains lightweight enough for solo use"
+    ],
+    "notes": "Start the new session by making the baseline more context-aware without introducing heavy policy."
+  },
+  {
+    "id": "iteration-41-archetype-quality-scoring",
+    "title": "Apply repo archetype profiles to data-quality scoring and blocking behavior",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "Data-quality scoring can use archetype-aware expectations when a profile is configured or detected",
+      "Blocking gaps explain which profile expectations are missing",
+      "The default behavior remains stable for existing repos"
+    ],
+    "notes": "Turn the profile model into real selection pressure rather than config-only metadata."
+  },
+  {
+    "id": "iteration-42-review-context-packet",
+    "title": "Render a live committee review packet with active goal, recent evidence, and current blockers",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "Committee rendering includes the active goal, quality status, open gaps, and recent repo context",
+      "The review packet stays concise and terminal-friendly",
+      "Operators can use the packet directly before capturing review state"
+    ],
+    "notes": "The current committee renderer shows structure but not enough iteration-specific context."
+  },
+  {
+    "id": "iteration-43-secretariat-capture",
+    "title": "Persist explicit delivery and audit secretary outputs in review state",
+    "priority": "critical",
+    "status": "pending",
+    "acceptance": [
+      "review_state stores explicit delivery-secretary and audit-secretary summaries",
+      "capture-review.py can write those artifacts without requiring verbose transcripts",
+      "Existing scope decision and council fields remain compatible"
+    ],
+    "notes": "Secretariat exists conceptually today but is still implicit in the stored data."
+  },
+  {
+    "id": "iteration-44-secretariat-visibility",
+    "title": "Expose secretariat output in project-data snapshots and reports",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Reports show the delivery and audit secretary outcome in a compact form",
+      "Project-data snapshots expose a concise secretariat summary for later sessions",
+      "The added output improves handoff quality without making reports noisy"
+    ],
+    "notes": "Once secretary artifacts exist, they should be visible to later operators."
+  },
+  {
+    "id": "iteration-45-evaluator-score-helper",
+    "title": "Add a helper that computes evaluator readiness scores from the rubric contract",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "The repo includes a deterministic helper for weighted evaluator scoring",
+      "The helper reads the committed rubric instead of duplicating weights",
+      "The output stays compact enough to feed capture-review.py or future tooling"
+    ],
+    "notes": "Evaluator scoring is still too manual for a durable repo-local flow."
+  },
+  {
+    "id": "iteration-46-readiness-gate-modes",
+    "title": "Support advisory versus blocking readiness gate modes without weakening publish safety",
+    "priority": "high",
+    "status": "pending",
+    "acceptance": [
+      "Config can mark selected readiness gates as advisory while preserving strict publish safety",
+      "Implementation readiness explains whether a failure is blocking or advisory",
+      "The defaults remain strict enough for the current repo"
+    ],
+    "notes": "The kit should support lighter onboarding without confusing hard release gates."
+  },
+  {
+    "id": "iteration-47-gate-outcome-reporting",
+    "title": "Surface readiness gate outcomes and advisory warnings in reports and evaluator briefs",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Reports distinguish blocking failures from advisory warnings",
+      "Evaluator or readiness output shows which gates passed, warned, or blocked",
+      "Operators can understand why implementation was allowed or denied"
+    ],
+    "notes": "Advisory modes only help if the resulting state remains legible."
+  },
+  {
+    "id": "iteration-48-install-profile-alignment",
+    "title": "Align installer and bootstrap guidance with archetype-aware setup and readiness modes",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "Installer guidance points operators to repo archetype setup when relevant",
+      "Bootstrap instructions explain readiness and advisory behavior concisely",
+      "The guidance stays repo-portable and lightweight"
+    ],
+    "notes": "The stronger model should remain installable without reading the full protocol first."
+  },
+  {
+    "id": "iteration-49-committee-v3-validation-refresh",
+    "title": "Extend validation and baseline docs for the next-stage lightweight committee enhancements",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "validate-kit exercises archetype-aware scoring, secretariat capture, and readiness-mode behavior",
+      "Baseline docs describe the upgraded lightweight committee flow accurately",
+      "The repo ends the session with a clean, explainable next-stage baseline"
+    ],
+    "notes": "Finish the session by proving and documenting the new baseline rather than leaving it implicit."
   }
 ]

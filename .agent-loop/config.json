@@ -24,7 +24,105 @@
     "require_research_before_goal_selection": true,
     "minimum_research_inputs": 3,
     "require_committee_review": true,
-    "require_post_validation_reflection": true
+    "require_post_validation_reflection": true,
+    "archetype_profiles": {
+      "default_profile": "baseline",
+      "profiles": {
+        "baseline": {
+          "label": "Baseline Repo",
+          "repo_archetypes": [
+            "general-repo",
+            "autonomous-loop-repo"
+          ],
+          "required_signals": [
+            "collection_timestamp",
+            "git_branch",
+            "git_remote",
+            "worktree_clean",
+            "languages",
+            "tooling_signals",
+            "validation_commands",
+            "target_outcome",
+            "constraints",
+            "direct_evidence"
+          ],
+          "committee_emphasis": [
+            "goal clarity",
+            "scope discipline",
+            "validation truthfulness"
+          ]
+        },
+        "agent-skill-kit": {
+          "label": "Agent Skill Kit",
+          "repo_archetypes": [
+            "agent-skill-kit"
+          ],
+          "required_signals": [
+            "collection_timestamp",
+            "git_branch",
+            "git_remote",
+            "worktree_clean",
+            "languages",
+            "tooling_signals",
+            "validation_commands",
+            "target_outcome",
+            "constraints",
+            "direct_evidence"
+          ],
+          "committee_emphasis": [
+            "repo portability",
+            "operator clarity",
+            "release safety"
+          ]
+        },
+        "service-backend": {
+          "label": "Service Backend",
+          "repo_archetypes": [
+            "service-backend"
+          ],
+          "required_signals": [
+            "collection_timestamp",
+            "git_branch",
+            "git_remote",
+            "worktree_clean",
+            "languages",
+            "tooling_signals",
+            "validation_commands",
+            "target_outcome",
+            "constraints",
+            "direct_evidence"
+          ],
+          "committee_emphasis": [
+            "runtime safety",
+            "operational auditability",
+            "stop conditions"
+          ]
+        },
+        "frontend-app": {
+          "label": "Frontend App",
+          "repo_archetypes": [
+            "frontend-app"
+          ],
+          "required_signals": [
+            "collection_timestamp",
+            "git_branch",
+            "git_remote",
+            "worktree_clean",
+            "languages",
+            "tooling_signals",
+            "validation_commands",
+            "target_outcome",
+            "constraints",
+            "direct_evidence"
+          ],
+          "committee_emphasis": [
+            "operator clarity",
+            "scope crispness",
+            "handoff quality"
+          ]
+        }
+      }
+    }
   },
   "committee": {
     "enabled": true,

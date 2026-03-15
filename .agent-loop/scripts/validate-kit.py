@@ -773,6 +773,15 @@ def main() -> int:
         "Discovery requires post-validation reflection",
         failures,
     )
+    archetype_profiles = discovery.get("archetype_profiles", {})
+    check(isinstance(archetype_profiles, dict), "Discovery exposes archetype profile config", failures)
+    check(
+        archetype_profiles.get("default_profile") == "baseline",
+        "Archetype profiles define the baseline default profile",
+        failures,
+    )
+    profiles = archetype_profiles.get("profiles", {})
+    check(isinstance(profiles, dict) and "agent-skill-kit" in profiles, "Archetype profiles include an agent-skill-kit profile", failures)
     evaluator = config.get("committee", {}).get("evaluator", {})
     rubric_ref = evaluator.get("rubric_ref")
     check(rubric_ref == ".agent-loop/references/iteration-readiness-rubric.json", "Config points to the committed evaluator rubric", failures)
@@ -802,6 +811,13 @@ def main() -> int:
         latest_review_state = project_data.get("latest_review_state", {})
         check(isinstance(latest_review_state.get("evaluation"), dict), "Project data includes evaluation readiness summary", failures)
         check(isinstance(latest_review_state.get("scope_decision"), dict), "Project data includes scope decision summary", failures)
+        archetype_profile = project_data.get("project", {}).get("archetype_profile", {})
+        check(isinstance(archetype_profile, dict), "Project data includes an archetype profile summary", failures)
+        check(
+            archetype_profile.get("id") == "agent-skill-kit",
+            "Project data resolves the current repo archetype profile",
+            failures,
+        )
 
     generated_quality = ROOT / ".agent-loop/data/data-quality.generated.json"
     scorer = subprocess.run(

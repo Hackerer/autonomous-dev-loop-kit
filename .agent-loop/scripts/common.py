@@ -19,6 +19,18 @@ EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
 EXPECTED_COUNCIL_IDS = ("product-council", "architecture-council", "operator-council")
 EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
 EXPECTED_EVALUATOR_PERSONA_ID = "independent-evaluator"
+EXPECTED_ARCHETYPE_SIGNAL_IDS = (
+    "collection_timestamp",
+    "git_branch",
+    "git_remote",
+    "worktree_clean",
+    "languages",
+    "tooling_signals",
+    "validation_commands",
+    "target_outcome",
+    "constraints",
+    "direct_evidence",
+)
 
 
 class LoopError(RuntimeError):
@@ -291,6 +303,50 @@ def discovery_config(config: dict[str, Any]) -> dict[str, Any]:
     return discovery
 
 
+def archetype_profiles_config(config: dict[str, Any]) -> dict[str, Any]:
+    discovery = discovery_config(config)
+    profiles = discovery.get("archetype_profiles", {})
+    if not isinstance(profiles, dict):
+        return {}
+    return profiles
+
+
+def archetype_profile_summary(config: dict[str, Any], repo_archetype: str | None = None) -> dict[str, Any]:
+    profiles_config = archetype_profiles_config(config)
+    profiles = profiles_config.get("profiles", {})
+    if not isinstance(profiles, dict):
+        profiles = {}
+
+    default_profile_id = str(profiles_config.get("default_profile", "baseline")).strip() or "baseline"
+    selected_id = default_profile_id
+    for profile_id, profile in profiles.items():
+        if not isinstance(profile, dict):
+            continue
+        repo_archetypes = profile.get("repo_archetypes", [])
+        if repo_archetype and isinstance(repo_archetypes, list) and repo_archetype in [str(item) for item in repo_archetypes]:
+            selected_id = str(profile_id)
+            break
+
+    selected = profiles.get(selected_id, {})
+    if not isinstance(selected, dict):
+        selected = {}
+    required_signals = selected.get("required_signals", [])
+    committee_emphasis = selected.get("committee_emphasis", [])
+    return {
+        "id": selected_id,
+        "label": str(selected.get("label", "") or selected_id),
+        "repo_archetypes": [str(item) for item in selected.get("repo_archetypes", []) if str(item).strip()]
+        if isinstance(selected.get("repo_archetypes"), list)
+        else [],
+        "required_signals": [str(item) for item in required_signals if str(item).strip()]
+        if isinstance(required_signals, list)
+        else [],
+        "committee_emphasis": [str(item) for item in committee_emphasis if str(item).strip()]
+        if isinstance(committee_emphasis, list)
+        else [],
+    }
+
+
 def committee_config(config: dict[str, Any]) -> dict[str, Any]:
     committee = config.get("committee", {})
     if not isinstance(committee, dict):
@@ -304,11 +360,52 @@ def validate_committee(config: dict[str, Any]) -> list[str]:
     committee = committee_config(config)
     enabled = bool(committee.get("enabled", False))
     roles = committee.get("roles", [])
+    archetype_profiles = archetype_profiles_config(config)
 
     if discovery.get("require_research_before_goal_selection", False):
         minimum_inputs = int(discovery.get("minimum_research_inputs", 0) or 0)
         if minimum_inputs < 1:
             errors.append("discovery.minimum_research_inputs must be >= 1 when research is required")
+
+    if archetype_profiles:
+        default_profile = str(archetype_profiles.get("default_profile", "")).strip()
+        profiles = archetype_profiles.get("profiles", {})
+        if not isinstance(profiles, dict) or not profiles:
+            errors.append("discovery.archetype_profiles.profiles must be a non-empty object when provided")
+        else:
+            if not default_profile:
+                errors.append("discovery.archetype_profiles.default_profile is required when profiles are provided")
+            elif default_profile not in profiles:
+                errors.append("discovery.archetype_profiles.default_profile must reference a defined profile")
+            for profile_id, profile in profiles.items():
+                if not isinstance(profile, dict):
+                    errors.append(f"discovery.archetype_profiles.profiles.{profile_id} must be an object")
+                    continue
+                if not str(profile.get("label", "")).strip():
+                    errors.append(f"discovery.archetype_profiles.profiles.{profile_id} is missing label")
+                repo_archetypes = profile.get("repo_archetypes", [])
+                if repo_archetypes is not None and not isinstance(repo_archetypes, list):
+                    errors.append(f"discovery.archetype_profiles.profiles.{profile_id}.repo_archetypes must be a list")
+                required_signals = profile.get("required_signals", [])
+                if not isinstance(required_signals, list) or not required_signals:
+                    errors.append(
+                        f"discovery.archetype_profiles.profiles.{profile_id}.required_signals must be a non-empty list"
+                    )
+                else:
+                    unknown_signals = [
+                        str(signal)
+                        for signal in required_signals
+                        if str(signal).strip() and str(signal) not in EXPECTED_ARCHETYPE_SIGNAL_IDS
+                    ]
+                    if unknown_signals:
+                        errors.append(
+                            f"discovery.archetype_profiles.profiles.{profile_id} uses unknown required_signals: {', '.join(unknown_signals)}"
+                        )
+                committee_emphasis = profile.get("committee_emphasis", [])
+                if committee_emphasis is not None and not isinstance(committee_emphasis, list):
+                    errors.append(
+                        f"discovery.archetype_profiles.profiles.{profile_id}.committee_emphasis must be a list"
+                    )
 
     if discovery.get("require_committee_review", False) and not enabled:
         errors.append("committee.enabled must be true when discovery.require_committee_review is true")

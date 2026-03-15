@@ -15,6 +15,13 @@
     "package_managers": [],
     "runtime_files": [],
     "repo_archetype": "",
+    "archetype_profile": {
+      "id": "",
+      "label": "",
+      "repo_archetypes": [],
+      "required_signals": [],
+      "committee_emphasis": []
+    },
     "key_paths": []
   },
   "validation": {

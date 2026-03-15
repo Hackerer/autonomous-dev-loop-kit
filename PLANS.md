@@ -7,7 +7,7 @@ Updated: 2026-03-15
 - Turn `autonomous-dev-loop-kit` into a stronger cross-CLI kit that gathers high-quality project data and context before acting, then challenges each version through committee-driven review.
 - Make high-quality data acquisition and committee-driven requirement review first-class parts of the loop, not implicit side effects.
 - Keep the kit usable from minimal prompts such as `循环10`, while preserving strict validation, reporting, and Git publication rules.
-- Strengthen the committee architecture with clearer council roles, structured scope decisions, durable dissent, and evaluator-style readiness checks without turning the kit into heavyweight enterprise process.
+- Strengthen the lightweight committee baseline with archetype-aware data-quality thresholds, richer review packets, explicit secretariat artifacts, and more usable evaluator/readiness tooling without turning the kit into heavyweight enterprise process.
 
 ## Current State
 
@@ -21,6 +21,7 @@ Updated: 2026-03-15
 - The installer, example workflow, and entrypoint skills now point to the same research-gated, evaluator-aware lightweight committee V2 flow.
 - Target repos still need repository-specific validation commands instead of the placeholder validation step when installed from this kit.
 - Published versions should continue to stay small, testable, and directly connected to better pre-execution data quality, committee review quality, or operator clarity.
+- The next session should deepen the lightweight baseline rather than replace it: improve context packing, make some quality gates archetype-aware, expose secretariat output more clearly, and keep readiness results easier to understand.
 
 ## Non-Negotiable Constraints
 
@@ -51,6 +52,7 @@ Updated: 2026-03-15
 - 2026-03-15: Make matching review-state capture a hard gate for report writing and publication.
 - 2026-03-15: Start a lighter-weight committee V2 roadmap focused on structured councils, scope decisions, dissent, evaluator scoring, and escalation without overloading the kit.
 - 2026-03-15: Finish the lightweight committee V2 baseline with research blocking, evaluator briefs, escalation assessment, stop-and-escalation reporting, session continuation, aligned installer guidance, and goal-bound review resets.
+- 2026-03-15: Start the next committee session with a lighter-weight enhancement track focused on archetype-aware thresholds, richer review packets, explicit secretariat artifacts, and better evaluator ergonomics.
 
 ## Backlog Notes
 
@@ -59,10 +61,11 @@ Updated: 2026-03-15
 - Prioritize improvements that increase evidence quality and committee challenge quality before implementation quality.
 - Preserve backward compatibility where practical so target repositories can adopt the stronger committee model incrementally.
 - Treat the current lightweight committee V2 baseline as the default starting point for future sessions rather than an experimental branch of the protocol.
+- Keep committee upgrades compact and explicit: prefer one new durable artifact or one new gate behavior per version over broad protocol rewrites.
 
 ## Open Questions
 
-- Which project archetypes need different minimum data-quality thresholds before the loop should block goal selection?
-- Which future gates should remain advisory versus becoming hard blockers by default?
-- How much of evaluator and escalation handling should become automatic, if any?
-- What is the right long-term balance between universal bootstrap guidance and repo-specific overrides?
+- Which repo archetypes deserve distinct minimum data-quality expectations by default?
+- Which readiness gates should support advisory mode versus strict blocking mode by default?
+- How much evaluator scoring should be automated without obscuring operator judgment?
+- What is the right amount of secretariat detail to persist before the state becomes noisy?

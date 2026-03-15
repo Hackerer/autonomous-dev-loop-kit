@@ -1,17 +1,17 @@
 {
-  "iteration": 39,
-  "status": "session_completed",
+  "iteration": 40,
+  "status": "published",
   "session": {
-    "status": "completed",
-    "target_iterations": 24,
-    "completed_iterations": 24,
-    "started_at": "2026-03-15T04:46:02Z",
-    "ended_at": "2026-03-15T06:19:52Z"
+    "status": "active",
+    "target_iterations": 10,
+    "completed_iterations": 1,
+    "started_at": "2026-03-15T07:05:03Z",
+    "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T06:19:45Z",
+    "last_collected_at": "2026-03-15T07:09:20Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,56 +21,63 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T06:19:35Z",
+    "captured_at": "2026-03-15T07:08:57Z",
     "research_findings": [
-      "The final baseline still needed one explicit cleanup step: plans and capability docs had to describe the repo as it now exists, not as a committee roadmap still in flight."
+      "The lightweight committee baseline still applies one generic quality shape to every repo archetype, even though collect-project-data already detects archetype signals.",
+      "A config-level profile model can stay optional while giving later versions a durable place to attach archetype-aware thresholds and committee emphasis.",
+      "The smallest safe first step is schema plus resolution support, not scoring changes."
     ],
     "committee_feedback": [
-      "A finished baseline should describe what is done, what remains open, and what future sessions should treat as the default."
+      "Product Council: profile support should make the next stage more context-aware without changing the operator surface yet.",
+      "Architecture Council: profiles need a single config source and a shared resolver before later scripts consume them.",
+      "Operator Council: the feature must remain optional and backward compatible for repos that do not care about archetypes."
     ],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Refresh the baseline plan, backlog, and capability summary so the finished lightweight committee V2 model is described as the current default.",
+      "summary": "Introduce a lightweight archetype profile model and resolution path before letting scoring or gates depend on it.",
       "evidence_refs": [
-        "PLANS.md",
-        "README.md"
+        ".agent-loop/config.json",
+        ".agent-loop/scripts/common.py",
+        ".agent-loop/scripts/collect-project-data.py"
       ],
       "data_quality_score": 100.0,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
+        "status": "captured",
+        "summary": "Add a compact profile model now so later committee and data-quality behavior can vary by repo type without a protocol rewrite.",
+        "decision": "Approve a config-first version with no scoring behavior change yet.",
         "dissent": []
       },
       "architecture_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
+        "status": "captured",
+        "summary": "Add shared archetype-profile validation and resolution in common.py, then expose the resolved profile in collected project data.",
+        "decision": "Keep the schema narrow and avoid duplicating threshold logic across scripts in the first step.",
         "dissent": []
       },
       "operator_council": {
-        "status": "not_started",
-        "summary": "",
-        "decision": "",
+        "status": "captured",
+        "summary": "Make profiles descriptive and low-ceremony so solo operators are not forced to learn a new setup path on day one.",
+        "decision": "Approve if the default path remains unchanged for repos that rely on the baseline profile.",
         "dissent": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Refresh the baseline plan, backlog, and capability summary for the finalized lightweight committee design",
-      "why_selected": "The code and protocol are now aligned; the last step is to align the baseline narrative and open questions with the actual shipped system.",
+      "selected_goal": "Define lightweight repo archetype profiles for data quality and committee defaults",
+      "why_selected": "The kit already detects repo archetypes; adding a durable profile model is the smallest step that unlocks later archetype-aware scoring and committee tuning.",
       "scope_in": [
-        "Refresh PLANS current state, decision log, backlog notes, and open questions.",
-        "Refresh README with a concise current baseline summary."
+        "Define optional archetype profile config in .agent-loop/config.json.",
+        "Add shared validation and resolution helpers in common.py.",
+        "Expose the resolved archetype profile in collected project data and validate it."
       ],
       "scope_out": [
-        "Do not add new protocol mechanics."
+        "Do not change score-data-quality blocking behavior yet.",
+        "Do not add new mandatory setup for existing repos."
       ],
       "assumptions": [],
       "risks": [],
@@ -78,31 +85,31 @@
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the baseline summary drifts from the actual scripts and gates."
+        "Stop if profile support changes existing readiness or publish behavior in this version."
       ],
       "dissent": [
-        "Keep the baseline summary concise; it should orient the next session, not restate the entire repo."
+        "Keep the profile schema compact; this is not a full policy engine."
       ],
-      "next_action": "End the current session with a clean baseline and start a fresh backlog only when new priorities exist."
+      "next_action": "Implement the config schema, shared resolver, project-data exposure, and validation coverage."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.8,
-        "scope_fitness": 4.9,
-        "repo_safety": 4.8,
-        "validation_readiness": 4.8,
-        "state_durability": 4.9,
+        "goal_clarity": 4.7,
+        "scope_fitness": 4.8,
+        "repo_safety": 4.7,
+        "validation_readiness": 4.6,
+        "state_durability": 4.8,
         "publish_safety": 4.8
       },
-      "weighted_score": 4.84,
+      "weighted_score": 4.73,
       "result": "pass",
       "critique": [
-        "This version makes the repo easier to resume correctly after the current session ends."
+        "This step creates a durable extension point without broadening scope into scoring or gate rewrites."
       ],
       "minimum_fixes_required": [
-        "Keep the baseline narrative aligned with the actual shipped gates."
+        "Keep the profile model optional and backward compatible."
       ]
     },
     "escalation": {
@@ -110,18 +117,18 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-39-v2-baseline-refresh",
-    "goal_title": "Refresh the baseline plan, backlog, and capability summary for the finalized lightweight committee design"
+    "goal_id": "iteration-40-archetype-profiles",
+    "goal_title": "Define lightweight repo archetype profiles for data quality and committee defaults"
   },
-  "last_report": "docs/reports/v39.md",
+  "last_report": "docs/reports/v40.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T06:19:20Z",
+    "ran_at": "2026-03-15T07:09:12Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
         "exit_code": 0,
-        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summaries\n[PASS] State normalization exposes scope_decision\n[PASS] State normalization exposes evaluation\n[PASS] State normalization exposes escalation\n[PASS] collect-project-dat\n...[truncated]...\nns\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
+        "stdout": "[PASS] Required file exists: README.md\n[PASS] Required file exists: AGENTS.md\n[PASS] Required file exists: CLAUDE.md\n[PASS] Required file exists: PLANS.md\n[PASS] Required file exists: scripts/install-into-project.sh\n[PASS] Required file exists: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Required file exists: .agent-loop/scripts/assess-escalation.py\n[PASS] Required file exists: .agent-loop/scripts/continue-loop-session.py\n[PASS] Required file exists: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Required file exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Required file exists: .agent-loop/config.json\n[PASS] Required file exists: .agent-loop/state.json\n[PASS] Required file exists: .agent-loop/backlog.json\n[PASS] Required file exists: .agent-loop/references/protocol.md\n[PASS] Required file exists: .agent-loop/references/prompting-guidelines.md\n[PASS] Required file exists: .agent-loop/references/react-reasoning-acting.md\n[PASS] Required file exists: .agent-loop/references/data-quality-acquisition.md\n[PASS] Required file exists: .agent-loop/references/committee-driven-delivery.md\n[PASS] Required file exists: .agent-loop/references/example-data-acquisition-workflow.md\n[PASS] Required file exists: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] Required file exists: .agent-loop/templates/project-data-template.json\n[PASS] Required file exists: .agent-loop/templates/report-template.md\n[PASS] JSON parse: .agent-loop/config.json\n[PASS] JSON parse: .agent-loop/state.json\n[PASS] JSON parse: .agent-loop/backlog.json\n[PASS] JSON parse: .agent-loop/references/iteration-readiness-rubric.json\n[PASS] JSON parse: .agent-loop/templates/project-data-template.json\n[PASS] Python compile: .agent-loop/scripts/assert-implementation-readiness.py\n[PASS] Python compile: .agent-loop/scripts/assess-escalation.py\n[PASS] Python compile: .agent-loop/scripts/capture-review.py\n[PASS] Python compile: .agent-loop/scripts/collect-project-data.py\n[PASS] Python compile: .agent-loop/scripts/common.py\n[PASS] Python compile: .agent-loop/scripts/continue-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/publish-iteration.py\n[PASS] Python compile: .agent-loop/scripts/render-committee.py\n[PASS] Python compile: .agent-loop/scripts/render-evaluator-brief.py\n[PASS] Python compile: .agent-loop/scripts/run-full-validation.py\n[PASS] Python compile: .agent-loop/scripts/score-data-quality.py\n[PASS] Python compile: .agent-loop/scripts/select-next-goal.py\n[PASS] Python compile: .agent-loop/scripts/set-loop-session.py\n[PASS] Python compile: .agent-loop/scripts/validate-kit.py\n[PASS] Python compile: .agent-loop/scripts/write-report.py\n[PASS] Frontmatter exists: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .agents/skills/autonomous-dev-loop/SKILL.md\n[PASS] Frontmatter exists: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill name present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Skill description present: .claude/skills/autonomous-dev-loop/SKILL.md\n[PASS] Validation uses validate-kit.py\n[PASS] Planning max_iterations_per_session is a positive integer\n[PASS] Committee config is valid\n[PASS] Discovery requires research before goal selection\n[PASS] Discovery requires committee review\n[PASS] Discovery requires post-validation reflection\n[PASS] Discovery exposes archetype profile config\n[PASS] Archetype profiles define the baseline default profile\n[PASS] Archetype profiles include an agent-skill-kit profile\n[PASS] Config points to the committed evaluator rubric\n[PASS] Evaluator rubric id is correct\n[PASS] Evaluator rubric exposes weighted criteria\n[PASS] State normalization exposes research_gate\n[PASS] State normalization exposes council summa\n...[truncated]...\nns\n[PASS] Structured-flow target publishes with commit-only\n\nValidation passed.\n",
         "stderr": "",
         "name": "validate-kit",
         "required": true,
@@ -474,6 +481,18 @@
       "branch": "main",
       "published_at": "2026-03-15T06:19:52Z",
       "session_progress": "24/24"
+    },
+    {
+      "iteration": 40,
+      "goal": "Define lightweight repo archetype profiles for data quality and committee defaults",
+      "goal_id": "iteration-40-archetype-profiles",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v40.md",
+      "branch": "main",
+      "published_at": "2026-03-15T07:09:47Z",
+      "session_progress": "1/10"
     }
   ]
 }
