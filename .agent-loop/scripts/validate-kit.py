@@ -526,6 +526,75 @@ def validate_evaluator_brief(failures: list[str]) -> None:
             )
 
 
+def validate_escalation_policy(failures: list[str]) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an escalation-policy target", failures)
+
+        state = load_state(target)
+        state["consecutive_failures"] = 2
+        write_json(target / ".agent-loop/state.json", state)
+
+        assessment = subprocess.run(
+            ["python3", ".agent-loop/scripts/assess-escalation.py", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(assessment.returncode == 0, "assess-escalation.py runs successfully", failures)
+        if assessment.returncode == 0:
+            payload = json.loads(assessment.stdout)
+            check(payload.get("status") == "escalated", "assess-escalation.py escalates repeated validation failures", failures)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed a review-escalation target", failures)
+
+        state = seeded_state("review-escalation-test")
+        state["history"] = [
+            {
+                "iteration": 1,
+                "goal": "Review escalation test",
+                "evaluation_result": "revise",
+                "validation_status": "passed",
+            }
+        ]
+        state["review_state"]["status"] = "captured"
+        state["review_state"]["goal_id"] = "review-escalation-test"
+        state["review_state"]["goal_title"] = "Gate review-state reporting and publication"
+        state["review_state"]["evaluation"] = {
+            "status": "captured",
+            "rubric_version": "iteration-readiness-v1",
+            "scores": {"goal_clarity": 3.0},
+            "weighted_score": 3.0,
+            "result": "revise",
+            "critique": [],
+            "minimum_fixes_required": [],
+        }
+        write_json(target / ".agent-loop/state.json", state)
+
+        assessment = subprocess.run(
+            ["python3", ".agent-loop/scripts/assess-escalation.py", "--apply", "--json"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(assessment.returncode == 0, "assess-escalation.py can persist escalation results", failures)
+        if assessment.returncode == 0:
+            payload = json.loads(assessment.stdout)
+            check(payload.get("status") == "escalated", "assess-escalation.py escalates repeated evaluator revise/fail results", failures)
+            updated_state = load_state(target)
+            check(
+                updated_state.get("review_state", {}).get("escalation", {}).get("status") == "escalated",
+                "assess-escalation.py persists escalation into review_state",
+                failures,
+            )
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -536,6 +605,7 @@ def main() -> int:
         ROOT / "PLANS.md",
         ROOT / "scripts/install-into-project.sh",
         ROOT / ".agent-loop/scripts/assert-implementation-readiness.py",
+        ROOT / ".agent-loop/scripts/assess-escalation.py",
         ROOT / ".agent-loop/scripts/render-evaluator-brief.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
@@ -838,6 +908,7 @@ def main() -> int:
     validate_evaluator_gate(failures)
     validate_goal_selection_readiness(failures)
     validate_evaluator_brief(failures)
+    validate_escalation_policy(failures)
     validate_structured_committee_flow(failures)
 
     if failures:

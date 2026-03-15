@@ -1,17 +1,17 @@
 {
-  "iteration": 31,
+  "iteration": 32,
   "status": "published",
   "session": {
     "status": "active",
     "target_iterations": 24,
-    "completed_iterations": 16,
+    "completed_iterations": 17,
     "started_at": "2026-03-15T04:46:02Z",
     "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T05:55:19Z",
+    "last_collected_at": "2026-03-15T06:03:01Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -21,27 +21,28 @@
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T05:54:30Z",
+    "captured_at": "2026-03-15T05:58:14Z",
     "research_findings": [
-      "The evaluator lane already had config, rubric, and pass gating, but no dedicated artifact that isolates what the evaluator should actually read.",
-      "The evaluator brief should be driven by the active goal, matching scope decision, rubric, and compact project context, while excluding committee summaries and debate.",
-      "A temp installed repo is the right proof path because the brief must work outside this repo and stay deterministic."
+      "The config already exposed escalation thresholds, but the loop still had no deterministic command that interpreted them against the current state.",
+      "The smallest useful model is to assess repeated validation failures, repeated evaluator revise/fail results, and repeated goal churn from durable state and recent history.",
+      "If publish history does not retain evaluation and validation outcomes, future escalation checks stay blind across iterations."
     ],
     "committee_feedback": [
-      "Product council supports this because it turns the evaluator from a conceptual role into an actionable review step.",
-      "Architecture council wants the brief to depend on scope_decision and rubric only, not council summaries.",
-      "Operator council wants a readable JSON or terminal brief that can be used in installed target repos as well as this kit repo."
+      "Product council supports this because stop or escalate decisions should not depend on operator memory.",
+      "Architecture council wants the policy evaluated from durable state and recent history, not from hidden chat context.",
+      "Operator council wants a one-command assessment plus an --apply mode that persists the result without adding ceremony."
     ],
     "committee_decision": [
-      "Add render-evaluator-brief.py so the independent evaluator has a concrete, portable input contract."
+      "Add assess-escalation.py so configured escalation thresholds become a deterministic, state-driven policy."
     ],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "Make the independent evaluator a concrete lane by rendering a portable brief from scope decision and rubric without leaking committee discussion details.",
+      "summary": "Turn escalation policy from static config into a deterministic script that evaluates repeated failure signals from current state and recent loop history.",
       "evidence_refs": [
-        ".agent-loop/scripts/render-evaluator-brief.py",
-        ".agent-loop/references/iteration-readiness-rubric.json",
+        ".agent-loop/scripts/assess-escalation.py",
+        ".agent-loop/scripts/common.py",
+        ".agent-loop/scripts/publish-iteration.py",
         ".agent-loop/scripts/validate-kit.py"
       ],
       "data_quality_score": 100.0,
@@ -50,24 +51,24 @@
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve a narrow evaluator-facing artifact that improves readiness without adding a second decision process.",
-        "decision": "Proceed with one brief script and temp-repo validation only.",
+        "summary": "Approve a narrow policy step that makes escalation explainable and state-driven.",
+        "decision": "Proceed with one assessment script and history enrichment only.",
         "dissent": [
           "Do not let the council schema turn into a transcript archive."
         ]
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Read the matching scope decision from durable state, the rubric from its configured file, and a compact project context from the latest project-data snapshot.",
-        "decision": "Keep committee_feedback and councils out of the brief payload entirely.",
+        "summary": "Add a shared assessment helper, expose it through a small CLI, and record enough outcome fields in publish history to make later checks deterministic.",
+        "decision": "Keep the policy simple: repeated validation failures, repeated evaluator revise/fail, and repeated goal churn.",
         "dissent": [
           "Do not force all downstream scripts to migrate in the same iteration."
         ]
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Make the script work in both text and JSON form so operators can inspect it directly or pipe it into later automation.",
-        "decision": "Proceed if the brief stays compact and independent from council discussion details.",
+        "summary": "Print a small watch/escalated/not_needed result with a reason and recommended action, and optionally persist it to review_state.",
+        "decision": "Proceed if the command remains readable from the terminal and easy to validate in temp repos.",
         "dissent": [
           "Do not increase operator typing cost more than necessary."
         ]
@@ -76,61 +77,63 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Add a lightweight evaluator brief script driven by scope decision and rubric",
-      "why_selected": "The evaluator is already a configured gate, but the repo still lacks a concrete artifact that defines the evaluator input contract for the active goal.",
+      "selected_goal": "Model escalation policy for repeated review or validation failures",
+      "why_selected": "The review schema and config already modeled escalation, but the repo still lacked an executable policy that interprets those thresholds consistently.",
       "scope_in": [
-        "Add render-evaluator-brief.py.",
-        "Render the active goal, scope decision, rubric, evaluator persona, and compact project context.",
-        "Keep committee discussion details out of the rendered payload.",
-        "Cover the script in validate-kit with a temp installed target repo."
+        "Add assess-escalation.py.",
+        "Assess repeated validation failures, repeated evaluator revise/fail, and repeated goal churn from durable state and recent history.",
+        "Persist evaluation_result, validation_status, and escalation_status into publish history.",
+        "Cover escalation assessment in validate-kit."
       ],
       "scope_out": [
-        "Do not add automatic evaluator scoring.",
-        "Do not change the evaluator gate itself in this version.",
-        "Do not redesign report rendering around the new brief yet."
+        "Do not automatically stop the loop from inside the assessment script.",
+        "Do not add complex workflow states beyond watch and escalated.",
+        "Do not redesign report output in this version."
       ],
       "assumptions": [
-        "A matching scope_decision already exists before the evaluator brief is rendered.",
-        "The latest project-data snapshot is sufficient as evaluator context."
+        "Publish history can safely carry compact evaluation and validation outcome fields.",
+        "Current-state review outcomes should count toward escalation together with recent history."
       ],
       "risks": [
-        "If the brief includes committee discussion, the evaluator lane stops being independent.",
-        "If the script depends on repo-specific state beyond project-data and scope_decision, it will be harder to reuse in installed targets."
+        "If history misses key outcome fields, the policy will undercount repeat conditions.",
+        "If the policy becomes too eager, the lightweight loop will feel bureaucratic."
       ],
       "required_validation": [
         "python3 .agent-loop/scripts/validate-kit.py"
       ],
       "stop_conditions": [
-        "Stop if the new script requires evaluator results to exist before the brief can render.",
-        "Stop if the brief starts duplicating committee discussion."
+        "Stop if the new policy requires hidden context outside durable state.",
+        "Stop if the script mutates loop state unless explicitly asked with --apply."
       ],
       "dissent": [
-        "Keep the evaluator brief small; do not turn it into a second report format."
+        "Keep escalation as an advisory and durable-state function first; do not auto-halt the loop yet."
       ],
-      "next_action": "Validate the brief in a temp target repo and then add it to the documented command surface."
+      "next_action": "Run the assessment script against the current repo, then surface its results in later reporting and docs."
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
       "scores": {
-        "goal_clarity": 4.7,
+        "goal_clarity": 4.6,
         "scope_fitness": 4.6,
         "repo_safety": 4.7,
         "validation_readiness": 4.8,
-        "state_durability": 4.7,
+        "state_durability": 4.8,
         "publish_safety": 4.7
       },
-      "weighted_score": 4.69,
+      "weighted_score": 4.68,
       "result": "pass",
       "critique": [
         "The iteration readiness contract is now concrete enough to authorize later implementation gates.",
         "The design now has enough durable structure to justify a real evaluator gate.",
         "The change is narrowly scoped and closes a real protocol gap without increasing ceremony.",
-        "The version gives the evaluator a concrete input artifact without changing the broader workflow."
+        "The version gives the evaluator a concrete input artifact without changing the broader workflow.",
+        "The change converts an existing config promise into an executable policy without widening the workflow."
       ],
       "minimum_fixes_required": [
         "Keep missing quality artifacts from crashing the new blocker path.",
-        "Ensure the brief requires scope_decision but not evaluator output."
+        "Ensure the brief requires scope_decision but not evaluator output.",
+        "Record enough outcome fields in history for later escalation checks."
       ]
     },
     "escalation": {
@@ -138,10 +141,10 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-33-independent-evaluator-brief",
-    "goal_title": "Add a lightweight evaluator brief script driven by scope decision and rubric"
+    "goal_id": "iteration-27-escalation-policy",
+    "goal_title": "Model escalation policy for repeated review or validation failures"
   },
-  "last_report": "docs/reports/v31.md",
+  "last_report": "docs/reports/v32.md",
   "last_validation": {
     "status": "passed",
     "ran_at": "2026-03-15T05:55:12Z",
@@ -406,6 +409,18 @@
       "branch": "main",
       "published_at": "2026-03-15T05:55:37Z",
       "session_progress": "16/24"
+    },
+    {
+      "iteration": 32,
+      "goal": "Model escalation policy for repeated review or validation failures",
+      "goal_id": "iteration-27-escalation-policy",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v32.md",
+      "branch": "main",
+      "published_at": "2026-03-15T06:03:17Z",
+      "session_progress": "17/24"
     }
   ]
 }

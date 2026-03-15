@@ -789,6 +789,107 @@ def goal_selection_blockers(config: dict[str, Any], state: dict[str, Any], quali
     return blockers
 
 
+def current_evaluation_result(state: dict[str, Any]) -> str:
+    review_state = state.get("review_state", {})
+    if not isinstance(review_state, dict):
+        return ""
+    evaluation = review_state.get("evaluation", {})
+    if not isinstance(evaluation, dict):
+        return ""
+    return str(evaluation.get("result", "")).strip()
+
+
+def consecutive_review_blocks(state: dict[str, Any]) -> int:
+    total = 0
+    current = current_evaluation_result(state)
+    if current in {"revise", "fail"}:
+        total += 1
+    for item in reversed(state.get("history", [])):
+        if not isinstance(item, dict):
+            break
+        result = str(item.get("evaluation_result", "")).strip()
+        if result in {"revise", "fail"}:
+            total += 1
+            continue
+        if result:
+            break
+        break
+    return total
+
+
+def consecutive_goal_churn(state: dict[str, Any]) -> int:
+    goal = state.get("current_goal")
+    current = goal_title(goal).strip()
+    if not current or current == "unspecified goal":
+        return 0
+    total = 0
+    for item in reversed(state.get("history", [])):
+        if not isinstance(item, dict):
+            break
+        if str(item.get("goal", "")).strip() == current:
+            total += 1
+            continue
+        break
+    return total
+
+
+def assess_escalation(config: dict[str, Any], state: dict[str, Any]) -> dict[str, str]:
+    committee = committee_config(config)
+    policy = committee.get("escalation_policy", {})
+    if not isinstance(policy, dict):
+        policy = {}
+
+    review_limit = int(policy.get("repeat_evaluator_revise_or_fail", 2) or 2)
+    validation_limit = int(policy.get("repeat_validation_failures", 2) or 2)
+    churn_limit = int(policy.get("repeat_goal_churn", 2) or 2)
+
+    review_blocks = consecutive_review_blocks(state)
+    validation_failures = int(state.get("consecutive_failures", 0) or 0)
+    goal_churn = consecutive_goal_churn(state)
+
+    if validation_failures >= validation_limit:
+        return {
+            "status": "escalated",
+            "reason": f"Validation has failed {validation_failures} time(s) in a row, meeting the escalation threshold of {validation_limit}.",
+            "recommended_action": "Stop the loop, investigate the failing validation root cause, and narrow or replace the current goal before continuing.",
+        }
+    if review_blocks >= review_limit:
+        return {
+            "status": "escalated",
+            "reason": f"Evaluator review has produced revise/fail {review_blocks} time(s) in a row, meeting the escalation threshold of {review_limit}.",
+            "recommended_action": "Stop implementation planning, gather missing evidence, and revise the scope decision before continuing.",
+        }
+    if goal_churn >= churn_limit:
+        return {
+            "status": "escalated",
+            "reason": f"The same goal has recurred across {goal_churn} recent published iteration(s), meeting the churn threshold of {churn_limit}.",
+            "recommended_action": "Stop and reassess whether the current goal should be split, reframed, or deprioritized.",
+        }
+    if validation_failures == max(validation_limit - 1, 0) and validation_failures > 0:
+        return {
+            "status": "watch",
+            "reason": f"Validation has failed {validation_failures} time(s) in a row and is one failure away from escalation.",
+            "recommended_action": "Tighten the current scope and confirm the validation path before another implementation pass.",
+        }
+    if review_blocks == max(review_limit - 1, 0) and review_blocks > 0:
+        return {
+            "status": "watch",
+            "reason": f"Evaluator review has produced revise/fail {review_blocks} time(s) in a row and is one step away from escalation.",
+            "recommended_action": "Address the evaluator critique before continuing with implementation planning.",
+        }
+    if goal_churn == max(churn_limit - 1, 0) and goal_churn > 0:
+        return {
+            "status": "watch",
+            "reason": f"The same goal has already recurred across {goal_churn} recent published iteration(s) and is one repeat away from escalation.",
+            "recommended_action": "Confirm that the current goal is still the smallest high-value next step before continuing.",
+        }
+    return {
+        "status": "not_needed",
+        "reason": "",
+        "recommended_action": "",
+    }
+
+
 def require_green_validation(state: dict[str, Any]) -> dict[str, Any]:
     validation = state.get("last_validation") or {}
     if validation.get("status") != "passed":

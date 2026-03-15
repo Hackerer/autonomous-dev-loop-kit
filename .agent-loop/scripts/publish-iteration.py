@@ -80,6 +80,7 @@ def main() -> int:
     published_at = utc_now()
     next_completed = session["completed_iterations"] + 1
     target = session["target_iterations"]
+    goal_id = goal.get("id") if isinstance(goal, dict) else None
 
     state["iteration"] = int(iteration)
     state["last_report"] = report_path
@@ -95,6 +96,10 @@ def main() -> int:
         {
             "iteration": int(iteration),
             "goal": goal_label,
+            "goal_id": goal_id,
+            "evaluation_result": state.get("review_state", {}).get("evaluation", {}).get("result"),
+            "validation_status": state.get("last_validation", {}).get("status"),
+            "escalation_status": state.get("review_state", {}).get("escalation", {}).get("status"),
             "report": report_path,
             "branch": branch_name,
             "published_at": published_at,
@@ -108,7 +113,6 @@ def main() -> int:
     state["draft_goal"] = None
     state["current_goal"] = None
 
-    goal_id = goal.get("id") if isinstance(goal, dict) else None
     if goal_id:
         for item in backlog:
             if item.get("id") == goal_id:

@@ -195,7 +195,7 @@
     "id": "iteration-27-escalation-policy",
     "title": "Model escalation policy for repeated review or validation failures",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Config defines lightweight escalation rules for repeated failures",
       "review_state can record escalation reason and status",
