@@ -197,7 +197,8 @@ def main() -> int:
         )
 
     count = args.count or release_cfg["default_goals_per_release"]
-    if count < release_cfg["min_goals_per_release"]:
+    explicit_single_goal = bool(args.goal_id) and len(args.goal_id) == 1
+    if count < release_cfg["min_goals_per_release"] and not explicit_single_goal:
         raise LoopError(
             f"--count must be at least {release_cfg['min_goals_per_release']} bundled goals for a release."
         )

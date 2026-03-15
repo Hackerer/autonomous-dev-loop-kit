@@ -24,14 +24,17 @@ def main() -> int:
         raise LoopError(
             f"Requested {args.iterations} releases but config planning.max_releases_per_session only allows {int(max_allowed)}."
         )
+    session_started_at = utc_now()
+    session_id = f"session-{session_started_at.replace(':', '').replace('-', '').replace('T', '-').replace('Z', '')}"
 
     state["session"] = {
+        "id": session_id,
         "status": "active",
         "target_releases": int(args.iterations),
         "completed_releases": 0,
         "target_iterations": None,
         "completed_iterations": 0,
-        "started_at": utc_now(),
+        "started_at": session_started_at,
         "ended_at": None,
     }
     state["status"] = "session_configured"
@@ -59,6 +62,7 @@ def main() -> int:
         config,
         "session_started",
         {
+            "session_id": session_id,
             "target_releases": int(args.iterations),
         },
     )

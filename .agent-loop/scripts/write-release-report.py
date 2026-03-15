@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from common import (
+    append_usage_log,
     LoopError,
     active_release,
     find_repo_root,
@@ -157,6 +158,16 @@ def main() -> int:
     state["draft_release_report"] = relpath(report_path, root)
     state["status"] = "release_report_written"
     save_state(root, state)
+    append_usage_log(
+        root,
+        config,
+        "release_report_written",
+        {
+            "release_number": release_number,
+            "report": relpath(report_path, root),
+            "task_iterations": len(task_iterations),
+        },
+    )
     print(report_path)
     return 0
 

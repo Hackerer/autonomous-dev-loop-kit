@@ -73,6 +73,20 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
 
 
+def read_jsonl(path: Path) -> list[dict]:
+    rows: list[dict] = []
+    if not path.exists():
+        return rows
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        payload = json.loads(line)
+        if isinstance(payload, dict):
+            rows.append(payload)
+    return rows
+
+
 def seeded_state(goal_id: str, evaluator_result: str | None = None) -> dict:
     state = {
         "iteration": 0,
@@ -908,6 +922,10 @@ def validate_usage_logging(failures: list[str]) -> None:
             check=False,
         )
         check(started.returncode == 0, "set-loop-session.py records a session start on a usage-logging target", failures)
+        usage_rows = read_jsonl(usage_log)
+        session_started_row = next((row for row in usage_rows if row.get("event") == "session_started"), {})
+        session_context = session_started_row.get("session", {}) if isinstance(session_started_row, dict) else {}
+        check(bool(session_context.get("id")), "Usage-log events capture a stable session id", failures)
 
         extended = subprocess.run(
             ["python3", ".agent-loop/scripts/continue-loop-session.py", "--add", "1"],
@@ -927,7 +945,9 @@ def validate_usage_logging(failures: list[str]) -> None:
         subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
         subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
 
+        existing_state = json.loads((target / ".agent-loop/state.json").read_text(encoding="utf-8"))
         state = seeded_state("usage-log-publish", evaluator_result="pass")
+        state["session"] = existing_state.get("session", state.get("session", {}))
         state["draft_iteration"] = 1
         state["draft_report"] = "docs/reports/v1.md"
         state["draft_goal"] = state["current_goal"]
@@ -944,6 +964,23 @@ def validate_usage_logging(failures: list[str]) -> None:
         )
         check(publish.returncode == 0, "publish-iteration.py records a publish usage event", failures)
 
+        config["validation"]["commands"] = [
+            {
+                "name": "forced-failure",
+                "command": "python3 -c 'import sys; sys.exit(1)'",
+                "required": True,
+            }
+        ]
+        write_json(target / ".agent-loop/config.json", config)
+        failed_validation = subprocess.run(
+            ["python3", ".agent-loop/scripts/run-full-validation.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(failed_validation.returncode != 0, "run-full-validation.py can emit a failing validation event", failures)
+
         analyzer = subprocess.run(
             ["python3", ".agent-loop/scripts/analyze-usage-logs.py", "--json"],
             cwd=str(target),
@@ -959,6 +996,10 @@ def validate_usage_logging(failures: list[str]) -> None:
             check(events.get("session_started", 0) >= 1, "Usage-log analysis includes session start events", failures)
             check(events.get("session_extended", 0) >= 1, "Usage-log analysis includes session extension events", failures)
             check(events.get("iteration_published", 0) >= 1, "Usage-log analysis includes publish events", failures)
+            check(events.get("validation_failed", 0) >= 1, "Usage-log analysis includes failing validation events", failures)
+            check(int(payload.get("session_count", 0)) >= 1, "Usage-log analysis summarizes session-level usage", failures)
+            sessions = payload.get("sessions", [])
+            check(isinstance(sessions, list) and bool(sessions), "Usage-log analysis exposes session summaries", failures)
 
 
 def main() -> int:

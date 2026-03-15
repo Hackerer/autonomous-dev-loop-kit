@@ -1,13 +1,13 @@
 {
-  "iteration": 56,
-  "status": "report_written",
+  "iteration": 57,
+  "status": "published",
   "session": {
     "id": null,
     "status": "active",
     "target_releases": 5,
     "completed_releases": 0,
     "target_iterations": null,
-    "completed_iterations": 0,
+    "completed_iterations": 1,
     "started_at": "2026-03-15T15:26:45Z",
     "ended_at": null
   },
@@ -20,82 +20,117 @@
   },
   "current_goal": null,
   "release": {
-    "number": null,
-    "title": "",
-    "summary": "",
-    "status": "not_planned",
+    "number": 1,
+    "title": "R1: Upgrade usage telemetry and usage-log analysis into a product signal layer",
+    "summary": "Ship the single high-priority goal `Upgrade usage telemetry and usage-log analysis into a product signal layer` as a standalone bundled release.",
+    "status": "ready_to_release",
     "brief": {
-      "objective": "",
-      "target_user_value": "",
-      "why_now": "",
-      "packaging_rationale": "",
-      "scope_in": [],
-      "scope_out": [],
-      "release_acceptance": [],
-      "launch_story": "",
-      "deferred_items": []
+      "objective": "Make usage logs explain how users actually drive the loop.",
+      "target_user_value": "Operators and kit authors can see session-level behavior, failures, and suspicious release gaps without manual log spelunking.",
+      "why_now": "Current logs are too thin to explain real usage, which blocks product iteration on the loop UX.",
+      "packaging_rationale": "Telemetry enrichment and deeper log analysis must land together so the kit both records and explains user behavior.",
+      "scope_in": [
+        "Session-aware usage telemetry",
+        "Failure and completion lifecycle events",
+        "Session-oriented usage-log analysis"
+      ],
+      "scope_out": [
+        "Release state-machine fixes",
+        "Placeholder report gates"
+      ],
+      "release_acceptance": [
+        "Usage events capture stable session ids",
+        "Validation failures and session completion are logged",
+        "Analyzer summarizes sessions and suspicious gaps"
+      ],
+      "launch_story": "This release upgrades the kit from counting events to understanding operator behavior across a real release session.",
+      "deferred_items": [
+        "Make release state transitions deterministic and block orphan publish paths",
+        "Turn task and release reports into trustworthy publish artifacts",
+        "Strengthen PM release planning with archetypes and better packaging signals"
+      ]
     },
-    "goal_ids": [],
-    "goal_titles": [],
-    "completed_goal_ids": [],
-    "task_iterations": [],
-    "selected_at": null,
+    "goal_ids": [
+      "iteration-58-usage-telemetry-and-analysis"
+    ],
+    "goal_titles": [
+      "Upgrade usage telemetry and usage-log analysis into a product signal layer"
+    ],
+    "completed_goal_ids": [
+      "iteration-58-usage-telemetry-and-analysis"
+    ],
+    "task_iterations": [
+      {
+        "iteration": 57,
+        "goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
+        "goal_id": "iteration-58-usage-telemetry-and-analysis",
+        "report": "docs/reports/v57.md",
+        "published_at": "2026-03-15T15:45:42Z"
+      }
+    ],
+    "selected_at": "2026-03-15T15:42:50Z",
     "published_at": null,
     "report_path": null
   },
-  "draft_iteration": 57,
-  "draft_report": "docs/reports/v57.md",
+  "draft_iteration": null,
+  "draft_report": null,
   "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
     "status": "captured",
-    "captured_at": "2026-03-15T15:30:31Z",
+    "captured_at": "2026-03-15T15:43:13Z",
     "research_findings": [
-      "Feishu configured: appId=cli_a92c716d24f89bcd, websocket mode, allowlist for ou_5971bd031bd6f240524b61fddf88c96c. Doctor fix applied. Gateway restarted.",
-      "Telegram configured: 2 accounts (default=SixAgentBot, financial=FinanciallyNewBot), allowlist for 8781681576. Gateway started.",
-      "Both channels now configured: Feishu (websocket, appId=cli_a92c716d24f89bcd) and Telegram (2 bots: SixAgentBot, FinanciallyNewBot). Gateway running. Ready for integration test."
+      "Cross-repo usage logs currently show only 5 event types, so they cannot explain session flow, failure points, or CLI choice.",
+      "ai-trade logs show release-planned and release-published events but the current analyzer cannot reconstruct per-session behavior because legacy rows lack session identity.",
+      "The product opportunity is to turn usage logging into a lightweight telemetry layer before tightening more release UX gates."
     ],
     "committee_feedback": [],
     "committee_decision": [],
     "reflection_notes": [],
     "research_gate": {
       "status": "captured",
-      "summary": "",
-      "evidence_refs": [],
-      "data_quality_score": null,
+      "summary": "Observed logs prove that the kit needs session-aware telemetry and higher-level usage analysis before deeper UX tuning.",
+      "evidence_refs": [
+        "/Users/max/Documents/coding/ai-trade/.agent-loop/data/usage-log.jsonl",
+        "/Users/max/Documents/coding/info-rss/.agent-loop/data/usage-log.jsonl"
+      ],
+      "data_quality_score": 100.0,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
         "status": "captured",
-        "summary": "Approve",
-        "decision": "Approve",
+        "summary": "Approve: richer telemetry is the highest-leverage step because it makes later UX iteration evidence-based.",
+        "decision": "approve",
         "dissent": []
       },
       "architecture_council": {
         "status": "captured",
-        "summary": "Approve",
-        "decision": "Approve",
+        "summary": "Approve: session/release context belongs in usage logging and can stay backward compatible as additive JSON fields.",
+        "decision": "approve",
         "dissent": []
       },
       "operator_council": {
         "status": "captured",
-        "summary": "Approve",
-        "decision": "Approve",
+        "summary": "Approve: operators need logs that explain where a session stopped, not just which commit happened.",
+        "decision": "approve",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
-        "status": "not_started",
-        "summary": "",
-        "next_action": ""
+        "status": "captured",
+        "summary": "Instrument usage events with session/release/goal context, then upgrade the analyzer to summarize sessions, failures, and suspicious gaps.",
+        "next_action": "Render evaluator brief and confirm readiness for telemetry and analyzer changes."
       },
       "audit_secretary": {
-        "status": "not_started",
-        "summary": "",
-        "decision_record": "",
-        "evidence_refs": [],
+        "status": "captured",
+        "summary": "Evidence from ai-trade and info-rss usage logs shows insufficient session attribution and no stop/failure visibility.",
+        "decision_record": "Proceed with telemetry enrichment plus analyzer upgrade as one bundled release.",
+        "evidence_refs": [
+          "/Users/max/Documents/coding/ai-trade/.agent-loop/data/usage-log.jsonl",
+          "/Users/max/Documents/coding/info-rss/.agent-loop/data/usage-log.jsonl"
+        ],
         "open_gaps": [],
         "dissent_record": []
       }
@@ -103,42 +138,45 @@
     "cross_committee_tensions": [],
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "Run end-to-end channel integration tests",
-      "why_selected": "Verify both channels work",
+      "selected_goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
+      "why_selected": "Without richer telemetry, later UX changes would be guided by guesswork instead of observed operator behavior.",
       "scope_in": [
-        "Verify Feishu config",
-        "Apply doctor fixes",
-        "Start gateway",
-        "Verify Telegram config",
-        "Gateway running",
-        "Verify Feishu works",
-        "Verify Telegram works",
-        "Verify gateway routes correctly"
+        "Add stable session ids to autonomous sessions",
+        "Attach session, release, goal, iteration, and client context to usage events",
+        "Log validation pass/fail and session completion lifecycle events",
+        "Upgrade usage-log analysis to summarize sessions and suspicious gaps"
       ],
       "scope_out": [
-        "No changes to credentials",
-        "No credential changes",
-        "No destructive tests"
+        "Do not change release numbering logic yet",
+        "Do not add status/doctor commands yet"
       ],
       "assumptions": [],
       "risks": [],
       "required_validation": [
-        "openclaw channels list"
+        "python3 .agent-loop/scripts/validate-kit.py"
       ],
-      "stop_conditions": [],
+      "stop_conditions": [
+        "Stop if telemetry changes break current validator coverage or usage-log backward compatibility"
+      ],
       "dissent": [],
       "next_action": ""
     },
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "scores": {},
+      "scores": {
+        "goal_clarity": 5.0,
+        "scope_fitness": 5.0,
+        "repo_safety": 5.0,
+        "validation_readiness": 5.0,
+        "state_durability": 5.0,
+        "publish_safety": 5.0
+      },
       "weighted_score": 5.0,
       "result": "pass",
       "critique": [
-        "Feishu channel configured and gateway started",
-        "Telegram channel configured and gateway running",
-        "Channel integration complete - both Feishu and Telegram configured"
+        "This release is tightly scoped to the observed logging blind spot.",
+        "The changes are additive to durable state and low-risk to existing protocol gates."
       ],
       "minimum_fixes_required": []
     },
@@ -147,13 +185,13 @@
       "reason": "",
       "recommended_action": ""
     },
-    "goal_id": "iteration-62-integration-testing",
-    "goal_title": "Run comprehensive integration testing"
+    "goal_id": "iteration-58-usage-telemetry-and-analysis",
+    "goal_title": "Upgrade usage telemetry and usage-log analysis into a product signal layer"
   },
-  "last_report": "docs/reports/v56.md",
+  "last_report": "docs/reports/v57.md",
   "last_validation": {
     "status": "passed",
-    "ran_at": "2026-03-15T15:31:09Z",
+    "ran_at": "2026-03-15T15:43:33Z",
     "results": [
       {
         "command": "python3 .agent-loop/scripts/validate-kit.py",
@@ -729,6 +767,20 @@
       "branch": "main",
       "published_at": "2026-03-15T13:18:21Z",
       "session_progress": "3/15 releases"
+    },
+    {
+      "iteration": 57,
+      "goal": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
+      "goal_id": "iteration-58-usage-telemetry-and-analysis",
+      "release_number": 1,
+      "release_title": "R1: Upgrade usage telemetry and usage-log analysis into a product signal layer",
+      "evaluation_result": "pass",
+      "validation_status": "passed",
+      "escalation_status": "not_needed",
+      "report": "docs/reports/v57.md",
+      "branch": "main",
+      "published_at": "2026-03-15T15:45:42Z",
+      "session_progress": "0/5 releases"
     }
   ],
   "release_history": [

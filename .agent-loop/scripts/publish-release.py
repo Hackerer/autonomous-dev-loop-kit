@@ -119,6 +119,17 @@ def main() -> int:
             "commit": commit_sha,
         },
     )
+    if state.get("session", {}).get("status") == "completed":
+        append_usage_log(
+            root,
+            config,
+            "session_completed",
+            {
+                "session_id": state.get("session", {}).get("id"),
+                "completed_releases": state.get("session", {}).get("completed_releases"),
+                "target_releases": state.get("session", {}).get("target_releases"),
+            },
+        )
 
     print(f"Published release R{release_number} at {commit_sha}")
     return 0

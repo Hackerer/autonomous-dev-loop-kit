@@ -56,6 +56,7 @@ def main() -> int:
         config,
         "session_extended",
         {
+            "session_id": state.get("session", {}).get("id"),
             "completed_releases": completed,
             "target_releases": next_target,
         },

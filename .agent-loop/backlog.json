@@ -612,121 +612,65 @@
     "notes": "Based on OpenClaw official architecture: Projects should be first-class objects with isolated state"
   },
   {
-    "id": "iteration-58-usage-telemetry-schema",
-    "title": "Expand usage logging into session-aware telemetry",
+    "id": "iteration-58-usage-telemetry-and-analysis",
+    "title": "Upgrade usage telemetry and usage-log analysis into a product signal layer",
     "priority": "high",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "Usage events include session_id, release_number, iteration_number, and client identity when available",
       "The loop records completion, failure, and stop-oriented lifecycle events instead of only happy-path publish events",
-      "Telemetry stays lightweight JSONL and backward compatible with existing logs"
+      "The analyzer summarizes sessions, release throughput, stop reasons, suspicious gaps, and client usage patterns"
     ],
     "notes": "The current logs show what happened but not how a user actually drove the loop or where it stopped."
   },
   {
-    "id": "iteration-59-usage-log-analysis-depth",
-    "title": "Teach usage-log analysis to explain workflows, failures, and time-to-ship",
-    "priority": "critical",
-    "status": "pending",
-    "acceptance": [
-      "The analyzer summarizes sessions, release throughput, stop reasons, and client usage patterns",
-      "The analyzer can detect suspicious gaps such as missing release publish after planned releases",
-      "The JSON output is useful enough to drive backlog prioritization without manual log inspection"
-    ],
-    "notes": "Usage logs should directly support product decisions instead of requiring hand inspection."
-  },
-  {
-    "id": "iteration-60-release-state-machine-consistency",
-    "title": "Keep release numbering, progress, and publish sequencing consistent",
+    "id": "iteration-59-release-state-consistency",
+    "title": "Make release state transitions deterministic and block orphan publish paths",
     "priority": "high",
     "status": "pending",
     "acceptance": [
       "Release numbers cannot skip ahead when a previous release was just published",
       "Session progress strings match the actual completed release count before and after publish",
-      "Release state transitions remain deterministic across task publish and release closeout"
-    ],
-    "notes": "Current logs show release numbering drift and confusing progress values."
-  },
-  {
-    "id": "iteration-61-orphan-iteration-guards",
-    "title": "Block orphan task iterations that are not attached to a valid active release",
-    "priority": "high",
-    "status": "pending",
-    "acceptance": [
       "The loop refuses to publish a task iteration with empty goal identity or null release linkage when release planning is required",
-      "Validation covers orphan iteration, missing goal, and missing active-release edge cases",
-      "Operator-facing errors explain exactly how to recover the release session"
+      "Validation covers orphan iteration, missing goal, and missing active-release edge cases"
     ],
     "notes": "A published `unspecified goal` report is a trust break and should be impossible."
   },
   {
-    "id": "iteration-62-report-placeholder-gate",
-    "title": "Reject placeholder task and release reports before publication",
+    "id": "iteration-60-report-trust-gates",
+    "title": "Turn task and release reports into trustworthy publish artifacts",
     "priority": "critical",
     "status": "pending",
     "acceptance": [
       "Known template placeholders in task reports and release reports are detected and blocked",
       "Publish scripts explain which sections are still placeholders",
-      "Validation exercises both task-report and release-report placeholder failures"
-    ],
-    "notes": "A release report with template filler should never reach Git history."
-  },
-  {
-    "id": "iteration-63-release-report-aggregation-quality",
-    "title": "Aggregate real delivered output into release reports instead of template bullets",
-    "priority": "high",
-    "status": "pending",
-    "acceptance": [
       "Release reports pull delivered behavior, key observations, and validation evidence from task reports without leaving placeholders behind",
-      "Release closeout reports present accurate release progress and next-release recommendation context",
-      "The report reads like a user-facing bundled release artifact instead of a stitched template"
+      "Release closeout reports present accurate release progress and next-release recommendation context"
     ],
     "notes": "Bundled releases only make sense if the top-level report is trustworthy and concrete."
   },
   {
-    "id": "iteration-64-release-archetype-planning",
-    "title": "Add PM release archetypes for stronger bundled-version themes",
+    "id": "iteration-61-pm-release-planning-quality",
+    "title": "Strengthen PM release planning with archetypes and better packaging signals",
     "priority": "critical",
     "status": "pending",
     "acceptance": [
       "Release planning supports archetypes such as integration, stability, workflow, and observability",
       "Each archetype shapes objective, target user value, packaging rationale, and launch story generation",
-      "Operators can override the archetype but still get better defaults than generic 'around X' phrasing"
-    ],
-    "notes": "Current PM briefs are coherent but too generic to feel like real product planning."
-  },
-  {
-    "id": "iteration-65-release-planning-quality-signals",
-    "title": "Use backlog and usage signals to improve bundled-release packaging",
-    "priority": "critical",
-    "status": "pending",
-    "acceptance": [
       "Release planning prefers goals that reinforce the same user story instead of only sorting by priority",
-      "The planner avoids weak bundles and calls out why-now, scope-out, and deferred items more clearly",
-      "Validation covers at least one release-planning case that would have produced a weak bundle before this change"
+      "The planner avoids weak bundles and calls out why-now, scope-out, and deferred items more clearly"
     ],
     "notes": "The planner should optimize for better versions, not just the next few pending tasks."
   },
   {
-    "id": "iteration-66-loop-status-command",
-    "title": "Add a status command that explains the active session, release, and gates",
+    "id": "iteration-62-status-and-doctor-ux",
+    "title": "Add operator-facing status and doctor tooling for loop recovery",
     "priority": "high",
     "status": "pending",
     "acceptance": [
       "Operators can print a concise status summary for session progress, active release, active goal, validation, and readiness gates",
       "The status output highlights missing review state, evaluator state, or release-closeout work",
-      "The command is documented as the first debugging step for stuck loops"
-    ],
-    "notes": "Users need a single command that answers 'where is the loop right now?'."
-  },
-  {
-    "id": "iteration-67-loop-doctor-and-guidance",
-    "title": "Add a doctor command and recovery guidance for common loop failures",
-    "priority": "high",
-    "status": "pending",
-    "acceptance": [
       "Operators can run a doctor script that diagnoses common blockers such as missing review capture, failed validation, unclosed releases, and remote issues",
-      "The doctor output recommends the exact next command or recovery path",
       "README, protocol, and installer guidance point users to status and doctor during recovery"
     ],
     "notes": "A strong loop should help users recover, not just fail with a stack of gate errors."

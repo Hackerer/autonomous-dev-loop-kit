@@ -5,6 +5,7 @@ import sys
 
 from common import (
     LAST_VALIDATION_FILE,
+    append_usage_log,
     LoopError,
     find_repo_root,
     load_config,
@@ -50,6 +51,17 @@ def main() -> int:
     state["status"] = "validated" if passed else "validation_failed"
     state["consecutive_failures"] = 0 if passed else int(state.get("consecutive_failures", 0)) + 1
     save_state(root, state)
+    append_usage_log(
+        root,
+        config,
+        "validation_passed" if passed else "validation_failed",
+        {
+            "required_failures": [
+                result["name"] for result in results if result.get("required") and not result.get("passed")
+            ],
+            "result_count": len(results),
+        },
+    )
 
     for result in results:
         status = "PASS" if result["passed"] else "FAIL"

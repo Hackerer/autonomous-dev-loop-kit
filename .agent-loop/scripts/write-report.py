@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 
 from common import (
+    append_usage_log,
     committee_summary,
     implementation_gate_status,
     LoopError,
@@ -328,6 +329,17 @@ def main() -> int:
     state["draft_goal"] = goal
     state["status"] = "report_written"
     save_state(root, state)
+    append_usage_log(
+        root,
+        config,
+        "report_written",
+        {
+            "iteration": iteration,
+            "report": relpath(report_path, root),
+            "goal": goal_label,
+            "goal_id": goal.get("id") if isinstance(goal, dict) else "",
+        },
+    )
 
     print(report_path)
     return 0
