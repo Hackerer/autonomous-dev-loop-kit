@@ -83,6 +83,7 @@ def default_state() -> dict[str, Any]:
         "iteration": 0,
         "status": "idle",
         "session": {
+            "id": None,
             "status": "not_configured",
             "target_releases": None,
             "completed_releases": 0,
@@ -227,6 +228,9 @@ def load_state(root: Path) -> dict[str, Any]:
     default_session = default_state()["session"]
     normalized_session = dict(default_session)
     normalized_session.update(session)
+    session_id = normalized_session.get("id")
+    if session_id is None:
+        normalized_session["id"] = None
     if normalized_session.get("target_releases") is None and normalized_session.get("target_iterations") is not None:
         normalized_session["target_releases"] = normalized_session.get("target_iterations")
     if (
@@ -899,12 +903,64 @@ def usage_log_path(root: Path, config: dict[str, Any]) -> Path:
     return root / usage_logging["path"]
 
 
+def detected_usage_client() -> str | None:
+    explicit = str(os.environ.get("AUTONOMOUS_LOOP_CLIENT", "")).strip()
+    if explicit:
+        return explicit
+    for key, label in (
+        ("CLAUDECODE", "claude-code"),
+        ("CLAUDE_CODE", "claude-code"),
+        ("CODEX_HOME", "codex"),
+    ):
+        value = str(os.environ.get(key, "")).strip()
+        if value:
+            return label
+    return None
+
+
+def usage_log_context(root: Path) -> dict[str, Any]:
+    try:
+        state = load_state(root)
+    except LoopError:
+        return {}
+
+    session = session_summary(state)
+    release = release_summary(state)
+    goal = state.get("draft_goal") or state.get("current_goal")
+    context: dict[str, Any] = {
+        "session": {
+            "id": state.get("session", {}).get("id") if isinstance(state.get("session"), dict) else None,
+            "status": session.get("status"),
+            "target_releases": session.get("target_releases"),
+            "completed_releases": session.get("completed_releases"),
+            "completed_iterations": session.get("completed_iterations"),
+        },
+        "release": {
+            "number": release.get("number"),
+            "status": release.get("status"),
+            "title": release.get("title"),
+            "remaining_goal_ids": list(release.get("remaining_goal_ids", [])),
+        },
+        "goal": {
+            "id": goal.get("id"),
+            "title": goal_title(goal),
+        }
+        if isinstance(goal, dict)
+        else None,
+        "iteration": state.get("draft_iteration") or state.get("iteration"),
+        "state_status": state.get("status"),
+    }
+    return context
+
+
 def append_usage_log(root: Path, config: dict[str, Any], event_type: str, payload: dict[str, Any] | None = None) -> Path | None:
     usage_logging = usage_logging_config(config)
     if not usage_logging["enabled"]:
         return None
 
     remotes = git_remotes(root) if (root / ".git").exists() else {}
+    context = usage_log_context(root)
+    client = detected_usage_client()
     record = {
         "timestamp": utc_now(),
         "event": str(event_type),
@@ -915,6 +971,12 @@ def append_usage_log(root: Path, config: dict[str, Any], event_type: str, payloa
             "remotes": remotes,
         },
         "loop_mode": str(config.get("mode", "")),
+        "client": client,
+        "session": context.get("session", {}),
+        "release": context.get("release", {}),
+        "goal": context.get("goal"),
+        "iteration": context.get("iteration"),
+        "state_status": context.get("state_status"),
         "payload": payload if isinstance(payload, dict) else {},
     }
     path = usage_log_path(root, config)
