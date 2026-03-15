@@ -1,11 +1,11 @@
 {
   "iteration": 64,
-  "status": "published",
+  "status": "release_published",
   "session": {
     "id": "session-20260315-185911",
     "status": "active",
     "target_releases": 4,
-    "completed_releases": 2,
+    "completed_releases": 3,
     "target_iterations": null,
     "completed_iterations": 3,
     "started_at": "2026-03-15T18:59:11Z",
@@ -20,59 +20,28 @@
   },
   "current_goal": null,
   "release": {
-    "number": 3,
-    "title": "R3: Harden usage-log analysis and align doctor diagnostics with real publish blockers",
-    "summary": "Ship the single high-priority goal `Harden usage-log analysis and align doctor diagnostics with real publish blockers` as a standalone bundled release.",
-    "status": "ready_to_release",
+    "number": null,
+    "title": "",
+    "summary": "",
+    "status": "not_planned",
     "brief": {
-      "archetype": "observability",
-      "objective": "Make operator-facing diagnostics resilient to dirty usage logs and aligned with the real publish gate.",
-      "target_user_value": "Operators can still analyze sessions when log files contain malformed rows, and doctor now flags the same remote blockers that would really stop publish.",
-      "why_now": "Once publish ordering and session scoping are fixed, the next user-facing reliability gap is tooling that fails on malformed data or under-reports real publish blockers.",
-      "packaging_rationale": "Usage-log robustness and doctor parity belong together because they are both operator recovery surfaces built on top of runtime evidence.",
-      "packaging_signals": [
-        "Archetype: observability",
-        "Matched keywords: doctor, log, report",
-        "Shared theme: usage",
-        "Bundled goals: 1"
-      ],
-      "scope_in": [
-        "Skip malformed usage-log rows while reporting how many were ignored.",
-        "Teach loop-doctor.py to flag missing configured remotes, unresolved remote URLs, and non-GitHub publish targets.",
-        "Extend validator coverage for malformed usage logs and publish-target doctor findings."
-      ],
-      "scope_out": [
-        "Do not add auto-repair behavior or change publish policy."
-      ],
-      "release_acceptance": [
-        "analyze-usage-logs.py survives malformed JSONL rows and reports invalid_row_count.",
-        "loop-doctor.py flags non-GitHub publish-target mismatches.",
-        "validate-kit.py covers both operator-facing behaviors."
-      ],
-      "launch_story": "This release makes the loop\u2019s recovery tools sturdier and more honest about what would really block a publish.",
-      "deferred_items": [
-        "Expand validator coverage for reliability fixes and publish a final remediation review"
-      ]
+      "archetype": "",
+      "objective": "",
+      "target_user_value": "",
+      "why_now": "",
+      "packaging_rationale": "",
+      "packaging_signals": [],
+      "scope_in": [],
+      "scope_out": [],
+      "release_acceptance": [],
+      "launch_story": "",
+      "deferred_items": []
     },
-    "goal_ids": [
-      "iteration-65-operational-resilience"
-    ],
-    "goal_titles": [
-      "Harden usage-log analysis and align doctor diagnostics with real publish blockers"
-    ],
-    "completed_goal_ids": [
-      "iteration-65-operational-resilience"
-    ],
-    "task_iterations": [
-      {
-        "iteration": 64,
-        "goal": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
-        "goal_id": "iteration-65-operational-resilience",
-        "report": "docs/reports/v64.md",
-        "published_at": "2026-03-15T19:27:50Z"
-      }
-    ],
-    "selected_at": "2026-03-15T19:18:53Z",
+    "goal_ids": [],
+    "goal_titles": [],
+    "completed_goal_ids": [],
+    "task_iterations": [],
+    "selected_at": null,
     "published_at": null,
     "report_path": null
   },
@@ -1137,6 +1106,29 @@
       ],
       "report": "docs/releases/R2.md",
       "published_at": "2026-03-15T19:16:43Z"
+    },
+    {
+      "number": 3,
+      "session_id": "session-20260315-185911",
+      "title": "R3: Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+      "summary": "Ship the single high-priority goal `Harden usage-log analysis and align doctor diagnostics with real publish blockers` as a standalone bundled release.",
+      "goal_ids": [
+        "iteration-65-operational-resilience"
+      ],
+      "goal_titles": [
+        "Harden usage-log analysis and align doctor diagnostics with real publish blockers"
+      ],
+      "task_iterations": [
+        {
+          "iteration": 64,
+          "goal": "Harden usage-log analysis and align doctor diagnostics with real publish blockers",
+          "goal_id": "iteration-65-operational-resilience",
+          "report": "docs/reports/v64.md",
+          "published_at": "2026-03-15T19:27:50Z"
+        }
+      ],
+      "report": "docs/releases/R3.md",
+      "published_at": "2026-03-15T19:28:10Z"
     }
   ]
 }
