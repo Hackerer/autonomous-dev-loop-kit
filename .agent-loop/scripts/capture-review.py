@@ -52,6 +52,16 @@ def main() -> int:
     parser.add_argument("--operator-summary", help="Structured operator council summary.")
     parser.add_argument("--operator-decision", help="Structured operator council decision.")
     parser.add_argument("--operator-dissent", action="append", default=[], help="Operator council dissent bullet.")
+    parser.add_argument("--selected-goal", help="Structured selected goal for the scope decision.")
+    parser.add_argument("--why-selected", help="Why this goal was selected now.")
+    parser.add_argument("--scope-in", action="append", default=[], help="Structured scope-in bullet.")
+    parser.add_argument("--scope-out", action="append", default=[], help="Structured scope-out bullet.")
+    parser.add_argument("--assumption", action="append", default=[], help="Structured assumption bullet.")
+    parser.add_argument("--risk", action="append", default=[], help="Structured risk bullet.")
+    parser.add_argument("--required-validation", action="append", default=[], help="Required validation bullet.")
+    parser.add_argument("--stop-condition", action="append", default=[], help="Structured stop-condition bullet.")
+    parser.add_argument("--scope-dissent", action="append", default=[], help="Structured scope-decision dissent bullet.")
+    parser.add_argument("--next-action", help="Next action after the scope decision.")
     parser.add_argument("--reflection", action="append", default=[], help="Optional reflection bullet to persist.")
     parser.add_argument("--json", action="store_true", help="Print the captured review payload as JSON.")
     parser.add_argument("--no-state", action="store_true", help="Validate and print the payload without updating state.")
@@ -74,6 +84,16 @@ def main() -> int:
         and not args.operator_summary
         and not args.operator_decision
         and not args.operator_dissent
+        and not args.selected_goal
+        and not args.why_selected
+        and not args.scope_in
+        and not args.scope_out
+        and not args.assumption
+        and not args.risk
+        and not args.required_validation
+        and not args.stop_condition
+        and not args.scope_dissent
+        and not args.next_action
         and not args.reflection
     ):
         raise LoopError("At least one review input is required.")
@@ -127,6 +147,44 @@ def main() -> int:
         list(args.operator_dissent),
     )
     payload["councils"] = councils
+
+    scope_decision = payload.get("scope_decision", {})
+    if not isinstance(scope_decision, dict):
+        scope_decision = {}
+    has_scope_inputs = any(
+        [
+            args.selected_goal,
+            args.why_selected,
+            args.scope_in,
+            args.scope_out,
+            args.assumption,
+            args.risk,
+            args.required_validation,
+            args.stop_condition,
+            args.scope_dissent,
+            args.next_action,
+        ]
+    )
+    if has_scope_inputs:
+        scope_decision["status"] = "captured"
+    if args.selected_goal:
+        scope_decision["selected_goal"] = args.selected_goal
+    if args.why_selected:
+        scope_decision["why_selected"] = args.why_selected
+    scope_decision["scope_in"] = merge_unique(list(scope_decision.get("scope_in", [])), list(args.scope_in))
+    scope_decision["scope_out"] = merge_unique(list(scope_decision.get("scope_out", [])), list(args.scope_out))
+    scope_decision["assumptions"] = merge_unique(list(scope_decision.get("assumptions", [])), list(args.assumption))
+    scope_decision["risks"] = merge_unique(list(scope_decision.get("risks", [])), list(args.risk))
+    scope_decision["required_validation"] = merge_unique(
+        list(scope_decision.get("required_validation", [])), list(args.required_validation)
+    )
+    scope_decision["stop_conditions"] = merge_unique(
+        list(scope_decision.get("stop_conditions", [])), list(args.stop_condition)
+    )
+    scope_decision["dissent"] = merge_unique(list(scope_decision.get("dissent", [])), list(args.scope_dissent))
+    if args.next_action:
+        scope_decision["next_action"] = args.next_action
+    payload["scope_decision"] = scope_decision
 
     if not args.no_state:
         state["review_state"] = payload

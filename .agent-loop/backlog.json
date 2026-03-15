@@ -123,7 +123,7 @@
     "id": "iteration-21-scope-decision-fields",
     "title": "Persist selected goal, scope boundaries, assumptions, and required validation as a structured scope decision",
     "priority": "critical",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "review_state stores selected_goal, scope_in, scope_out, assumptions, risks, required_validation, and stop_conditions",
       "The schema supports dissent without forcing consensus",

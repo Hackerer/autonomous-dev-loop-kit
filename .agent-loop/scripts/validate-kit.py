@@ -364,6 +364,26 @@ def main() -> int:
             "Sample architecture summary",
             "--operator-summary",
             "Sample operator summary",
+            "--selected-goal",
+            "Sample selected goal",
+            "--why-selected",
+            "Sample why selected",
+            "--scope-in",
+            "Sample scope in",
+            "--scope-out",
+            "Sample scope out",
+            "--assumption",
+            "Sample assumption",
+            "--risk",
+            "Sample risk",
+            "--required-validation",
+            "Sample validation requirement",
+            "--stop-condition",
+            "Sample stop condition",
+            "--scope-dissent",
+            "Sample scope dissent",
+            "--next-action",
+            "Sample next action",
             "--json",
             "--no-state",
         ],
@@ -381,6 +401,10 @@ def main() -> int:
         check(isinstance(councils, dict), "capture-review.py emits council payloads", failures)
         check(councils.get("product_council", {}).get("summary") == "Sample product summary", "capture-review.py records product council summary", failures)
         check("Sample product dissent" in councils.get("product_council", {}).get("dissent", []), "capture-review.py records product council dissent", failures)
+        scope_decision = captured.get("scope_decision", {})
+        check(isinstance(scope_decision, dict), "capture-review.py emits scope_decision payload", failures)
+        check(scope_decision.get("selected_goal") == "Sample selected goal", "capture-review.py records selected_goal", failures)
+        check("Sample scope dissent" in scope_decision.get("dissent", []), "capture-review.py records scope dissent", failures)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"
