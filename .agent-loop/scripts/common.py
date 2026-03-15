@@ -104,6 +104,17 @@ def default_state() -> dict[str, Any]:
             "title": "",
             "summary": "",
             "status": "not_planned",
+            "brief": {
+                "objective": "",
+                "target_user_value": "",
+                "why_now": "",
+                "packaging_rationale": "",
+                "scope_in": [],
+                "scope_out": [],
+                "release_acceptance": [],
+                "launch_story": "",
+                "deferred_items": [],
+            },
             "goal_ids": [],
             "goal_titles": [],
             "completed_goal_ids": [],
@@ -240,6 +251,17 @@ def load_state(root: Path) -> dict[str, Any]:
     default_release = default_state()["release"]
     normalized_release = dict(default_release)
     normalized_release.update(release)
+    brief = normalized_release.get("brief")
+    if not isinstance(brief, dict):
+        brief = {}
+    default_brief = default_release["brief"]
+    normalized_brief = dict(default_brief)
+    normalized_brief.update(brief)
+    for key in ("scope_in", "scope_out", "release_acceptance", "deferred_items"):
+        value = normalized_brief.get(key)
+        if not isinstance(value, list):
+            normalized_brief[key] = []
+    normalized_release["brief"] = normalized_brief
     for key in ("goal_ids", "goal_titles", "completed_goal_ids", "task_iterations"):
         value = normalized_release.get(key)
         if not isinstance(value, list):
@@ -713,6 +735,9 @@ def persona_catalog(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
         output_fields = persona.get("output_fields", [])
         if not isinstance(output_fields, list):
             output_fields = []
+        release_output_fields = persona.get("release_output_fields", [])
+        if not isinstance(release_output_fields, list):
+            release_output_fields = []
         summary[str(persona_id)] = {
             "id": str(persona_id),
             "label": str(persona.get("label", "") or persona_id),
@@ -720,6 +745,7 @@ def persona_catalog(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
             "responsibility": str(persona.get("responsibility", "")),
             "focus": str(persona.get("focus", "")),
             "output_fields": [str(item) for item in output_fields if str(item).strip()],
+            "release_output_fields": [str(item) for item in release_output_fields if str(item).strip()],
         }
     return summary
 
@@ -1071,6 +1097,7 @@ def release_summary(state: dict[str, Any]) -> dict[str, Any]:
         "title": str(release.get("title", "")).strip(),
         "summary": str(release.get("summary", "")).strip(),
         "status": str(release.get("status", "not_planned")).strip() or "not_planned",
+        "brief": release.get("brief", {}) if isinstance(release.get("brief"), dict) else {},
         "goal_ids": goal_ids,
         "goal_titles": [str(title) for title in release.get("goal_titles", []) if str(title).strip()],
         "completed_goal_ids": completed_goal_ids,

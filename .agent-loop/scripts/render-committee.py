@@ -17,6 +17,7 @@ from common import (
     load_json,
     load_state,
     persona_catalog,
+    release_summary,
     secretariat_summary,
     validate_committee,
 )
@@ -24,6 +25,7 @@ from common import (
 
 def build_review_packet(root, state: dict) -> dict:
     goal = state.get("current_goal")
+    release = release_summary(state)
     project_data = state.get("project_data", {})
     snapshot_path = project_data.get("snapshot_path")
     quality_path = project_data.get("quality_path")
@@ -51,6 +53,14 @@ def build_review_packet(root, state: dict) -> dict:
             "id": goal.get("id") if isinstance(goal, dict) else None,
             "title": goal_title(goal) if goal else "",
             "priority": goal.get("priority") if isinstance(goal, dict) else None,
+        },
+        "active_release": {
+            "number": release.get("number"),
+            "title": release.get("title", ""),
+            "summary": release.get("summary", ""),
+            "goal_titles": list(release.get("goal_titles", [])),
+            "brief": release.get("brief", {}),
+            "status": release.get("status", "not_planned"),
         },
         "project_context": {
             "target_outcome": str(product_context.get("target_outcome", "")),
@@ -130,7 +140,21 @@ def main() -> int:
         f"- Reflection after validation: {'required' if payload['post_validation_reflection_required'] else 'optional'}"
     )
     active_goal = review_packet.get("active_goal", {})
+    active_release = review_packet.get("active_release", {})
     print(f"- Active goal: {active_goal.get('title') or 'no active goal selected'}")
+    if active_release.get("number") is not None:
+        print(f"- Active release: R{active_release.get('number')} {active_release.get('title')}")
+        brief = active_release.get("brief", {})
+        if isinstance(brief, dict):
+            objective = str(brief.get("objective", "")).strip()
+            if objective:
+                print(f"- Release objective: {objective}")
+            target_user_value = str(brief.get("target_user_value", "")).strip()
+            if target_user_value:
+                print(f"- Target user value: {target_user_value}")
+            packaging_rationale = str(brief.get("packaging_rationale", "")).strip()
+            if packaging_rationale:
+                print(f"- Packaging rationale: {packaging_rationale}")
     project_context = review_packet.get("project_context", {})
     print(f"- Current branch: {project_context.get('current_branch') or 'unknown'}")
     print(f"- Repo archetype: {project_context.get('repo_archetype') or 'unknown'}")
@@ -176,7 +200,11 @@ def main() -> int:
             print(f"  - {council['label']}: {council['responsibility']}")
             for persona in council["personas"]:
                 outputs = ", ".join(persona["output_fields"]) if persona["output_fields"] else "no output fields configured"
-                print(f"    - {persona['label']}: {persona['focus']} | outputs: {outputs}")
+                release_outputs = persona.get("release_output_fields", [])
+                release_output_text = ""
+                if release_outputs:
+                    release_output_text = f" | release outputs: {', '.join(release_outputs)}"
+                print(f"    - {persona['label']}: {persona['focus']} | outputs: {outputs}{release_output_text}")
     if secretariat:
         print("- Secretariat:")
         for persona in secretariat:

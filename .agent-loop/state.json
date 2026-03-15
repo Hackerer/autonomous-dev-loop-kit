@@ -1,9 +1,9 @@
 {
   "iteration": 51,
-  "status": "published",
+  "status": "release_report_written",
   "session": {
     "status": "active",
-    "target_releases": 10,
+    "target_releases": 15,
     "completed_releases": 1,
     "target_iterations": null,
     "completed_iterations": 2,
@@ -13,7 +13,7 @@
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T12:52:32Z",
+    "last_collected_at": "2026-03-15T12:56:20Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -23,6 +23,17 @@
     "title": "R1: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration + 2 more bundled goals",
     "summary": "Bundle these goals into one user-facing release: Integrate autonomous-dev-loop as OpenClaw native Skill for cross-workspace iteration; Split bundled release state from task-iteration state; Define bundled releases before selecting task goals",
     "status": "in_progress",
+    "brief": {
+      "objective": "",
+      "target_user_value": "",
+      "why_now": "",
+      "packaging_rationale": "",
+      "scope_in": [],
+      "scope_out": [],
+      "release_acceptance": [],
+      "launch_story": "",
+      "deferred_items": []
+    },
     "goal_ids": [
       "iteration-50-native-loop-skill",
       "iteration-50-release-session-and-state",
@@ -35,7 +46,8 @@
     ],
     "completed_goal_ids": [
       "iteration-50-native-loop-skill",
-      "iteration-51-release-planning-and-selection"
+      "iteration-51-release-planning-and-selection",
+      "iteration-50-release-session-and-state"
     ],
     "task_iterations": [
       {
@@ -59,7 +71,7 @@
   },
   "draft_iteration": null,
   "draft_report": null,
-  "draft_release_report": null,
+  "draft_release_report": "docs/releases/R1.md",
   "draft_goal": null,
   "review_state": {
     "status": "captured",

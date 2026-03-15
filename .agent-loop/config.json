@@ -137,7 +137,7 @@
         "label": "Outcome PM",
         "group": "product-council",
         "responsibility": "Judge whether the iteration materially advances the target outcome.",
-        "focus": "goal mapping, why now, expected outcome",
+        "focus": "goal mapping, why now, expected outcome, release objective",
         "output_fields": [
           "stance",
           "candidate_goal",
@@ -145,13 +145,19 @@
           "expected_outcome",
           "success_signal",
           "reject_reasons"
+        ],
+        "release_output_fields": [
+          "release_objective",
+          "target_user_value",
+          "why_now",
+          "packaging_rationale"
         ]
       },
       "scope-pm": {
         "label": "Scope PM",
         "group": "product-council",
-        "responsibility": "Compress the iteration into the smallest testable boundary.",
-        "focus": "scope in, scope out, stop line",
+        "responsibility": "Compress the iteration into the smallest testable boundary and keep bundled releases coherent.",
+        "focus": "scope in, scope out, stop line, release packaging boundary",
         "output_fields": [
           "stance",
           "scope_in",
@@ -159,18 +165,29 @@
           "mvp_boundary",
           "deferred_items",
           "stop_line"
+        ],
+        "release_output_fields": [
+          "scope_in",
+          "scope_out",
+          "deferred_items",
+          "release_acceptance"
         ]
       },
       "user-pm": {
         "label": "User PM",
         "group": "product-council",
-        "responsibility": "Protect operator clarity, documentation consistency, and handoff quality.",
-        "focus": "user value, cognitive cost, explainability",
+        "responsibility": "Protect operator clarity, documentation consistency, handoff quality, and the release story users will actually perceive.",
+        "focus": "user value, cognitive cost, explainability, launch story",
         "output_fields": [
           "stance",
           "user_value",
           "cognitive_cost",
           "explainability_gaps",
+          "documentation_impact"
+        ],
+        "release_output_fields": [
+          "target_user_value",
+          "launch_story",
           "documentation_impact"
         ]
       },
