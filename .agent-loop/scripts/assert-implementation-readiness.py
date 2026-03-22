@@ -5,6 +5,7 @@ import sys
 
 from common import (
     cli_info,
+    cli_warning,
     implementation_gate_status,
     LoopError,
     load_config,
@@ -31,7 +32,7 @@ def main() -> int:
         if not isinstance(evaluation, dict) or evaluation.get("status") != "captured":
             raise LoopError("当前目标尚未记录评审结果。即使在建议模式下，也要先记录再实施。")
         if result != "pass":
-            cli_info(f"实施准备建议警告（{result}）。继续实施，但不阻断。")
+            cli_warning(f"实施准备处于建议模式（{result}）。继续实施，但不会阻断。")
             return 0
 
     evaluation = require_evaluator_pass(config, state, goal)

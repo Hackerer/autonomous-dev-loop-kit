@@ -22,11 +22,20 @@
     {
       "project_id": "target-repo-6a94b44e",
       "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-6a94b44e",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp_kt9buct/target-repo",
+      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpz7vpcxlz/target-repo",
       "fingerprint": "content:da39a3ee5e6b4b0d3255",
       "label": "target-repo",
       "first_seen_at": "2026-03-22T07:34:47Z",
-      "last_seen_at": "2026-03-22T07:34:47Z"
+      "last_seen_at": "2026-03-22T07:37:31Z"
+    },
+    {
+      "project_id": "target-45b6b8c7",
+      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-45b6b8c7",
+      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpb4pdgjfk/target",
+      "fingerprint": "content:616084a29ee74e496f0b",
+      "label": "target",
+      "first_seen_at": "2026-03-22T07:38:02Z",
+      "last_seen_at": "2026-03-22T07:38:02Z"
     }
   ]
 }

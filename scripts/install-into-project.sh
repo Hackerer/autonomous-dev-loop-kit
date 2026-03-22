@@ -8,11 +8,11 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") --target PATH [options]
 
-Register a target project for this kit without copying kit assets into the target.
+为此 kit 注册一个目标项目，不会把 kit 资产复制到目标目录。
 
 Options:
-  --target PATH           Target project root directory.
-  -h, --help              Show this help.
+  --target PATH           目标项目根目录。
+  -h, --help              显示帮助。
 EOF
 }
 
@@ -48,7 +48,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --target)
       if [[ $# -lt 2 ]]; then
-        echo "Missing value for --target" >&2
+        echo "--target 缺少值" >&2
         exit 1
       fi
       TARGET_DIR="$2"
@@ -59,7 +59,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      echo "Unknown argument: $1" >&2
+      echo "未知参数：$1" >&2
       usage >&2
       exit 1
       ;;
@@ -90,22 +90,22 @@ python3 "${ROOT}/.agent-loop/scripts/record-usage-event.py" \
   --field "mode=${INSTALL_MODE}" \
   >/dev/null
 
-printf 'Project installer finished for %s\n' "$TARGET_DIR"
+printf '项目注册完成：%s\n' "$TARGET_DIR"
 cat <<EOF
-This installer does not write kit assets into the target project by default.
-It only records the target path inside the kit workspace project folder:
+此安装器默认不会向目标项目写入 kit 资产。
+它只会把目标路径记录到 kit 工作区中的项目目录：
 
   ${PROJECT_WORKSPACE_ROOT}/.agent-loop/data/usage-log.jsonl
 EOF
 
 if [[ -n "$REGISTERED_WORKSPACE_ROOT" ]]; then
 cat <<EOF
-The project registry entry is also updated at:
+项目注册表也已更新到：
 
   ${REGISTERED_WORKSPACE_ROOT}
 EOF
 else
 cat <<EOF
-Registry updates were skipped for this installation.
+本次安装已跳过注册表更新。
 EOF
 fi

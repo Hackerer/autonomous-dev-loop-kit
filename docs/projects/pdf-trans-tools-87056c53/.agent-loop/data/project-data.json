@@ -1,6 +1,6 @@
 {
   "snapshot_version": 1,
-  "collected_at": "2026-03-22T07:32:28Z",
+  "collected_at": "2026-03-22T07:40:25Z",
   "repo": {
     "root": "/Users/max/Documents/pdf_trans_tools",
     "name": "pdf_trans_tools",
@@ -122,7 +122,7 @@
   },
   "latest_review_state": {
     "status": "captured",
-    "captured_at": "2026-03-22T07:30:24Z",
+    "captured_at": "2026-03-22T07:37:56Z",
     "goal_id": null,
     "goal_title": null,
     "matches_current_goal": true,
@@ -130,7 +130,7 @@
     "current_goal_title": null,
     "research_gate": {
       "status": "captured",
-      "summary": "Core translation workflow complete. Now adding CLI interface and error handling for production use.",
+      "summary": "Multi-backend support complete. Adding translation caching for efficiency.",
       "data_quality_score": null,
       "open_gaps": []
     },
@@ -154,9 +154,9 @@
     },
     "scope_decision": {
       "status": "captured",
-      "selected_goal": "pdf-trans-v1-cli-interface",
-      "scope_in_count": 4,
-      "scope_out_count": 4,
+      "selected_goal": "pdf-trans-v2-caching",
+      "scope_in_count": 7,
+      "scope_out_count": 7,
       "required_validation": [
         "pytest must pass"
       ],
@@ -166,7 +166,7 @@
     "evaluation": {
       "status": "captured",
       "rubric_version": "iteration-readiness-v1",
-      "weighted_score": 4.5,
+      "weighted_score": 4.3,
       "result": "pass"
     },
     "experiment": {

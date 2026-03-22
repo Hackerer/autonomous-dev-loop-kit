@@ -104,7 +104,7 @@ def find_repo_root(start: str | None = None) -> Path:
     for candidate in (path, *path.parents):
         if (candidate / ROOT_MARKER).is_dir():
             return candidate
-    raise LoopError(f"Unable to find repo root containing {ROOT_MARKER} from {path}")
+    raise LoopError(f"无法从 {path} 找到包含 {ROOT_MARKER} 的仓库根目录。")
 
 
 def kit_root() -> Path:
@@ -314,7 +314,7 @@ def resolve_execution_roots(target: str | None = None) -> tuple[Path, Path, Path
 def load_json(path: Path, default: Any | None = None) -> Any:
     if not path.exists():
         if default is None:
-            raise LoopError(f"Missing required file: {path}")
+            raise LoopError(f"缺少必需文件：{path}")
         return default
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
@@ -539,7 +539,7 @@ def load_state(root: Path) -> dict[str, Any]:
     path = root / ROOT_MARKER / STATE_FILE
     state = load_json(path, default=default_state())
     if not isinstance(state, dict):
-        raise LoopError(f"State file must contain an object: {path}")
+        raise LoopError(f"状态文件必须包含对象：{path}")
     merged = default_state()
     merged.update(state)
 
@@ -734,7 +734,7 @@ def load_config(root: Path) -> dict[str, Any]:
     path = root / ROOT_MARKER / CONFIG_FILE
     config = load_json(path)
     if not isinstance(config, dict):
-        raise LoopError(f"Config file must contain an object: {path}")
+        raise LoopError(f"配置文件必须包含对象：{path}")
     return config
 
 
@@ -1174,7 +1174,7 @@ def load_backlog(root: Path) -> list[dict[str, Any]]:
     path = root / ROOT_MARKER / BACKLOG_FILE
     backlog = load_json(path, default=[])
     if not isinstance(backlog, list):
-        raise LoopError(f"Backlog file must contain a list: {path}")
+        raise LoopError(f"待办文件必须包含数组：{path}")
     return backlog
 
 
@@ -1218,13 +1218,13 @@ def git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
 def ensure_git_repo(root: Path) -> None:
     probe = git(root, "rev-parse", "--is-inside-work-tree")
     if probe.returncode != 0 or probe.stdout.strip() != "true":
-        raise LoopError(f"{root} is not inside a Git repository")
+        raise LoopError(f"{root} 不在 Git 仓库中。")
 
 
 def current_branch(root: Path) -> str:
     result = git(root, "branch", "--show-current")
     if result.returncode != 0:
-        raise LoopError(result.stderr.strip() or "Unable to read current branch")
+        raise LoopError(result.stderr.strip() or "无法读取当前分支。")
     return result.stdout.strip()
 
 
@@ -1377,12 +1377,12 @@ def goal_title(goal: Any) -> str:
 def require_selected_goal(state: dict[str, Any]) -> dict[str, Any]:
     goal = state.get("current_goal") or state.get("draft_goal")
     if not isinstance(goal, dict):
-        raise LoopError("No active goal is selected. Run `python3 .agent-loop/scripts/select-next-goal.py` first.")
+        raise LoopError("当前没有选中的活动目标。请先运行 `python3 .agent-loop/scripts/select-next-goal.py`。")
     goal_id = str(goal.get("id", "")).strip()
     goal_name = goal_title(goal)
     if not goal_id or goal_name == "unspecified goal":
         raise LoopError(
-            "The active goal is incomplete or unspecified. Select a valid backlog goal before writing reports or publishing."
+            "当前活动目标不完整或未指定。请先选择一个有效的待办目标，再写报告或发布。"
         )
     return goal
 
@@ -1523,12 +1523,12 @@ def require_review_state(config: dict[str, Any], state: dict[str, Any], goal: An
     review_state = state.get("review_state")
     if not isinstance(review_state, dict) or not review_state_matches_goal(review_state, goal):
         raise LoopError(
-            "Recorded review state is missing or does not match the active goal. Run `python3 .agent-loop/scripts/capture-review.py ...` before reporting or publishing."
+            "已记录的评审状态缺失或与当前活动目标不一致。请先运行 `python3 .agent-loop/scripts/capture-review.py ...`，再写报告或发布。"
         )
 
     if not review_state_has_content(review_state):
         raise LoopError(
-            "Recorded review state is empty for the active goal. Capture research, committee feedback, or a decision before reporting or publishing."
+            "当前活动目标的评审状态为空。请先记录研究、委员会反馈或决策，再写报告或发布。"
         )
     return review_state
 
@@ -1544,15 +1544,15 @@ def require_evaluator_pass(config: dict[str, Any], state: dict[str, Any], goal: 
     evaluation = review_state.get("evaluation")
     if not isinstance(evaluation, dict):
         raise LoopError(
-            "Evaluator result is missing for the active goal. Record a passing evaluator result with `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass` before implementation."
+            "当前活动目标缺少评审结果。请先运行 `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass` 记录通过结果，再开始实施。"
         )
     if evaluation.get("status") != "captured":
         raise LoopError(
-            "Evaluator result has not been captured for the active goal. Record it with `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass` before implementation."
+            "当前活动目标的评审结果尚未记录。请先运行 `python3 .agent-loop/scripts/capture-review.py ... --evaluation-result pass`，再开始实施。"
         )
     if str(evaluation.get("result", "")).strip() != "pass":
         raise LoopError(
-            "Evaluator result is not pass for the active goal. Resolve the critique and record a passing evaluator result before implementation."
+            "当前活动目标的评审结果不是 pass。请先解决批评意见并重新记录通过结果，再开始实施。"
         )
     return evaluation
 
@@ -1610,16 +1610,16 @@ def require_session_capacity(config: dict[str, Any], state: dict[str, Any]) -> d
     if target is None:
         if require_explicit:
             raise LoopError(
-                "Release target is not configured. Run `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before selecting the next goal."
+                "未配置发布目标。请先运行 `python3 .agent-loop/scripts/set-loop-session.py --iterations N`，再选择下一个目标。"
             )
         fallback_limit = planning.get("max_releases_per_session", planning.get("max_iterations_per_session"))
         if fallback_limit is not None and completed >= int(fallback_limit):
-            raise LoopError(f"Release limit reached for this session ({completed}/{int(fallback_limit)}).")
+            raise LoopError(f"本次会话已达到发布上限（{completed}/{int(fallback_limit)}）。")
         return session
 
     target = int(target)
     if completed >= target:
-        raise LoopError(f"Release limit reached for this session ({completed}/{target}).")
+        raise LoopError(f"本次会话已达到发布上限（{completed}/{target}）。")
     return session
 
 
@@ -1740,25 +1740,25 @@ def promote_candidate_decision(state: dict[str, Any], allow_equal: bool = False)
     explicit_decision = str(promotion.get("decision", "")).strip()
     explicit_reason = str(promotion.get("reason", "")).strip()
     if explicit_decision in {"discard", "revise"}:
-        return False, explicit_reason or f"Experiment decision is {explicit_decision}.", None, None
+        return False, explicit_reason or f"实验决策为 {explicit_decision}。", None, None
 
     baseline_value = latest_promoted_metric_value(state)
     candidate_value = current_candidate_metric(state)
     direction = str(comparison.get("direction", "higher")).strip() or "higher"
 
     if baseline_value is None or candidate_value is None:
-        return True, "No comparable baseline metric exists yet, so the candidate becomes the first promoted base.", baseline_value, candidate_value
+        return True, "目前还没有可比较的基线指标，因此候选版本将成为第一个晋级基线。", baseline_value, candidate_value
 
     if direction == "lower":
         better = candidate_value < baseline_value or (allow_equal and candidate_value == baseline_value)
         if better:
-            return True, explicit_reason or f"Candidate metric {candidate_value} is lower than baseline {baseline_value}.", baseline_value, candidate_value
-        return False, f"Candidate metric {candidate_value} does not improve on baseline {baseline_value}.", baseline_value, candidate_value
+            return True, explicit_reason or f"候选指标 {candidate_value} 低于基线 {baseline_value}。", baseline_value, candidate_value
+        return False, f"候选指标 {candidate_value} 未优于基线 {baseline_value}。", baseline_value, candidate_value
 
     better = candidate_value > baseline_value or (allow_equal and candidate_value == baseline_value)
     if better:
-        return True, explicit_reason or f"Candidate metric {candidate_value} improves on baseline {baseline_value}.", baseline_value, candidate_value
-    return False, f"Candidate metric {candidate_value} does not improve on baseline {baseline_value}.", baseline_value, candidate_value
+        return True, explicit_reason or f"候选指标 {candidate_value} 优于基线 {baseline_value}。", baseline_value, candidate_value
+    return False, f"候选指标 {candidate_value} 未优于基线 {baseline_value}。", baseline_value, candidate_value
 
 
 def release_summary(state: dict[str, Any]) -> dict[str, Any]:
@@ -1788,7 +1788,7 @@ def require_active_release(config: dict[str, Any], state: dict[str, Any]) -> dic
     release = release_summary(state)
     if release_cfg["require_release_plan"] and release["status"] in {"not_planned", "published"}:
         raise LoopError(
-            "No active release plan exists. Define the next bundled version first with `python3 .agent-loop/scripts/plan-release.py`."
+            "当前没有活动发布计划。请先运行 `python3 .agent-loop/scripts/plan-release.py` 制定下一个打包版本。"
         )
     return release
 
@@ -1797,10 +1797,10 @@ def require_goal_in_active_release(config: dict[str, Any], state: dict[str, Any]
     release = require_active_release(config, state)
     goal_id = str(goal.get("id", "")).strip()
     if release["number"] is None or not goal_id:
-        raise LoopError("Cannot continue because the active goal is not attached to a valid planned release.")
+        raise LoopError("当前活动目标未附着到有效的已规划发布，无法继续。")
     if release["goal_ids"] and goal_id not in release["goal_ids"]:
         raise LoopError(
-            "The active goal is not part of the active release. Re-select a goal from the current release plan or plan a new release intentionally."
+            "当前活动目标不属于当前活动发布。请重新从当前发布计划中选择目标，或有意地规划新的发布。"
         )
     return release
 
@@ -1818,8 +1818,8 @@ def goal_selection_blockers(config: dict[str, Any], state: dict[str, Any], quali
     discovery = discovery_config(config)
 
     if quality_status == "insufficient":
-        blockers.append("Project data quality is insufficient for goal selection.")
-        blockers.extend(f"Data gap: {gap}" for gap in gaps if str(gap).strip())
+        blockers.append("项目数据质量不足，无法选择目标。")
+        blockers.extend(f"数据缺口：{gap}" for gap in gaps if str(gap).strip())
 
     if discovery.get("require_research_before_goal_selection", False):
         review_state = state.get("review_state", {})
@@ -1827,12 +1827,12 @@ def goal_selection_blockers(config: dict[str, Any], state: dict[str, Any], quali
         if isinstance(research_gate, dict) and str(research_gate.get("status", "")).strip() == "need_more_context":
             summary = str(research_gate.get("summary", "")).strip()
             if summary:
-                blockers.append(f"Research gate: {summary}")
+                blockers.append(f"研究门：{summary}")
             else:
-                blockers.append("Research gate requires more context before selecting a goal.")
+                blockers.append("研究门在选择目标前需要更多上下文。")
             open_gaps = research_gate.get("open_gaps", [])
             if isinstance(open_gaps, list):
-                blockers.extend(f"Research gap: {gap}" for gap in open_gaps if str(gap).strip())
+                blockers.extend(f"研究缺口：{gap}" for gap in open_gaps if str(gap).strip())
 
     return blockers
 

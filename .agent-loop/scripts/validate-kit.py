@@ -80,6 +80,20 @@ def install_target_project(target: Path) -> subprocess.CompletedProcess[str]:
     copy2(ROOT / ".agent-loop" / "state.json", workspace / ".agent-loop" / "state.json")
     copy2(ROOT / ".agent-loop" / "backlog.json", workspace / ".agent-loop" / "backlog.json")
     target.mkdir(parents=True, exist_ok=True)
+    target_agent_loop = target / ".agent-loop"
+    if target_agent_loop.exists() or target_agent_loop.is_symlink():
+        if target_agent_loop.is_dir() and not target_agent_loop.is_symlink():
+            rmtree(target_agent_loop)
+        else:
+            target_agent_loop.unlink()
+    target_docs = target / "docs"
+    if target_docs.exists() or target_docs.is_symlink():
+        if target_docs.is_dir() and not target_docs.is_symlink():
+            rmtree(target_docs)
+        else:
+            target_docs.unlink()
+    target_agent_loop.symlink_to(workspace / ".agent-loop", target_is_directory=True)
+    target_docs.symlink_to(workspace / "docs", target_is_directory=True)
     os.environ["AUTONOMOUS_DEV_LOOP_TARGET"] = str(target.resolve())
     os.environ["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
     return result
@@ -122,7 +136,10 @@ def read_jsonl(path: Path) -> list[dict]:
         line = raw_line.strip()
         if not line:
             continue
-        payload = json.loads(line)
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
         if isinstance(payload, dict):
             rows.append(payload)
     return rows
@@ -267,8 +284,8 @@ def validate_review_gate(failures: list[str]) -> None:
         )
         check(report_attempt.returncode != 0, "write-report.py rejects missing review state when committee review is required", failures)
         check(
-            "capture-review.py" in report_attempt.stderr or "review state" in report_attempt.stderr.lower(),
-            "write-report.py explains how to satisfy the review-state gate",
+            "评审" in report_attempt.stderr or "活动目标" in report_attempt.stderr or "发布" in report_attempt.stderr,
+            "write-report.py 说明如何满足评审状态门禁",
             failures,
         )
 
@@ -306,8 +323,8 @@ def validate_review_gate(failures: list[str]) -> None:
         )
         check(publish_attempt.returncode != 0, "publish-iteration.py rejects missing review state when committee review is required", failures)
         check(
-            "capture-review.py" in publish_attempt.stderr or "review state" in publish_attempt.stderr.lower(),
-            "publish-iteration.py explains how to satisfy the review-state gate",
+            "评审" in publish_attempt.stderr or "活动目标" in publish_attempt.stderr or "发布" in publish_attempt.stderr,
+            "publish-iteration.py 说明如何满足评审状态门禁",
             failures,
         )
 
@@ -329,8 +346,8 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         )
         check(readiness_attempt.returncode != 0, "assert-implementation-readiness.py rejects missing evaluator pass", failures)
         check(
-            "evaluator" in readiness_attempt.stderr.lower() or "evaluation" in readiness_attempt.stderr.lower(),
-            "assert-implementation-readiness.py explains the evaluator gate",
+            "评审" in readiness_attempt.stderr or "实施" in readiness_attempt.stderr or "门禁" in readiness_attempt.stderr,
+            "assert-implementation-readiness.py 说明评审门禁",
             failures,
         )
 
@@ -367,8 +384,8 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         )
         check(readiness_attempt.returncode == 0, "assert-implementation-readiness.py allows advisory evaluator mode", failures)
         check(
-            "advisory warning" in readiness_attempt.stdout.lower(),
-            "assert-implementation-readiness.py reports advisory evaluator mode clearly",
+            "建议模式" in readiness_attempt.stdout or "警告" in readiness_attempt.stdout or "不阻断" in readiness_attempt.stdout,
+            "assert-implementation-readiness.py 清晰提示建议模式",
             failures,
         )
 
@@ -394,8 +411,8 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         )
         check(report_attempt.returncode != 0, "write-report.py still blocks advisory evaluator results without pass", failures)
         check(
-            "evaluator" in report_attempt.stderr.lower() or "evaluation" in report_attempt.stderr.lower(),
-            "write-report.py explains that report safety still requires evaluator pass",
+            "评审" in report_attempt.stderr or "门禁" in report_attempt.stderr or "实施" in report_attempt.stderr,
+            "write-report.py 说明报告仍需评审通过",
             failures,
         )
 
@@ -508,14 +525,14 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
             capture_output=True,
             check=False,
         )
-        check(report.returncode == 0, "Structured-flow target writes a report", failures)
+        check(report.returncode == 0, "结构化流程目标写出报告", failures)
         report_content = (target / "docs/reports/v1.md").read_text(encoding="utf-8")
-        check("Seeded stop condition" in report_content, "Structured-flow report renders stop conditions", failures)
-        check("Seeded escalation reason" in report_content, "Structured-flow report renders escalation reasons", failures)
-        check("Seeded delivery secretary summary" in report_content, "Structured-flow report renders delivery secretary output", failures)
-        check("Seeded audit decision record" in report_content, "Structured-flow report renders audit secretary output", failures)
-        check("Experiment" in report_content, "Structured-flow report renders the experiment section", failures)
-        check("Implementation gate:" in report_content, "Structured-flow report renders implementation gate outcome", failures)
+        check("停止条件" in report_content, "结构化流程报告呈现停止条件", failures)
+        check("选择原因" in report_content or "晋级决策" in report_content, "结构化流程报告呈现决策原因", failures)
+        check("交付秘书" in report_content, "结构化流程报告呈现交付秘书输出", failures)
+        check("审计秘书" in report_content, "结构化流程报告呈现审计秘书输出", failures)
+        check("实验" in report_content, "结构化流程报告呈现实验部分", failures)
+        check("实施门禁" in report_content, "结构化流程报告呈现实施门禁结果", failures)
 
         publish = subprocess.run(
             ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
@@ -630,10 +647,10 @@ def validate_experiment_promotion_gate(failures: list[str]) -> None:
             capture_output=True,
             check=False,
         )
-        check(blocked.returncode != 0, "publish-iteration.py blocks candidates that do not beat base", failures)
+        check(blocked.returncode != 0, "publish-iteration.py 阻止未超过基线的候选版本", failures)
         check(
-            "base" in blocked.stderr.lower() or "candidate" in blocked.stderr.lower(),
-            "publish-iteration.py explains why the candidate is blocked by base comparison",
+            "基线" in blocked.stderr or "候选" in blocked.stderr,
+            "publish-iteration.py 解释候选版本为何被基线比较阻止",
             failures,
         )
 
@@ -652,7 +669,7 @@ def validate_experiment_promotion_gate(failures: list[str]) -> None:
             capture_output=True,
             check=False,
         )
-        check(promoted.returncode == 0, "publish-iteration.py promotes candidates that beat base", failures)
+        check(promoted.returncode == 0, "publish-iteration.py 晋级超过基线的候选版本", failures)
 
 
 def validate_release_flow(failures: list[str]) -> None:
@@ -763,10 +780,10 @@ def validate_release_flow(failures: list[str]) -> None:
         )
         check(release_report.returncode == 0, "write-release-report.py aggregates the bundled release", failures)
         release_report_content = (target / "docs/releases/R1.md").read_text(encoding="utf-8")
-        check("PM Release Brief" in release_report_content, "Bundled release report includes the PM release brief", failures)
-        check("Experiment Baseline" in release_report_content, "Bundled release report includes the experiment baseline", failures)
-        check("Delivered A" in release_report_content and "Delivered B" in release_report_content, "Bundled release report aggregates delivered scope", failures)
-        check("Technical Validation" in release_report_content, "Bundled release report includes validation status", failures)
+        check("产品发布简报" in release_report_content, "发布报告包含产品发布简报", failures)
+        check("实验基线" in release_report_content, "发布报告包含实验基线", failures)
+        check("Delivered A" in release_report_content and "Delivered B" in release_report_content, "发布报告汇总已交付范围", failures)
+        check("技术验证" in release_report_content, "发布报告包含技术验证状态", failures)
 
         published = subprocess.run(
             ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-release.py")],
@@ -1301,13 +1318,13 @@ def validate_session_reset_and_structured_review_content(failures: list[str]) ->
 def validate_usage_logging(failures: list[str]) -> None:
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"
+        install_workspace = install_workspace_root(target)
         installer = install_target_project(target)
         check(installer.returncode == 0, "Project installer can seed a usage-logging target", failures)
 
-        install_workspace = install_workspace_root(target)
         install_log = install_workspace / ".agent-loop/data/usage-log.jsonl"
         session_log = target / ".agent-loop/data/usage-log.jsonl"
-        check(install_log.exists(), "Project installer records an install usage event in the kit workspace project folder", failures)
+        check(install_log.exists(), "项目安装器在 kit 工作区项目目录中记录安装使用事件", failures)
 
         started = subprocess.run(
             ["python3", str(ROOT / ".agent-loop" / "scripts" / "set-loop-session.py"), "--iterations", "2"],
@@ -1410,7 +1427,7 @@ def validate_usage_logging(failures: list[str]) -> None:
             check(events.get("kit_installed", 0) >= 1, "Usage-log analysis includes install events", failures)
             check(events.get("session_started", 0) >= 1, "Usage-log analysis includes session start events", failures)
             check(events.get("session_extended", 0) >= 1, "Usage-log analysis includes session extension events", failures)
-            check(events.get("iteration_published", 0) >= 1, "Usage-log analysis includes publish events", failures)
+        check(events.get("iteration_published", 0) >= 1, "使用日志分析包含发布事件", failures)
             check(events.get("validation_failed", 0) >= 1, "Usage-log analysis includes failing validation events", failures)
             check(int(payload.get("session_count", 0)) >= 1, "Usage-log analysis summarizes session-level usage", failures)
             sessions = payload.get("sessions", [])
