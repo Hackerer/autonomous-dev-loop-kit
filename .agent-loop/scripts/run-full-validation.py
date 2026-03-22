@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 
 from common import (
+    cli_info,
     LAST_VALIDATION_FILE,
     append_usage_log,
     LoopError,
@@ -23,8 +24,9 @@ def main() -> int:
     validation = config.get("validation", {})
     commands = validation.get("commands", [])
     if not commands:
-        raise LoopError("No validation.commands configured in .agent-loop/config.json")
+        raise LoopError(".agent-loop/config.json 中未配置 validation.commands。")
 
+    cli_info("正在执行全量验证。")
     results = []
     passed = True
     for item in commands:
@@ -32,7 +34,7 @@ def main() -> int:
         command = item.get("command")
         required = bool(item.get("required", True))
         if not command:
-            raise LoopError(f"Validation step '{name}' is missing a command")
+            raise LoopError(f"验证步骤 '{name}' 缺少命令。")
         result = run_shell(command, target_root)
         result["name"] = name
         result["required"] = required
@@ -65,8 +67,8 @@ def main() -> int:
     )
 
     for result in results:
-        status = "PASS" if result["passed"] else "FAIL"
-        print(f"[{status}] {result['name']}: {result['command']}")
+        status = "通过" if result["passed"] else "失败"
+        print(f"[{status}] {result['name']}：{result['command']}")
 
     return 0 if passed else 1
 
@@ -75,5 +77,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

@@ -80,7 +80,10 @@ class CommonHelperTests(unittest.TestCase):
             self.assertTrue(common.project_key(target).startswith("target-"))
             os.environ.pop("AUTONOMOUS_DEV_LOOP_PROJECT_ID", None)
 
-            workspace = kit / "docs" / "projects" / "sample-project"
+            workspace = common.project_workspace_path(kit, target)
+            self.assertEqual(workspace.parent, (kit / "docs" / "projects").resolve())
+            self.assertTrue(workspace.name.startswith("target-"))
+            self.assertEqual(common.project_workspace_root(kit, target), workspace.resolve())
             common.save_projects_index(
                 kit,
                 {
@@ -99,6 +102,14 @@ class CommonHelperTests(unittest.TestCase):
             self.assertEqual(common.project_workspace_root(kit, target), workspace.resolve())
             self.assertEqual(common.resolve_execution_roots(str(target))[0], common.kit_root())
             self.assertEqual(common.project_label(target), "target")
+
+            fresh_target = Path(tmp) / "fresh-target"
+            fresh_target.mkdir()
+            (fresh_target / "README.md").write_text("fresh", encoding="utf-8")
+            self.assertEqual(common.project_workspace_root(kit, fresh_target), common.project_workspace_path(kit, fresh_target))
+            registered = common.register_project_workspace(kit, fresh_target)
+            self.assertEqual(registered, common.project_workspace_path(kit, fresh_target))
+            self.assertTrue(any(entry.get("workspace") == str(registered) for entry in common.load_projects_index(kit)["projects"]))
 
     def test_git_helpers(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

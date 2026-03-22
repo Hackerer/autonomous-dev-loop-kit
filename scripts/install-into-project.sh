@@ -30,6 +30,20 @@ print(project_workspace_root(kit, target))
 PY
 }
 
+register_project_workspace() {
+  python3 - "$ROOT" "$TARGET_DIR" <<'PY'
+from pathlib import Path
+import sys
+
+kit = Path(sys.argv[1]).resolve()
+target = Path(sys.argv[2]).resolve()
+import sys
+sys.path.insert(0, str(kit / ".agent-loop" / "scripts"))
+from common import register_project_workspace
+print(register_project_workspace(kit, target))
+PY
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --target)
@@ -62,6 +76,11 @@ PROJECT_WORKSPACE_ROOT="$(project_workspace_root)"
 INSTALL_MODE="no-copy"
 USAGE_LOG_ROOT="${PROJECT_WORKSPACE_ROOT}"
 
+REGISTERED_WORKSPACE_ROOT=""
+if [[ "${AUTONOMOUS_DEV_LOOP_SKIP_REGISTRY:-0}" != "1" ]]; then
+  REGISTERED_WORKSPACE_ROOT="$(register_project_workspace)"
+fi
+
 python3 "${ROOT}/.agent-loop/scripts/record-usage-event.py" \
   --repo-root "${USAGE_LOG_ROOT}" \
   --target-root "${TARGET_DIR}" \
@@ -78,3 +97,15 @@ It only records the target path inside the kit workspace project folder:
 
   ${PROJECT_WORKSPACE_ROOT}/.agent-loop/data/usage-log.jsonl
 EOF
+
+if [[ -n "$REGISTERED_WORKSPACE_ROOT" ]]; then
+cat <<EOF
+The project registry entry is also updated at:
+
+  ${REGISTERED_WORKSPACE_ROOT}
+EOF
+else
+cat <<EOF
+Registry updates were skipped for this installation.
+EOF
+fi

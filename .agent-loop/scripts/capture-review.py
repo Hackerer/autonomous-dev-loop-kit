@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 
-from common import LoopError, default_state, load_state, resolve_execution_roots, save_state, utc_now
+from common import cli_info, LoopError, default_state, load_state, resolve_execution_roots, save_state, utc_now
 
 
 def merge_unique(existing: list[str], new_values: list[str]) -> list[str]:
@@ -38,20 +38,20 @@ def parse_scores(score_args: list[str]) -> dict[str, float]:
     scores: dict[str, float] = {}
     for raw_item in score_args:
         if "=" not in raw_item:
-            raise LoopError(f"Invalid --score value '{raw_item}'. Expected criterion=value.")
+            raise LoopError(f"--score 值无效 '{raw_item}'。应为 criterion=value。")
         key, value = raw_item.split("=", 1)
         key = key.strip()
         if not key:
-            raise LoopError(f"Invalid --score value '{raw_item}'. Criterion name is required.")
+            raise LoopError(f"--score 值无效 '{raw_item}'。必须提供指标名称。")
         try:
             scores[key] = float(value)
         except ValueError as exc:
-            raise LoopError(f"Invalid --score value '{raw_item}'. Score must be numeric.") from exc
+            raise LoopError(f"--score 值无效 '{raw_item}'。分数必须是数字。") from exc
     return scores
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Persist research and committee review conclusions for the current iteration.")
+    parser = argparse.ArgumentParser(description="为当前迭代保存研究与委员会评审结论。")
     parser.add_argument("--research", action="append", default=[], help="Research finding to persist.")
     parser.add_argument(
         "--research-status",
@@ -186,7 +186,7 @@ def main() -> int:
         and not args.recommended_action
         and not args.reflection
     ):
-        raise LoopError("At least one review input is required.")
+        raise LoopError("至少需要提供一项评审输入。")
 
     kit_root, _, workspace_root = resolve_execution_roots()
     state = load_state(workspace_root)
@@ -468,7 +468,8 @@ def main() -> int:
     if args.json:
         print(json.dumps(payload, ensure_ascii=True, indent=2))
     else:
-        print("Captured review state.")
+        cli_info("正在保存评审状态。")
+        cli_info("已保存评审状态。")
     return 0
 
 
@@ -476,5 +477,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

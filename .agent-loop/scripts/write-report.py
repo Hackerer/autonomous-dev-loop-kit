@@ -7,6 +7,7 @@ from datetime import datetime
 
 from common import (
     append_usage_log,
+    cli_info,
     committee_summary,
     implementation_gate_status,
     LoopError,
@@ -50,6 +51,90 @@ def prefixed_lines(prefix: str, values: list[str]) -> list[str]:
     return [f"{prefix}{value}" for value in values if value.strip()]
 
 
+def translate_report_text(text: str) -> str:
+    replacements = [
+        ("## Session Progress", "## 会话进度"),
+        ("## Current State Analysis", "## 当前状态分析"),
+        ("## Research", "## 研究"),
+        ("## Committee Review", "## 委员会评审"),
+        ("## Secretariat", "## 秘书处"),
+        ("## Task Goal", "## 任务目标"),
+        ("## Scope Decision", "## 范围决策"),
+        ("## Key Observations", "## 关键观察"),
+        ("## Evidence Sources", "## 证据来源"),
+        ("## Data Quality", "## 数据质量"),
+        ("## Delivered", "## 已交付内容"),
+        ("## Evaluation Readiness", "## 评审准备情况"),
+        ("## Experiment", "## 实验"),
+        ("## Stop And Escalation", "## 停止与升级"),
+        ("## Full Validation", "## 全量验证"),
+        ("## Reflection", "## 反思"),
+        ("## Proposed Next Goal", "## 下一目标建议"),
+        ("Release session progress:", "发布会话进度："),
+        ("Task iteration progress:", "任务迭代进度："),
+        ("Active release:", "当前发布："),
+        ("# Task Iteration v", "# 任务迭代 v"),
+        ("Task Iteration", "任务迭代"),
+        (" Report", " 报告"),
+        ("- Goal:", "- 目标："),
+        ("Implementation gate:", "实施门禁："),
+        ("Latest quality status:", "最新数据质量状态："),
+        ("Blocking gaps:", "阻塞问题："),
+        ("Research gate summary:", "研究门总结："),
+        ("Open gap:", "未闭合问题："),
+        ("Members:", "成员："),
+        ("no named members", "未指定成员"),
+        ("Product Council summary:", "产品委员会总结："),
+        ("Product Council decision:", "产品委员会决策："),
+        ("Product Council dissent:", "产品委员会异议："),
+        ("Architecture Council summary:", "架构委员会总结："),
+        ("Architecture Council decision:", "架构委员会决策："),
+        ("Architecture Council dissent:", "架构委员会异议："),
+        ("Operator Council summary:", "运营委员会总结："),
+        ("Operator Council decision:", "运营委员会决策："),
+        ("Operator Council dissent:", "运营委员会异议："),
+        ("Delivery Secretary summary:", "交付秘书总结："),
+        ("Delivery Secretary next action:", "交付秘书下一步："),
+        ("Audit Secretary summary:", "审计秘书总结："),
+        ("Audit decision record:", "审计决策记录："),
+        ("Audit open gap:", "审计未闭合问题："),
+        ("Audit dissent:", "审计异议："),
+        ("Why selected:", "选择原因："),
+        ("Scope in:", "范围内："),
+        ("Scope out:", "范围外："),
+        ("Assumption:", "假设："),
+        ("Risk:", "风险："),
+        ("Required validation:", "必需验证："),
+        ("Stop condition:", "停止条件："),
+        ("Scope dissent:", "范围异议："),
+        ("Next action:", "下一步："),
+        ("Implementation gate:", "实施门禁："),
+        ("Evaluator outcome:", "评审结果："),
+        ("Evaluator scores:", "评审分项："),
+        ("Evaluator critique:", "评审批评："),
+        ("Minimum fix required:", "最低修复要求："),
+        ("Base:", "基线："),
+        ("Candidate:", "候选："),
+        ("Comparison:", "对比结果："),
+        ("Comparison rationale:", "对比说明："),
+        ("Promotion decision:", "晋级决策："),
+        ("Promotion reason:", "晋级原因："),
+        ("Promotion next action:", "晋级下一步："),
+        ("Escalation status:", "升级状态："),
+        ("Escalation reason:", "升级原因："),
+        ("Escalation action:", "建议动作："),
+        ("No experiment comparison was captured for this goal.", "当前目标未记录实验对比。"),
+        ("Record open gaps, stop conditions, and escalation status so a later operator can see why the loop would stop or escalate.", "请记录未闭合问题、停止条件和升级状态，方便后续操作者理解为什么循环会停止或升级。"),
+        ("No validation results were recorded.", "未记录验证结果。"),
+        ("Reflect on requirement clarity and architectural impact.", "请反思需求清晰度与架构影响。"),
+        ("Propose the next highest-value task inside the current release or the next release theme.", "请提出当前发布内或下一发布主题下的最高价值下一任务。"),
+        ("Task iteration v", "任务迭代 v"),
+    ]
+    for src, dst in replacements:
+        text = text.replace(src, dst)
+    return text
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Write a task-iteration report for the next autonomous loop step.")
     parser.add_argument("--analysis", action="append", default=[], help="Current-state analysis bullet.")
@@ -68,6 +153,7 @@ def main() -> int:
     kit_root, target_root, workspace_root = resolve_execution_roots()
     config = load_config(kit_root)
     state = load_state(workspace_root)
+    cli_info("正在生成任务迭代报告。")
     validation = require_green_validation(state)
     session = session_summary(state)
     release = release_summary(state)
@@ -381,7 +467,7 @@ def main() -> int:
         *bullet_lines(args.next_goal, "Propose the next highest-value task inside the current release or the next release theme."),
         "",
     ]
-    report_path.write_text("\n".join(content), encoding="utf-8")
+    report_path.write_text(translate_report_text("\n".join(content)), encoding="utf-8")
 
     state = load_state(workspace_root)
     state["draft_iteration"] = iteration
@@ -402,7 +488,7 @@ def main() -> int:
         target_root=target_root,
     )
 
-    print(report_path)
+    cli_info(f"任务报告已写入：{report_path}")
     return 0
 
 
@@ -410,5 +496,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

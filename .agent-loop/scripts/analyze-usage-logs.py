@@ -212,10 +212,10 @@ def summarize_usage(rows: list[dict[str, Any]], log_paths: list[Path], invalid_r
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Analyze one or more autonomous loop usage-log files.")
-    parser.add_argument("--repo", action="append", default=[], help="Repo root whose usage log should be analyzed.")
-    parser.add_argument("--log", action="append", default=[], help="Explicit usage-log JSONL path.")
-    parser.add_argument("--json", action="store_true", help="Print the usage summary as JSON.")
+    parser = argparse.ArgumentParser(description="分析一个或多个自治循环使用日志文件。")
+    parser.add_argument("--repo", action="append", default=[], help="要分析其使用日志的仓库根目录。")
+    parser.add_argument("--log", action="append", default=[], help="显式使用日志 JSONL 路径。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出使用摘要。")
     args = parser.parse_args()
 
     log_paths: list[Path] = []
@@ -242,44 +242,44 @@ def main() -> int:
         print(json.dumps(summary, ensure_ascii=True, indent=2))
         return 0
 
-    print("Usage log summary")
-    print(f"- Total events: {summary['event_count']}")
+    print("使用日志摘要")
+    print(f"- 事件总数：{summary['event_count']}")
     if summary["invalid_row_count"]:
-        print(f"- Malformed rows skipped: {summary['invalid_row_count']}")
-    print(f"- Sessions with ids: {summary['session_count']}")
+        print(f"- 跳过的损坏行数：{summary['invalid_row_count']}")
+    print(f"- 带会话 ID 的会话数：{summary['session_count']}")
     if summary["legacy_event_count"]:
-        print(f"- Legacy events without session ids: {summary['legacy_event_count']}")
-    print("- Events by type:")
+        print(f"- 不带会话 ID 的旧事件数：{summary['legacy_event_count']}")
+    print("- 按事件类型统计：")
     if summary["events_by_type"]:
         for event_type, count in summary["events_by_type"].items():
             print(f"  - {event_type}: {count}")
     else:
-        print("  - none")
-    print("- Events by client:")
+        print("  - 无")
+    print("- 按客户端统计：")
     if summary["events_by_client"]:
         for client, count in summary["events_by_client"].items():
             print(f"  - {client}: {count}")
     else:
-        print("  - none")
-    print("- Session highlights:")
+        print("  - 无")
+    print("- 会话摘要：")
     if summary["sessions"]:
         for session in summary["sessions"]:
-            published = ",".join(str(item) for item in session["published_release_numbers"]) or "none"
+            published = ",".join(str(item) for item in session["published_release_numbers"]) or "无"
             print(
-                f"  - {session['session_id']} ({session['repo']}): releases published [{published}], "
-                f"events={sum(session['events_by_type'].values())}"
+                f"  - {session['session_id']}（{session['repo']}）：已发布 [{published}]，"
+                f"事件数={sum(session['events_by_type'].values())}"
             )
             for pattern in session.get("suspicious_patterns", []):
-                print(f"    suspicious: {pattern}")
+                print(f"    可疑模式：{pattern}")
     else:
-        print("  - none")
+        print("  - 无")
     if summary["suspicious_patterns"]:
-        print("- Suspicious patterns:")
+        print("- 可疑模式：")
         for pattern in summary["suspicious_patterns"]:
             print(f"  - {pattern}")
     if summary["last_event"]:
         last_event = summary["last_event"]
-        print(f"- Last event: {last_event.get('event')} at {last_event.get('timestamp')}")
+        print(f"- 最近事件：{last_event.get('event')}，时间 {last_event.get('timestamp')}")
     return 0
 
 
@@ -287,5 +287,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

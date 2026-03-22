@@ -42,7 +42,7 @@
     "id": "pdf-trans-v1-cli-interface",
     "title": "Add command-line interface for batch processing",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "CLI accepts input/output paths",
       "Supports language selection",
@@ -55,7 +55,7 @@
     "id": "pdf-trans-v1-error-handling",
     "title": "Implement comprehensive error handling and logging",
     "priority": "medium",
-    "status": "pending",
+    "status": "completed",
     "acceptance": [
       "All exceptions are caught and logged",
       "User-friendly error messages",

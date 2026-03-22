@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from common import load_json, save_json, load_state, save_state, relpath, resolve_execution_roots
+from common import cli_info, load_json, save_json, load_state, save_state, relpath, resolve_execution_roots
 
 DEFAULT_REQUIRED_SIGNALS = [
     "collection_timestamp",
@@ -74,10 +74,10 @@ def signal_checks(snapshot: dict) -> dict[str, tuple[bool, str]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Score whether collected project data is good enough to act on.")
-    parser.add_argument("--input", help="Input project data JSON path.")
-    parser.add_argument("--output", help="Output data quality JSON path.")
-    parser.add_argument("--no-state", action="store_true", help="Do not persist quality metadata into .agent-loop/state.json.")
+    parser = argparse.ArgumentParser(description="评估收集到的项目数据是否足够用于执行。")
+    parser.add_argument("--input", help="输入项目数据 JSON 路径。")
+    parser.add_argument("--output", help="输出数据质量 JSON 路径。")
+    parser.add_argument("--no-state", action="store_true", help="不把质量元数据持久化到 .agent-loop/state.json。")
     args = parser.parse_args()
 
     _, _, workspace_root = resolve_execution_roots()
@@ -124,10 +124,10 @@ def main() -> int:
         "missing_signals": [item["id"] for item in evaluated_signals if not item["passed"]],
         "blocking_gaps": gaps,
         "recommendations": [
-            "Refresh missing repo or git signals before high-risk edits.",
-            "Refresh validation and remote signals before publishing.",
-            "Refresh collection and quality artifacts after material repo changes.",
-            "Use the active archetype profile to decide which missing signals matter before broad edits.",
+            "在高风险修改前，先补齐缺失的仓库或 Git 信号。",
+            "在发布前，先刷新验证和远程信号。",
+            "在仓库发生实质变化后，重新采集并刷新质量产物。",
+            "在大范围修改前，先使用当前原型配置判断哪些缺失信号真正重要。",
         ],
     }
 
@@ -138,7 +138,7 @@ def main() -> int:
         state["project_data"]["last_quality_score"] = overall_score
         state["project_data"]["last_quality_status"] = status
         save_state(workspace_root, state)
-    print(output_path)
+    cli_info(f"数据质量报告已写入：{output_path}")
     return 0
 
 

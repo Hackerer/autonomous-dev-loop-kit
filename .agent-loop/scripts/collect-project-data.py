@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from common import (
+    cli_info,
     archetype_profile_summary,
     committee_summary,
     discovery_config,
@@ -188,9 +189,9 @@ def git_remotes(root: Path) -> list[dict[str, str]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Collect first-pass project data into a structured snapshot.")
-    parser.add_argument("--output", help="Output path for the generated project data JSON.")
-    parser.add_argument("--no-state", action="store_true", help="Do not persist snapshot metadata into .agent-loop/state.json.")
+    parser = argparse.ArgumentParser(description="将项目的首轮数据收集为结构化快照。")
+    parser.add_argument("--output", help="生成的项目数据 JSON 输出路径。")
+    parser.add_argument("--no-state", action="store_true", help="不把快照元数据持久化到 .agent-loop/state.json。")
     args = parser.parse_args()
 
     kit_root, target_root, workspace_root = resolve_execution_roots()
@@ -366,7 +367,7 @@ def main() -> int:
         state["project_data"]["snapshot_path"] = relpath(output, workspace_root)
         state["project_data"]["last_collected_at"] = snapshot["collected_at"]
         save_state(workspace_root, state)
-    print(output)
+    cli_info(f"项目数据快照已写入：{output}")
     return 0
 
 

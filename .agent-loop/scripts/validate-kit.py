@@ -19,9 +19,9 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def check(condition: bool, message: str, failures: list[str]) -> None:
     if condition:
-        print(f"[PASS] {message}")
+        print(f"[通过] {message}")
     else:
-        print(f"[FAIL] {message}")
+        print(f"[失败] {message}")
         failures.append(message)
 
 
@@ -33,37 +33,40 @@ def validate_json(path: Path, failures: list[str]) -> None:
     try:
         with path.open("r", encoding="utf-8") as handle:
             json.load(handle)
-        print(f"[PASS] JSON parse: {path.relative_to(ROOT)}")
+        print(f"[通过] JSON 解析：{path.relative_to(ROOT)}")
     except Exception as exc:  # pragma: no cover - defensive validation path
-        print(f"[FAIL] JSON parse: {path.relative_to(ROOT)} -> {exc}")
-        failures.append(f"JSON parse failed for {path.relative_to(ROOT)}")
+        print(f"[失败] JSON 解析：{path.relative_to(ROOT)} -> {exc}")
+        failures.append(f"{path.relative_to(ROOT)} 的 JSON 解析失败")
 
 
 def validate_python(path: Path, failures: list[str]) -> None:
     try:
         py_compile.compile(str(path), doraise=True)
-        print(f"[PASS] Python compile: {path.relative_to(ROOT)}")
+        print(f"[通过] Python 编译：{path.relative_to(ROOT)}")
     except py_compile.PyCompileError as exc:
-        print(f"[FAIL] Python compile: {path.relative_to(ROOT)} -> {exc.msg}")
-        failures.append(f"Python compile failed for {path.relative_to(ROOT)}")
+        print(f"[失败] Python 编译：{path.relative_to(ROOT)} -> {exc.msg}")
+        failures.append(f"{path.relative_to(ROOT)} 的 Python 编译失败")
 
 
 def validate_skill(skill_md: Path, failures: list[str]) -> None:
     content = skill_md.read_text(encoding="utf-8")
     frontmatter = re.match(r"^---\n(.*?)\n---\n", content, re.DOTALL)
-    check(frontmatter is not None, f"Frontmatter exists: {skill_md.relative_to(ROOT)}", failures)
+    check(frontmatter is not None, f"存在 Frontmatter：{skill_md.relative_to(ROOT)}", failures)
     if frontmatter is None:
         return
 
     body = frontmatter.group(1)
-    check(re.search(r"^name:\s+[a-z0-9-]+$", body, re.MULTILINE) is not None, f"Skill name present: {skill_md.relative_to(ROOT)}", failures)
-    check(re.search(r"^description:\s+.+$", body, re.MULTILINE) is not None, f"Skill description present: {skill_md.relative_to(ROOT)}", failures)
+    check(re.search(r"^name:\s+[a-z0-9-]+$", body, re.MULTILINE) is not None, f"存在技能名称：{skill_md.relative_to(ROOT)}", failures)
+    check(re.search(r"^description:\s+.+$", body, re.MULTILINE) is not None, f"存在技能描述：{skill_md.relative_to(ROOT)}", failures)
 
 
 def install_target_project(target: Path) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env["AUTONOMOUS_DEV_LOOP_SKIP_REGISTRY"] = "1"
     result = subprocess.run(
         ["bash", "scripts/install-into-project.sh", "--target", str(target)],
         cwd=str(ROOT),
+        env=env,
         text=True,
         capture_output=True,
         check=False,
@@ -76,25 +79,9 @@ def install_target_project(target: Path) -> subprocess.CompletedProcess[str]:
     copy2(ROOT / ".agent-loop" / "config.json", workspace / ".agent-loop" / "config.json")
     copy2(ROOT / ".agent-loop" / "state.json", workspace / ".agent-loop" / "state.json")
     copy2(ROOT / ".agent-loop" / "backlog.json", workspace / ".agent-loop" / "backlog.json")
-    for name in ("scripts", "references", "templates"):
-        link = workspace / ".agent-loop" / name
-        if link.exists() or link.is_symlink():
-            if link.is_dir() and not link.is_symlink():
-                rmtree(link)
-            else:
-                link.unlink()
-        link.symlink_to(ROOT / ".agent-loop" / name, target_is_directory=True)
     target.mkdir(parents=True, exist_ok=True)
     os.environ["AUTONOMOUS_DEV_LOOP_TARGET"] = str(target.resolve())
     os.environ["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
-    for name in (".agent-loop", "docs"):
-        link = target / name
-        if link.exists() or link.is_symlink():
-            if link.is_dir() and not link.is_symlink():
-                rmtree(link)
-            else:
-                link.unlink()
-        link.symlink_to(workspace / name, target_is_directory=True)
     return result
 
 
@@ -311,7 +298,7 @@ def validate_review_gate(failures: list[str]) -> None:
         (target / "docs/reports/v1.md").write_text("# Gate Test Report\n", encoding="utf-8")
 
         publish_attempt = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -334,7 +321,7 @@ def validate_evaluator_gate(failures: list[str]) -> None:
 
         write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="revise"))
         readiness_attempt = subprocess.run(
-            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assert-implementation-readiness.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -354,7 +341,7 @@ def validate_evaluator_gate(failures: list[str]) -> None:
 
         write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="pass"))
         readiness_attempt = subprocess.run(
-            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assert-implementation-readiness.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -372,7 +359,7 @@ def validate_evaluator_gate(failures: list[str]) -> None:
         write_json(target / ".agent-loop/config.json", config)
         write_json(target / ".agent-loop/state.json", seeded_state(goal_id, evaluator_result="revise"))
         readiness_attempt = subprocess.run(
-            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assert-implementation-readiness.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -491,7 +478,7 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check(capture.returncode == 0, "Structured-flow target captures committee review", failures)
 
         readiness = subprocess.run(
-            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assert-implementation-readiness.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -531,7 +518,7 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check("Implementation gate:" in report_content, "Structured-flow report renders implementation gate outcome", failures)
 
         publish = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -637,7 +624,7 @@ def validate_experiment_promotion_gate(failures: list[str]) -> None:
         (target / "docs/reports/v1.md").write_text("# Task Iteration v1 Report\n", encoding="utf-8")
 
         blocked = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -659,7 +646,7 @@ def validate_experiment_promotion_gate(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         promoted = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -690,7 +677,7 @@ def validate_release_flow(failures: list[str]) -> None:
         write_json(target / ".agent-loop/backlog.json", backlog)
 
         started = subprocess.run(
-            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "1"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "set-loop-session.py"), "--iterations", "1"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -782,7 +769,7 @@ def validate_release_flow(failures: list[str]) -> None:
         check("Technical Validation" in release_report_content, "Bundled release report includes validation status", failures)
 
         published = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-release.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-release.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -806,7 +793,7 @@ def validate_release_flow(failures: list[str]) -> None:
         updated_state["session"]["completed_releases"] = 0
         write_json(target / ".agent-loop/state.json", updated_state)
         replanned = subprocess.run(
-            ["python3", ".agent-loop/scripts/plan-release.py", "--goal-id", "goal-c"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "plan-release.py"), "--goal-id", "goal-c"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -825,7 +812,7 @@ def validate_release_flow(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", orphan_state)
         (target / "docs/reports/v3.md").write_text("# Task Iteration v3 Report\n", encoding="utf-8")
         orphan_publish = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -863,7 +850,7 @@ def validate_release_flow(failures: list[str]) -> None:
         (target / "docs/reports/v1.md").write_text("# Task Iteration v1 Report\n", encoding="utf-8")
 
         failed_publish = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -936,7 +923,7 @@ def validate_goal_selection_readiness(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         blocked = subprocess.run(
-            ["python3", ".agent-loop/scripts/select-next-goal.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "select-next-goal.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -989,7 +976,7 @@ def validate_goal_selection_readiness(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         blocked = subprocess.run(
-            ["python3", ".agent-loop/scripts/select-next-goal.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "select-next-goal.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1049,7 +1036,7 @@ def validate_evaluator_brief(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         brief = subprocess.run(
-            ["python3", ".agent-loop/scripts/render-evaluator-brief.py", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "render-evaluator-brief.py"), "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1087,7 +1074,7 @@ def validate_escalation_policy(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         assessment = subprocess.run(
-            ["python3", ".agent-loop/scripts/assess-escalation.py", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assess-escalation.py"), "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1128,7 +1115,7 @@ def validate_escalation_policy(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         assessment = subprocess.run(
-            ["python3", ".agent-loop/scripts/assess-escalation.py", "--apply", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assess-escalation.py"), "--apply", "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1169,7 +1156,7 @@ def validate_review_reset_on_goal_change(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         first_capture = subprocess.run(
-            ["python3", ".agent-loop/scripts/capture-review.py", "--research", "First goal finding"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "capture-review.py"), "--research", "First goal finding"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1187,7 +1174,7 @@ def validate_review_reset_on_goal_change(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         second_capture = subprocess.run(
-            ["python3", ".agent-loop/scripts/capture-review.py", "--research", "Second goal finding"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "capture-review.py"), "--research", "Second goal finding"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1221,7 +1208,7 @@ def validate_session_continuation(failures: list[str]) -> None:
         write_json(target / ".agent-loop/state.json", state)
 
         continued = subprocess.run(
-            ["python3", ".agent-loop/scripts/continue-loop-session.py", "--add", "3"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "continue-loop-session.py"), "--add", "3"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1256,7 +1243,7 @@ def validate_session_reset_and_structured_review_content(failures: list[str]) ->
         write_json(target / ".agent-loop/state.json", state)
 
         started = subprocess.run(
-            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "set-loop-session.py"), "--iterations", "2"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1302,7 +1289,7 @@ def validate_session_reset_and_structured_review_content(failures: list[str]) ->
         write_json(target / ".agent-loop/state.json", structured_state)
 
         readiness_attempt = subprocess.run(
-            ["python3", ".agent-loop/scripts/assert-implementation-readiness.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "assert-implementation-readiness.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1323,7 +1310,7 @@ def validate_usage_logging(failures: list[str]) -> None:
         check(install_log.exists(), "Project installer records an install usage event in the kit workspace project folder", failures)
 
         started = subprocess.run(
-            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "set-loop-session.py"), "--iterations", "2"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1336,7 +1323,7 @@ def validate_usage_logging(failures: list[str]) -> None:
         check(bool(session_context.get("id")), "Usage-log events capture a stable session id", failures)
 
         extended = subprocess.run(
-            ["python3", ".agent-loop/scripts/continue-loop-session.py", "--add", "1"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "continue-loop-session.py"), "--add", "1"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1364,7 +1351,7 @@ def validate_usage_logging(failures: list[str]) -> None:
         (target / "docs/reports/v1.md").write_text("# Usage Log Test Report\n", encoding="utf-8")
 
         publish = subprocess.run(
-            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "publish-iteration.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1393,7 +1380,7 @@ def validate_usage_logging(failures: list[str]) -> None:
         ]
         write_json(target / ".agent-loop/config.json", config)
         failed_validation = subprocess.run(
-            ["python3", ".agent-loop/scripts/run-full-validation.py"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "run-full-validation.py")],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1458,7 +1445,7 @@ def validate_operator_recovery_tools(failures: list[str]) -> None:
         check(installer.returncode == 0, "Project installer can seed an operator-recovery target", failures)
 
         status_run = subprocess.run(
-            ["python3", ".agent-loop/scripts/loop-status.py", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "loop-status.py"), "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1471,7 +1458,7 @@ def validate_operator_recovery_tools(failures: list[str]) -> None:
             check(isinstance(payload.get("release"), dict), "loop-status.py exposes release details", failures)
 
         doctor_run = subprocess.run(
-            ["python3", ".agent-loop/scripts/loop-doctor.py", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "loop-doctor.py"), "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1497,7 +1484,7 @@ def validate_operator_recovery_tools(failures: list[str]) -> None:
             check=False,
         )
         doctor_remote = subprocess.run(
-            ["python3", ".agent-loop/scripts/loop-doctor.py", "--json"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "loop-doctor.py"), "--json"],
             cwd=str(target),
             text=True,
             capture_output=True,
@@ -1654,7 +1641,7 @@ def main() -> int:
 
     generated_project_data = ROOT / ".agent-loop/data/project-data.generated.json"
     collector = subprocess.run(
-        ["python3", ".agent-loop/scripts/collect-project-data.py", "--output", str(generated_project_data), "--no-state"],
+        ["python3", str(ROOT / ".agent-loop" / "scripts" / "collect-project-data.py"), "--output", str(generated_project_data), "--no-state"],
         cwd=str(ROOT),
         text=True,
         capture_output=True,
@@ -1712,7 +1699,7 @@ def main() -> int:
         )
 
     committee_renderer = subprocess.run(
-        ["python3", ".agent-loop/scripts/render-committee.py", "--json"],
+        ["python3", str(ROOT / ".agent-loop" / "scripts" / "render-committee.py"), "--json"],
         cwd=str(ROOT),
         text=True,
         capture_output=True,
@@ -1902,7 +1889,7 @@ def main() -> int:
         env["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
 
         started = subprocess.run(
-            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
+            ["python3", str(ROOT / ".agent-loop" / "scripts" / "set-loop-session.py"), "--iterations", "2"],
             cwd=str(ROOT),
             env=env,
             text=True,
@@ -1963,10 +1950,10 @@ def main() -> int:
         check(helper_payload.get("result") == "pass", "score-evaluator-readiness.py computes the evaluator result from thresholds", failures)
 
     if failures:
-        print(f"\nValidation failed with {len(failures)} issue(s).", file=sys.stderr)
+        print(f"\n验证失败，共 {len(failures)} 个问题。", file=sys.stderr)
         return 1
 
-    print("\nValidation passed.")
+    print("\n验证通过。")
     return 0
 
 

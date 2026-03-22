@@ -9,9 +9,9 @@ from common import assess_escalation, load_config, load_state, resolve_execution
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Assess whether the current loop state should watch or escalate repeated failures.")
-    parser.add_argument("--apply", action="store_true", help="Persist the assessed escalation result into review_state.escalation.")
-    parser.add_argument("--json", action="store_true", help="Print the assessment as JSON.")
+    parser = argparse.ArgumentParser(description="评估当前循环状态是否应继续观察或升级重复失败。")
+    parser.add_argument("--apply", action="store_true", help="将评估结果写入 review_state.escalation。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出评估结果。")
     args = parser.parse_args()
 
     kit_root, _, workspace_root = resolve_execution_roots()
@@ -30,11 +30,11 @@ def main() -> int:
     if args.json:
         print(json.dumps(assessment, ensure_ascii=True, indent=2))
     else:
-        print(f"Escalation status: {assessment['status']}")
+        print(f"升级状态：{assessment['status']}")
         if assessment["reason"]:
-            print(f"Reason: {assessment['reason']}")
+            print(f"原因：{assessment['reason']}")
         if assessment["recommended_action"]:
-            print(f"Recommended action: {assessment['recommended_action']}")
+            print(f"建议动作：{assessment['recommended_action']}")
     return 0
 
 
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:  # pragma: no cover - defensive CLI exit
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

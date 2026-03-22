@@ -5,6 +5,7 @@ import json
 import hashlib
 import os
 import re
+import sys
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,6 +38,19 @@ PLACEHOLDER_SNIPPETS = (
     "Explain the notable outputs, operator-visible behavior, and architectural consequences of this release.",
     "Document the next bundled release theme or reason to stop.",
 )
+CONTENT_FINGERPRINT_FILES = (
+    "pyproject.toml",
+    "package.json",
+    "requirements.txt",
+    "Cargo.toml",
+    "go.mod",
+    "Makefile",
+    "pom.xml",
+    "build.gradle",
+    "build.gradle.kts",
+    "README.md",
+    "README.rst",
+)
 EXPECTED_COMMITTEE_ROLE_IDS = ("product-manager", "technical-architect", "user")
 EXPECTED_COUNCIL_IDS = ("product-council", "architecture-council", "operator-council")
 EXPECTED_SECRETARIAT_PERSONA_IDS = ("delivery-secretary", "audit-secretary")
@@ -59,6 +73,26 @@ EXPECTED_ARCHETYPE_SIGNAL_IDS = (
 
 class LoopError(RuntimeError):
     pass
+
+
+def cli_step(message: str) -> None:
+    print(f"【步骤】{message}")
+
+
+def cli_info(message: str) -> None:
+    print(f"【信息】{message}")
+
+
+def cli_success(message: str) -> None:
+    print(f"【完成】{message}")
+
+
+def cli_warning(message: str) -> None:
+    print(f"【警告】{message}")
+
+
+def cli_error(message: str) -> None:
+    print(f"[错误] {message}", file=sys.stderr)
 
 
 def utc_now() -> str:
@@ -139,7 +173,31 @@ def project_fingerprint(root: Path) -> str:
             toplevel = result.stdout.strip()
             if toplevel:
                 return f"git-root:{toplevel}"
-    return f"path:{root.resolve()}"
+    return f"content:{project_content_fingerprint(root)}"
+
+
+def project_content_fingerprint(root: Path) -> str:
+    digest = hashlib.sha1()
+    entries: list[str] = []
+    try:
+        for child in sorted(root.iterdir(), key=lambda item: item.name):
+            if child.name in {".git", ".agent-loop", ".claude", ".agents"}:
+                continue
+            if child.is_dir():
+                entries.append(f"dir:{child.name}")
+            elif child.is_file():
+                entries.append(f"file:{child.name}:{child.stat().st_size}")
+    except FileNotFoundError:
+        entries.append("missing-root")
+    for entry in entries:
+        digest.update(entry.encode("utf-8"))
+    for relative in CONTENT_FINGERPRINT_FILES:
+        candidate = root / relative
+        if not candidate.is_file():
+            continue
+        digest.update(f"manifest:{relative}:".encode("utf-8"))
+        digest.update(hashlib.sha1(candidate.read_bytes()).hexdigest().encode("utf-8"))
+    return digest.hexdigest()[:20]
 
 
 def project_label(root: Path) -> str:
@@ -171,6 +229,15 @@ def save_projects_index(kit: Path, index: dict[str, Any]) -> None:
     save_json(projects_index_path(kit), index)
 
 
+def project_workspace_path(kit: Path, target: Path) -> Path:
+    return kit.resolve() / "docs" / "projects" / project_key(target.resolve())
+
+
+def project_record_matches(entry: dict[str, Any], target: Path, fingerprint: str) -> bool:
+    target_key = str(target.resolve())
+    return entry.get("target_root") == target_key or entry.get("fingerprint") == fingerprint
+
+
 def project_workspace_root(kit: Path, target: Path) -> Path:
     kit_resolved = kit.resolve()
     target_resolved = target.resolve()
@@ -179,27 +246,45 @@ def project_workspace_root(kit: Path, target: Path) -> Path:
     workspace_override = str(os.environ.get("AUTONOMOUS_DEV_LOOP_WORKSPACE", "")).strip()
     if workspace_override:
         return Path(workspace_override).expanduser().resolve()
+
+    fingerprint = project_fingerprint(target_resolved)
+    index = load_projects_index(kit_resolved)
+    for entry in index["projects"]:
+        if not isinstance(entry, dict):
+            continue
+        if project_record_matches(entry, target_resolved, fingerprint):
+            workspace_value = str(entry.get("workspace", "")).strip()
+            if workspace_value:
+                return Path(workspace_value).expanduser().resolve()
+            return project_workspace_path(kit_resolved, target_resolved)
+    return project_workspace_path(kit_resolved, target_resolved)
+
+
+def register_project_workspace(kit: Path, target: Path) -> Path:
+    kit_resolved = kit.resolve()
+    target_resolved = target.resolve()
+    if target_resolved == kit_resolved:
+        return kit_resolved
     fingerprint = project_fingerprint(target_resolved)
     label = project_label(target_resolved)
+    workspace = project_workspace_path(kit_resolved, target_resolved)
     index = load_projects_index(kit_resolved)
     projects = index["projects"]
     target_key = str(target_resolved)
+
     for entry in projects:
         if not isinstance(entry, dict):
             continue
-        if entry.get("target_root") == target_key or entry.get("fingerprint") == fingerprint:
-            workspace_value = str(entry.get("workspace", "")).strip()
-            if not workspace_value:
-                workspace_value = str(kit_resolved / "docs" / "projects" / project_key(target_resolved))
-                entry["workspace"] = workspace_value
+        if project_record_matches(entry, target_resolved, fingerprint):
+            entry["project_id"] = workspace.name
+            entry["workspace"] = str(workspace)
             entry["target_root"] = target_key
             entry["fingerprint"] = fingerprint
             entry["label"] = label
             entry["last_seen_at"] = utc_now()
             save_projects_index(kit_resolved, index)
-            return Path(workspace_value).expanduser().resolve()
+            return workspace
 
-    workspace = kit_resolved / "docs" / "projects" / project_key(target_resolved)
     projects.append(
         {
             "project_id": workspace.name,

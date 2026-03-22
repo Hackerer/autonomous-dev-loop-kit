@@ -8,6 +8,7 @@ from pathlib import Path
 
 from common import (
     append_usage_log,
+    cli_info,
     LoopError,
     active_release,
     is_placeholder_text,
@@ -64,24 +65,85 @@ def optional_bulletize(lines: list[str]) -> list[str]:
     return bullets
 
 
+def translate_release_report_text(text: str) -> str:
+    replacements = [
+        ("# R", "# R"),
+        ("Release Report", "发布报告"),
+        ("Date:", "日期："),
+        ("## Release Definition", "## 发布定义"),
+        ("## PM Release Brief", "## 产品发布简报"),
+        ("## Experiment Baseline", "## 实验基线"),
+        ("## Included Scope", "## 包含范围"),
+        ("## Release Scope Boundary", "## 发布范围边界"),
+        ("## Requirement Delivery", "## 需求交付"),
+        ("## Release Acceptance", "## 发布验收"),
+        ("## Technical Validation", "## 技术验证"),
+        ("## Detailed Output", "## 详细输出"),
+        ("## Task Traceability", "## 任务可追溯性"),
+        ("## Session Progress", "## 会话进度"),
+        ("## Next Release Recommendation", "## 下一发布建议"),
+        ("Release:", "发布："),
+        ("Title:", "标题："),
+        ("Archetype:", "原型："),
+        ("Objective:", "目标："),
+        ("Target user value:", "目标用户价值："),
+        ("Why now:", "为何现在："),
+        ("Packaging rationale:", "打包理由："),
+        ("Launch story:", "发布故事："),
+        ("Packaging signal:", "打包信号："),
+        ("Base release:", "基线发布："),
+        ("Base title:", "基线标题："),
+        ("Metric:", "指标："),
+        ("Promotion rule:", "晋级规则："),
+        ("In scope:", "范围内："),
+        ("Out of scope:", "范围外："),
+        ("Deferred:", "延后："),
+        ("Releases completed after publish:", "发布后已完成的发布数："),
+        ("Task iterations included:", "包含的任务迭代数："),
+        ("candidate metric", "候选指标"),
+        ("baseline metric", "基线指标"),
+        ("experiment decision", "实验决策"),
+        ("Document why this bundled release exists and what user-facing package it represents.", "请说明这个发布包为什么存在，以及它代表了什么面向用户的产品包。"),
+        ("Release:", "发布："),
+        ("Task iterations included:", "包含的任务迭代数："),
+        ("Record the PM release objective, user value, why-now logic, packaging rationale, and launch story.", "请记录产品发布目标、用户价值、为何现在、打包理由和发布故事。"),
+        ("Record the strongest signals that justify this release bundle.", "请记录最能支持该发布包的信号。"),
+        ("Document the base version and metric used to judge whether this release should be promoted.", "请记录用于判断该发布是否应晋级的基线版本和指标。"),
+        ("List the bundled goals included in this release.", "请列出本次发布包含的目标。"),
+        ("Record the release-level in-scope items.", "请记录发布层面的范围内项。"),
+        ("Record the release-level out-of-scope items.", "请记录发布层面的范围外项。"),
+        ("Record the release-level acceptance criteria for this bundled version.", "请记录该发布包的验收标准。"),
+        ("Record the validation results that prove this release is technically sound.", "请记录证明该发布技术上可靠的验证结果。"),
+        ("Explain the notable outputs, operator-visible behavior, and architectural consequences of this release.", "请说明本次发布的显著输出、运维可见行为和架构影响。"),
+        ("Link each task iteration report that was bundled into this release.", "请链接本次发布打包的每个任务迭代报告。"),
+        ("Document the next bundled release theme or reason to stop.", "请记录下一次发布包的主题，或说明停止原因。"),
+        ("No active release exists. Plan one first with", "当前没有活动发布。请先运行"),
+        ("The active release still has incomplete goals. Finish and publish each task iteration before writing the release report.", "当前发布仍有未完成目标。请先完成并发布每个任务迭代，再生成发布报告。"),
+    ]
+    for src, dst in replacements:
+        text = text.replace(src, dst)
+    return text
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Write a bundled release report that aggregates multiple task iterations.")
-    parser.add_argument("--summary", action="append", default=[], help="Release-level summary bullet.")
-    parser.add_argument("--output-note", action="append", default=[], help="Detailed output bullet for the release.")
-    parser.add_argument("--next-release", action="append", default=[], help="Next-release recommendation bullet.")
+    parser = argparse.ArgumentParser(description="生成汇总多个任务迭代的发布报告。")
+    parser.add_argument("--summary", action="append", default=[], help="发布级总结条目。")
+    parser.add_argument("--output-note", action="append", default=[], help="发布的详细输出条目。")
+    parser.add_argument("--next-release", action="append", default=[], help="下一次发布建议条目。")
     args = parser.parse_args()
 
     kit_root, target_root, workspace_root = resolve_execution_roots()
     config = load_config(kit_root)
     state = load_state(workspace_root)
+    cli_info("正在生成发布报告。")
     release = release_summary(state)
     require_green_validation(state)
 
     if release["status"] in {"not_planned", "published"} or release["number"] is None:
-        raise LoopError("No active release exists. Plan one first with `python3 .agent-loop/scripts/plan-release.py`.")
+        raise LoopError("当前没有可用的发布。请先运行 `python3 .agent-loop/scripts/plan-release.py`。")
     if release["remaining_goal_ids"]:
         raise LoopError(
-            "The active release still has incomplete goals. Finish and publish each task iteration before writing the release report."
+            "当前发布仍有未完成目标。请先完成并发布每个任务迭代，再生成发布报告。"
         )
 
     release_number = int(release["number"])
@@ -207,7 +269,7 @@ def main() -> int:
         "",
     ]
 
-    report_path.write_text("\n".join(content), encoding="utf-8")
+    report_path.write_text(translate_release_report_text("\n".join(content)), encoding="utf-8")
     state["draft_release_report"] = relpath(report_path, workspace_root)
     state["status"] = "release_report_written"
     save_state(workspace_root, state)
@@ -222,7 +284,7 @@ def main() -> int:
         },
         target_root=target_root,
     )
-    print(report_path)
+    cli_info(f"发布报告已写入：{report_path}")
     return 0
 
 
@@ -230,5 +292,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

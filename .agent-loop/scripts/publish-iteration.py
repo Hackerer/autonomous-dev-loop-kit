@@ -6,6 +6,7 @@ import sys
 
 from common import (
     append_usage_log,
+    cli_info,
     LoopError,
     current_branch,
     ensure_git_repo,
@@ -54,8 +55,8 @@ def ensure_branch(root, branch_name: str) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Commit and publish a validated autonomous iteration.")
-    parser.add_argument("--message", help="Explicit Git commit message.")
+    parser = argparse.ArgumentParser(description="提交并发布已验证通过的自治迭代。")
+    parser.add_argument("--message", help="显式 Git 提交信息。")
     args = parser.parse_args()
 
     kit_root, target_root, workspace_root = resolve_execution_roots()
@@ -69,7 +70,7 @@ def main() -> int:
     iteration = state.get("draft_iteration")
     report_path = state.get("draft_report")
     if not iteration or not report_path:
-        raise LoopError("No draft report exists. Run write-report.py before publishing.")
+        raise LoopError("没有任务报告草稿。请先运行 write-report.py 再发布。")
     require_no_report_placeholders(workspace_root / report_path, "Task iteration report")
 
     goal = require_selected_goal({"current_goal": state.get("current_goal"), "draft_goal": state.get("draft_goal")})
@@ -83,10 +84,7 @@ def main() -> int:
             allow_equal=bool(experiment_policy.get("allow_equal", False)),
         )
         if not promote:
-            raise LoopError(
-                "Candidate has not beaten the current base yet. "
-                + (reason or "Keep iterating before publishing.")
-            )
+            raise LoopError("候选版本尚未优于当前基线。" + (reason or "请继续迭代后再发布。"))
     goal_label = goal_title(goal)
     goal_slug = slugify(goal_label)
 
@@ -99,24 +97,16 @@ def main() -> int:
     if strategy in {"push-branch", "direct-push"}:
         remotes = git_remotes(target_root)
         if git_config.get("require_remote", True) and not remotes:
-            raise LoopError(
-                "No Git remote is configured for this project. Each project must publish to its own GitHub repo. Confirm the correct remote with the user before publishing."
-            )
+            raise LoopError("当前项目没有配置 Git 远程。每个项目都应发布到自己的 GitHub 仓库。请在发布前与用户确认正确远程。")
         if git_config.get("require_remote", True) and not remote_exists(target_root, remote):
             known = ", ".join(sorted(remotes)) or "none"
-            raise LoopError(
-                f"Configured Git remote '{remote}' is not present in this project. Known remotes: {known}. Confirm the correct project GitHub remote with the user before publishing."
-            )
+            raise LoopError(f"配置的 Git 远程 '{remote}' 不存在于当前项目中。已知远程：{known}。请在发布前与用户确认正确的项目 GitHub 远程。")
         remote_urls = remotes.get(remote, [])
         if not remote_urls:
-            raise LoopError(
-                f"Unable to resolve URLs for Git remote '{remote}'. Confirm the correct project GitHub remote with the user before publishing."
-            )
+            raise LoopError(f"无法解析 Git 远程 '{remote}' 的 URL。请在发布前与用户确认正确的项目 GitHub 远程。")
         if git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
             joined_urls = ", ".join(remote_urls)
-            raise LoopError(
-                f"Git remote '{remote}' does not point to GitHub ({joined_urls}). Each project should publish to its own GitHub repo. Confirm with the user before publishing."
-            )
+            raise LoopError(f"Git 远程 '{remote}' 未指向 GitHub（{joined_urls}）。每个项目都应发布到自己的 GitHub 仓库。请在发布前与用户确认。")
 
     if strategy == "push-branch":
         branch_name = ensure_branch(target_root, f"{branch_prefix}{int(iteration):03d}-{goal_slug}")
@@ -222,23 +212,23 @@ def main() -> int:
 
     add_result = git(target_root, "add", "-A")
     if add_result.returncode != 0:
-        raise LoopError(add_result.stderr.strip() or "git add -A failed")
+        raise LoopError(add_result.stderr.strip() or "git add -A 失败")
 
     commit_message = args.message or f"feat(loop): v{int(iteration)} {goal_slug}"
     commit_result = git(target_root, "commit", "-m", commit_message)
     if commit_result.returncode != 0:
-        raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit failed")
+        raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit 失败")
 
     sha_result = git(target_root, "rev-parse", "HEAD")
     if sha_result.returncode != 0:
-        raise LoopError(sha_result.stderr.strip() or "Unable to resolve HEAD after commit")
+        raise LoopError(sha_result.stderr.strip() or "提交后无法解析 HEAD")
     commit_sha = sha_result.stdout.strip()
 
     if strategy in {"push-branch", "direct-push"}:
         push_target = branch_name if strategy == "push-branch" else current_branch(target_root)
         push_result = git(target_root, "push", "-u", remote, push_target)
         if push_result.returncode != 0:
-            raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
+            raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push 失败")
 
     progress = session_summary(state)
     release_suffix = ""
@@ -248,13 +238,13 @@ def main() -> int:
         total_goals = len(active.get("goal_ids", [])) if isinstance(active.get("goal_ids"), list) else 0
         release_suffix = f" (R{active.get('number')} tasks {completed_goals}/{total_goals})"
     if progress["target_releases"] is not None:
-        print(
-            f"Published iteration v{iteration} on {branch_name} at {commit_sha} "
-            f"(session releases {progress['completed_releases']}/{progress['target_releases']}, "
-            f"task iterations {progress['completed_iterations']}){release_suffix}"
+        cli_info(
+            f"已发布迭代 v{iteration}，分支 {branch_name}，提交 {commit_sha} "
+            f"（会话发布 {progress['completed_releases']}/{progress['target_releases']}，"
+            f"任务迭代 {progress['completed_iterations']}）{release_suffix}"
         )
     else:
-        print(f"Published iteration v{iteration} on {branch_name} at {commit_sha}{release_suffix}")
+        cli_info(f"已发布迭代 v{iteration}，分支 {branch_name}，提交 {commit_sha}{release_suffix}")
     return 0
 
 
@@ -262,5 +252,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

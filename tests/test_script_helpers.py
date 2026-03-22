@@ -57,7 +57,7 @@ class ScriptHelperTests(unittest.TestCase):
         ]
         self.assertEqual(plan_release.common_theme(goals), "billing")
         self.assertTrue(plan_release.auto_title(3, goals).startswith("R3:"))
-        self.assertIn("Bundle these goals", plan_release.auto_summary(goals))
+        self.assertIn("将这些目标打包成一个面向用户的发布", plan_release.auto_summary(goals))
         self.assertEqual([item["id"] for item in plan_release.pick_pending(backlog, 2)], ["a", "b"])
         self.assertEqual([item["id"] for item in plan_release.resolve_goals(backlog, [], 1)], ["a"])
         self.assertEqual(plan_release.pending_titles(backlog, ["a"]), ["Improve billing layout"])

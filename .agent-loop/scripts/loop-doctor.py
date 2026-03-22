@@ -6,6 +6,7 @@ import json
 import sys
 
 from common import (
+    cli_info,
     goal_title,
     implementation_gate_status,
     load_config,
@@ -31,31 +32,31 @@ def diagnose(config: dict, state: dict, workspace_root, target_root) -> list[dic
 
     if session["status"] == "not_configured":
         findings.append(
-            {
-                "severity": "blocker",
-                "issue": "No autonomous release session is configured.",
-                "next_step": "python3 .agent-loop/scripts/set-loop-session.py --iterations N",
-            }
-        )
+                {
+                    "severity": "blocker",
+                    "issue": "尚未配置自治发布会话。",
+                    "next_step": "python3 .agent-loop/scripts/set-loop-session.py --iterations N",
+                }
+            )
 
     if config.get("planning", {}).get("release", {}).get("require_release_plan", True):
         if release["status"] in {"not_planned", "published"} and session["status"] == "active" and session["remaining_releases"] != 0:
             findings.append(
                 {
                     "severity": "blocker",
-                    "issue": "No active bundled release is planned for the current session.",
+                    "issue": "当前会话还没有活动的发布计划。",
                     "next_step": "python3 .agent-loop/scripts/plan-release.py",
                 }
             )
 
     if release["number"] is not None and release["remaining_goal_ids"] and not isinstance(goal, dict):
         findings.append(
-            {
-                "severity": "blocker",
-                "issue": "The active release still has remaining goals but no active goal is selected.",
-                "next_step": "python3 .agent-loop/scripts/select-next-goal.py",
-            }
-        )
+                {
+                    "severity": "blocker",
+                    "issue": "当前发布仍有未完成目标，但还没有选中活动目标。",
+                    "next_step": "python3 .agent-loop/scripts/select-next-goal.py",
+                }
+            )
 
     if isinstance(goal, dict):
         goal_id = str(goal.get("id", "")).strip()
@@ -63,7 +64,7 @@ def diagnose(config: dict, state: dict, workspace_root, target_root) -> list[dic
             findings.append(
                 {
                     "severity": "blocker",
-                    "issue": "The active goal is missing or unspecified.",
+                    "issue": "当前目标缺失或未指定。",
                     "next_step": "python3 .agent-loop/scripts/select-next-goal.py",
                 }
             )
@@ -71,55 +72,55 @@ def diagnose(config: dict, state: dict, workspace_root, target_root) -> list[dic
             findings.append(
                 {
                     "severity": "blocker",
-                    "issue": "The active goal is not part of the active release.",
-                    "next_step": "Re-select a goal from the active release or plan a new release intentionally.",
+                    "issue": "当前目标不属于活动发布。",
+                    "next_step": "请从当前发布中重新选择目标，或有意规划一个新发布。",
                 }
             )
 
     if isinstance(goal, dict) and not review_state_matches_goal(review_state, goal):
         findings.append(
-            {
-                "severity": "blocker",
-                "issue": "The recorded review state does not match the active goal.",
-                "next_step": "python3 .agent-loop/scripts/capture-review.py ...",
-            }
-        )
+                {
+                    "severity": "blocker",
+                    "issue": "已记录的评审状态与当前目标不匹配。",
+                    "next_step": "python3 .agent-loop/scripts/capture-review.py ...",
+                }
+            )
 
     if gate["status"] in {"pending", "block"}:
         findings.append(
-            {
-                "severity": "blocker" if gate["status"] == "block" else "warning",
-                "issue": f"Implementation gate is {gate['status']} ({gate['mode']}, evaluator {gate['evaluation_result']}).",
-                "next_step": "python3 .agent-loop/scripts/render-evaluator-brief.py && python3 .agent-loop/scripts/assert-implementation-readiness.py",
-            }
-        )
+                {
+                    "severity": "blocker" if gate["status"] == "block" else "warning",
+                    "issue": f"实施门禁状态为 {gate['status']}（{gate['mode']}，评审结果 {gate['evaluation_result']}）。",
+                    "next_step": "python3 .agent-loop/scripts/render-evaluator-brief.py && python3 .agent-loop/scripts/assert-implementation-readiness.py",
+                }
+            )
 
     if validation.get("status") == "failed":
         findings.append(
-            {
-                "severity": "blocker",
-                "issue": "The last full validation run failed.",
-                "next_step": "Fix the failing checks, then rerun `python3 .agent-loop/scripts/run-full-validation.py`.",
-            }
-        )
+                {
+                    "severity": "blocker",
+                    "issue": "最近一次全量验证失败。",
+                    "next_step": "Fix the failing checks, then rerun `python3 .agent-loop/scripts/run-full-validation.py`.",
+                }
+            )
 
     if release["status"] == "ready_to_release" and not state.get("draft_release_report"):
         findings.append(
-            {
-                "severity": "warning",
-                "issue": "All release tasks are complete but the bundled release report is still missing.",
-                "next_step": "python3 .agent-loop/scripts/write-release-report.py",
-            }
-        )
+                {
+                    "severity": "warning",
+                    "issue": "所有发布任务都已完成，但汇总发布报告仍然缺失。",
+                    "next_step": "python3 .agent-loop/scripts/write-release-report.py",
+                }
+            )
 
     if state.get("draft_report") and not state.get("draft_iteration"):
         findings.append(
-            {
-                "severity": "warning",
-                "issue": "A draft task report exists without a draft iteration marker.",
-                "next_step": "Re-run `python3 .agent-loop/scripts/write-report.py` before publishing.",
-            }
-        )
+                {
+                    "severity": "warning",
+                    "issue": "存在任务报告草稿，但没有对应的草稿迭代标记。",
+                    "next_step": "Re-run `python3 .agent-loop/scripts/write-report.py` before publishing.",
+                }
+            )
 
     remotes = git_remotes(target_root) if (target_root / ".git").exists() else {}
     git_config = config.get("git", {}) if isinstance(config.get("git"), dict) else {}
@@ -130,43 +131,43 @@ def diagnose(config: dict, state: dict, workspace_root, target_root) -> list[dic
             findings.append(
                 {
                     "severity": "warning",
-                    "issue": "No Git remote is configured for this repo.",
-                    "next_step": "Configure the correct project remote before attempting publish.",
+                    "issue": "当前仓库没有配置 Git 远程。",
+                    "next_step": "在尝试发布前，请先配置正确的项目远程。",
                 }
             )
         elif git_config.get("require_remote", True) and remote_name not in remotes:
             findings.append(
                 {
                     "severity": "blocker",
-                    "issue": f"The configured Git remote `{remote_name}` is missing.",
-                    "next_step": "Update `.agent-loop/config.json` or add the expected remote before publishing.",
+                    "issue": f"配置的 Git 远程 `{remote_name}` 不存在。",
+                    "next_step": "请更新 `.agent-loop/config.json` 或在发布前添加预期远程。",
                 }
             )
         else:
             remote_urls = remotes.get(remote_name, [])
             if not remote_urls:
                 findings.append(
-                    {
-                        "severity": "blocker",
-                        "issue": f"The configured Git remote `{remote_name}` has no resolved URLs.",
-                        "next_step": "Reconfigure the expected remote before publishing.",
-                    }
-                )
+                {
+                    "severity": "blocker",
+                    "issue": f"配置的 Git 远程 `{remote_name}` 没有解析出的 URL。",
+                    "next_step": "请在发布前重新配置预期远程。",
+                }
+            )
             elif git_config.get("require_github_remote", True) and not any("github.com" in url for url in remote_urls):
                 findings.append(
-                    {
-                        "severity": "blocker",
-                        "issue": f"The configured Git remote `{remote_name}` does not point to GitHub.",
-                        "next_step": "Point the configured remote at the correct project GitHub repository before publishing.",
-                    }
-                )
+                {
+                    "severity": "blocker",
+                    "issue": f"配置的 Git 远程 `{remote_name}` 并未指向 GitHub。",
+                    "next_step": "请在发布前把该远程指向正确的项目 GitHub 仓库。",
+                }
+            )
 
     return findings
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Diagnose common autonomous loop blockers and suggest the next recovery step.")
-    parser.add_argument("--json", action="store_true", help="Print the doctor payload as JSON.")
+    parser = argparse.ArgumentParser(description="诊断自治循环中的常见阻塞，并给出下一步恢复动作。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出诊断载荷。")
     args = parser.parse_args()
 
     kit_root, target_root, workspace_root = resolve_execution_roots()
@@ -185,14 +186,14 @@ def main() -> int:
         print(json.dumps(payload, ensure_ascii=True, indent=2))
         return 0
 
-    print("Loop doctor")
-    print(f"- Status: {status}")
+    cli_info("循环诊断")
+    print(f"- 状态：{status}")
     if not findings:
-        print("- No common blockers detected.")
+        print("- 未发现常见阻塞。")
         return 0
     for finding in findings:
         print(f"- [{finding['severity']}] {finding['issue']}")
-        print(f"  Next: {finding['next_step']}")
+        print(f"  下一步：{finding['next_step']}")
     return 0
 
 
@@ -200,5 +201,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

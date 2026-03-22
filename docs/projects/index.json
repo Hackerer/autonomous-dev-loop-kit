@@ -2,40 +2,13 @@
   "version": 1,
   "projects": [
     {
-      "project_id": "target-repo-574880b1",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-574880b1",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmppp001yfv/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmppp001yfv/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T06:48:10Z",
-      "last_seen_at": "2026-03-22T06:48:10Z"
-    },
-    {
-      "project_id": "target-repo-21b22e49",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-21b22e49",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp45y7af06/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp45y7af06/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T06:48:26Z",
-      "last_seen_at": "2026-03-22T06:48:26Z"
-    },
-    {
-      "project_id": "target-repo-2bf46c1e",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-2bf46c1e",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpeu8em3wg/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpeu8em3wg/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T06:48:49Z",
-      "last_seen_at": "2026-03-22T06:48:49Z"
-    },
-    {
       "project_id": "pdf-fill-9bd5bbf4",
       "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/pdf-fill-9bd5bbf4",
       "target_root": "/Users/max/Documents/pdf_fill",
       "fingerprint": "path:/Users/max/Documents/pdf_fill",
       "label": "pdf_fill",
       "first_seen_at": "2026-03-22T06:52:55Z",
-      "last_seen_at": "2026-03-22T06:52:55Z"
+      "last_seen_at": "2026-03-22T07:14:26Z"
     },
     {
       "project_id": "pdf-trans-tools-87056c53",
@@ -44,97 +17,16 @@
       "fingerprint": "git-remote:https://github.com/Hackerer/pdf_trans_tools.git",
       "label": "pdf_trans_tools",
       "first_seen_at": "2026-03-22T06:55:50Z",
-      "last_seen_at": "2026-03-22T07:11:38Z"
+      "last_seen_at": "2026-03-22T07:11:48Z"
     },
     {
-      "project_id": "target-repo-4886dc1b",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-4886dc1b",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmphc4kph9x/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmphc4kph9x/target-repo",
+      "project_id": "target-repo-6a94b44e",
+      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-6a94b44e",
+      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp_kt9buct/target-repo",
+      "fingerprint": "content:da39a3ee5e6b4b0d3255",
       "label": "target-repo",
-      "first_seen_at": "2026-03-22T06:55:54Z",
-      "last_seen_at": "2026-03-22T06:55:54Z"
-    },
-    {
-      "project_id": "target-5ca3a63d",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-5ca3a63d",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpqsu44c__/target",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpqsu44c__/target",
-      "label": "target",
-      "first_seen_at": "2026-03-22T06:58:59Z",
-      "last_seen_at": "2026-03-22T06:58:59Z"
-    },
-    {
-      "project_id": "target-repo-15a353bf",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-15a353bf",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpefg6py6k/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpefg6py6k/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T06:59:01Z",
-      "last_seen_at": "2026-03-22T06:59:01Z"
-    },
-    {
-      "project_id": "target-2063aab9",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-2063aab9",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmppdonk1_0/target",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmppdonk1_0/target",
-      "label": "target",
-      "first_seen_at": "2026-03-22T07:01:29Z",
-      "last_seen_at": "2026-03-22T07:01:29Z"
-    },
-    {
-      "project_id": "target-d77ea599",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-d77ea599",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp105cqu_n/target",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp105cqu_n/target",
-      "label": "target",
-      "first_seen_at": "2026-03-22T07:01:46Z",
-      "last_seen_at": "2026-03-22T07:01:46Z"
-    },
-    {
-      "project_id": "target-32cc9927",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-32cc9927",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpydxk1dq6/target",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpydxk1dq6/target",
-      "label": "target",
-      "first_seen_at": "2026-03-22T07:02:05Z",
-      "last_seen_at": "2026-03-22T07:02:05Z"
-    },
-    {
-      "project_id": "target-repo-19bb0800",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-19bb0800",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp_wkl31zd/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp_wkl31zd/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T07:02:21Z",
-      "last_seen_at": "2026-03-22T07:02:21Z"
-    },
-    {
-      "project_id": "target-repo-98c597f1",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-98c597f1",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpt3rpb25m/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpt3rpb25m/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T07:04:33Z",
-      "last_seen_at": "2026-03-22T07:04:33Z"
-    },
-    {
-      "project_id": "target-repo-8f0ffd85",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-repo-8f0ffd85",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpjsxr1hof/target-repo",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmpjsxr1hof/target-repo",
-      "label": "target-repo",
-      "first_seen_at": "2026-03-22T07:05:08Z",
-      "last_seen_at": "2026-03-22T07:05:08Z"
-    },
-    {
-      "project_id": "target-4b58e12d",
-      "workspace": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/target-4b58e12d",
-      "target_root": "/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp0jcmnurx/target",
-      "fingerprint": "path:/private/var/folders/5x/19_nh3452y9dqw88kxjtl9m00000gn/T/tmp0jcmnurx/target",
-      "label": "target",
-      "first_seen_at": "2026-03-22T07:06:08Z",
-      "last_seen_at": "2026-03-22T07:06:08Z"
+      "first_seen_at": "2026-03-22T07:34:47Z",
+      "last_seen_at": "2026-03-22T07:34:47Z"
     }
   ]
 }

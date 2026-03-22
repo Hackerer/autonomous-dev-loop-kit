@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from common import (
+    cli_info,
     active_release_goal_ids,
     active_release,
     LoopError,
@@ -79,7 +80,7 @@ def pick_goal(root: Path, backlog: list[dict], state: dict) -> dict:
     else:
         pending = [item for item in backlog if item.get("status", "pending") == "pending"]
     if not pending:
-        raise LoopError("No pending backlog items remain.")
+        raise LoopError("没有剩余的待处理待办项。")
     quality_status, gaps = load_quality_context(root, state)
     pending.sort(
         key=lambda item: (
@@ -92,8 +93,8 @@ def pick_goal(root: Path, backlog: list[dict], state: dict) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Select the next scoped goal for the autonomous loop.")
-    parser.add_argument("--json", action="store_true", help="Print the full selected goal as JSON.")
+    parser = argparse.ArgumentParser(description="为自治循环选择下一个已聚焦的目标。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出完整选中目标。")
     args = parser.parse_args()
 
     kit_root, _, workspace_root = resolve_execution_roots()
@@ -104,22 +105,19 @@ def main() -> int:
     release_cfg = release_planning_config(config)
     release = release_summary(state)
     if release_cfg["require_release_plan"] and release["status"] in {"not_planned", "published"}:
-        raise LoopError(
-            "No active release plan exists. Run `python3 .agent-loop/scripts/plan-release.py` before selecting the next task goal."
-        )
+        raise LoopError("当前没有活动发布计划。请先运行 `python3 .agent-loop/scripts/plan-release.py` 再选择下一个任务目标。")
     if release["goal_ids"] and not release["remaining_goal_ids"]:
         raise LoopError(
-            "The active release has completed all planned goals. Write and publish the bundled release with "
-            "`python3 .agent-loop/scripts/write-release-report.py` and `python3 .agent-loop/scripts/publish-release.py` "
-            "before selecting a goal from the next release."
+            "当前发布已完成所有计划目标。请先运行 `python3 .agent-loop/scripts/write-release-report.py` 和 "
+            "`python3 .agent-loop/scripts/publish-release.py` 写出并发布汇总发布，再选择下一次发布中的目标。"
         )
     quality_status, gaps = load_quality_context(workspace_root, state)
     blockers = goal_selection_blockers(config, state, quality_status, gaps)
     if blockers:
         raise LoopError(
-            "Goal selection is blocked because more context is required:\n- "
+            "目标选择被阻塞，因为还需要更多上下文：\n- "
             + "\n- ".join(blockers)
-            + "\nRefresh project data or capture updated research findings, then rerun `python3 .agent-loop/scripts/select-next-goal.py`."
+            + "\n请刷新项目数据或补充最新研究结论，然后重新运行 `python3 .agent-loop/scripts/select-next-goal.py`。"
         )
     selected = pick_goal(workspace_root, backlog, state)
 
@@ -147,7 +145,7 @@ def main() -> int:
             release_bits.append(f"tasks {completed + 1}/{total} in R{release['number']}")
         if release_bits:
             suffix = f" ({', '.join(release_bits)})"
-        print(f"Selected goal: {goal_title(selected)}{suffix}")
+        cli_info(f"已选择目标：{goal_title(selected)}{suffix}")
     return 0
 
 
@@ -155,5 +153,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

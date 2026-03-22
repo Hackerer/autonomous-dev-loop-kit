@@ -8,6 +8,7 @@ import sys
 
 from common import (
     append_usage_log,
+    cli_info,
     goal_title,
     load_backlog,
     load_config,
@@ -57,7 +58,7 @@ def common_theme(goals: list[dict]) -> str:
             seen.add(word)
             tokens[word] = tokens.get(word, 0) + 1
     if not tokens:
-        return "the next user-visible improvement theme"
+        return "下一项面向用户的改进主题"
     return max(tokens.items(), key=lambda item: (item[1], item[0]))[0].replace("-", " ")
 
 
@@ -65,7 +66,7 @@ def auto_title(number: int, goals: list[dict]) -> str:
     first = goal_title(goals[0]) if goals else f"Release {number}"
     if len(goals) <= 1:
         return f"R{number}: {first}"
-    return f"R{number}: {first} + {len(goals) - 1} more bundled goals"
+    return f"R{number}: {first} + 另外 {len(goals) - 1} 个打包目标"
 
 
 def auto_summary(goals: list[dict]) -> str:
@@ -73,8 +74,8 @@ def auto_summary(goals: list[dict]) -> str:
     if not titles:
         return ""
     if len(titles) == 1:
-        return f"Ship the single high-priority goal `{titles[0]}` as a standalone bundled release."
-    return "Bundle these goals into one user-facing release: " + "; ".join(titles)
+        return f"将单个高优先级目标 `{titles[0]}` 作为独立的汇总发布交付。"
+    return "将这些目标打包成一个面向用户的发布： " + "; ".join(titles)
 
 
 def pick_pending(backlog: list[dict], count: int) -> list[dict]:
@@ -90,15 +91,15 @@ def resolve_goals(backlog: list[dict], goal_ids: list[str], count: int) -> list[
         for goal_id in goal_ids:
             item = lookup.get(goal_id)
             if item is None:
-                raise LoopError(f"Unknown backlog goal id: {goal_id}")
+                raise LoopError(f"未知的待办目标 ID：{goal_id}")
             if item.get("status", "pending") != "pending":
-                raise LoopError(f"Backlog goal is not pending: {goal_id}")
+                raise LoopError(f"待办目标不是待处理状态：{goal_id}")
             selected.append(item)
         return selected
 
     selected = pick_pending(backlog, count)
     if len(selected) < 1:
-        raise LoopError("No pending backlog items remain to bundle into a release.")
+        raise LoopError("没有剩余待处理待办项可用于打包发布。")
     return selected
 
 
@@ -277,22 +278,22 @@ def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: li
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Bundle multiple pending goals into the next release version.")
-    parser.add_argument("--goal-id", action="append", default=[], help="Explicit backlog goal id to include. Repeat as needed.")
-    parser.add_argument("--title", help="Explicit release title.")
-    parser.add_argument("--summary", help="Explicit release summary.")
-    parser.add_argument("--count", type=int, help="How many pending goals to bundle when goal ids are not provided.")
-    parser.add_argument("--objective", help="PM release objective for this bundled version.")
-    parser.add_argument("--target-user-value", help="What user-visible value this release should create.")
-    parser.add_argument("--why-now", help="Why this bundled release should happen now.")
-    parser.add_argument("--packaging-rationale", help="Why these goals belong in one bundled release.")
-    parser.add_argument("--archetype", help="Explicit release archetype such as integration, stability, workflow, or observability.")
-    parser.add_argument("--scope-in", action="append", default=[], help="Explicit in-scope item for the bundled release. Repeat as needed.")
-    parser.add_argument("--scope-out", action="append", default=[], help="Explicit out-of-scope item for the bundled release. Repeat as needed.")
-    parser.add_argument("--release-acceptance", action="append", default=[], help="Release-level acceptance item. Repeat as needed.")
-    parser.add_argument("--launch-story", help="Human-facing launch story for this release.")
-    parser.add_argument("--deferred-item", action="append", default=[], help="Explicit deferred item that should stay out of the release. Repeat as needed.")
-    parser.add_argument("--json", action="store_true", help="Print the planned release as JSON.")
+    parser = argparse.ArgumentParser(description="将多个待处理目标打包为下一个发布版本。")
+    parser.add_argument("--goal-id", action="append", default=[], help="要包含的待办目标 ID，可重复传入。")
+    parser.add_argument("--title", help="显式发布标题。")
+    parser.add_argument("--summary", help="显式发布摘要。")
+    parser.add_argument("--count", type=int, help="未提供目标 ID 时要打包的待处理目标数量。")
+    parser.add_argument("--objective", help="本次打包版本的产品发布目标。")
+    parser.add_argument("--target-user-value", help="这次发布应为用户创造的可见价值。")
+    parser.add_argument("--why-now", help="为什么这次打包发布应该现在发生。")
+    parser.add_argument("--packaging-rationale", help="为什么这些目标应该放在同一个打包发布里。")
+    parser.add_argument("--archetype", help="显式发布原型，例如集成、稳定性、工作流或可观测性。")
+    parser.add_argument("--scope-in", action="append", default=[], help="打包发布的显式范围内项，可重复传入。")
+    parser.add_argument("--scope-out", action="append", default=[], help="打包发布的显式范围外项，可重复传入。")
+    parser.add_argument("--release-acceptance", action="append", default=[], help="发布级验收条目，可重复传入。")
+    parser.add_argument("--launch-story", help="面向用户的发布故事。")
+    parser.add_argument("--deferred-item", action="append", default=[], help="应排除在发布之外的显式延后项，可重复传入。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出规划结果。")
     args = parser.parse_args()
 
     kit_root, target_root, workspace_root = resolve_execution_roots()
@@ -305,19 +306,19 @@ def main() -> int:
 
     if current_release["status"] not in {"not_planned", "published"}:
         raise LoopError(
-            "An active release already exists. Finish it with `write-release-report.py` and `publish-release.py`, "
-            "or clear it intentionally before planning another release."
+            "当前已有活动发布。请先使用 `write-release-report.py` 和 `publish-release.py` 完成它，"
+            "或者在有意清理后再规划另一个发布。"
         )
 
     count = args.count or release_cfg["default_goals_per_release"]
     explicit_single_goal = bool(args.goal_id) and len(args.goal_id) == 1
     if count < release_cfg["min_goals_per_release"] and not explicit_single_goal:
         raise LoopError(
-            f"--count must be at least {release_cfg['min_goals_per_release']} bundled goals for a release."
+            f"--count 对发布来说至少要包含 {release_cfg['min_goals_per_release']} 个打包目标。"
         )
     if count > release_cfg["max_goals_per_release"]:
         raise LoopError(
-            f"--count must be at most {release_cfg['max_goals_per_release']} bundled goals for a release."
+            f"--count 对发布来说最多只能包含 {release_cfg['max_goals_per_release']} 个打包目标。"
         )
 
     goals = resolve_goals(backlog, [str(goal_id) for goal_id in args.goal_id], count)
@@ -362,12 +363,12 @@ def main() -> int:
     if args.json:
         print(json.dumps(release_payload, ensure_ascii=True, indent=2))
     else:
-        print(f"Planned release R{release_number}: {release_payload['title']}")
-        print(f"- Objective: {brief['objective']}")
-        print(f"- Archetype: {brief['archetype']}")
-        print(f"- User value: {brief['target_user_value']}")
-        print(f"- Why now: {brief['why_now']}")
-        print(f"- Packaging rationale: {brief['packaging_rationale']}")
+        cli_info(f"已规划发布 R{release_number}：{release_payload['title']}")
+        print(f"- 目标：{brief['objective']}")
+        print(f"- 原型：{brief['archetype']}")
+        print(f"- 用户价值：{brief['target_user_value']}")
+        print(f"- 为何现在：{brief['why_now']}")
+        print(f"- 打包理由：{brief['packaging_rationale']}")
         for title in release_payload["goal_titles"]:
             print(f"- {title}")
     return 0
@@ -377,5 +378,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except LoopError as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        print(f"[错误] {exc}", file=sys.stderr)
         raise SystemExit(1)

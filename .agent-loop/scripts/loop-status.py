@@ -6,6 +6,7 @@ import json
 import sys
 
 from common import (
+    cli_info,
     goal_title,
     implementation_gate_status,
     experiment_status,
@@ -20,8 +21,8 @@ from common import (
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Show the current autonomous loop session, release, and gate status.")
-    parser.add_argument("--json", action="store_true", help="Print the status payload as JSON.")
+    parser = argparse.ArgumentParser(description="显示当前自治循环会话、发布和门禁状态。")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出状态载荷。")
     args = parser.parse_args()
 
     kit_root, _, workspace_root = resolve_execution_roots()
@@ -78,40 +79,40 @@ def main() -> int:
         print(json.dumps(payload, ensure_ascii=True, indent=2))
         return 0
 
-    print("Loop status")
-    print(f"- State: {payload['state_status']}")
+    cli_info("循环状态")
+    print(f"- 状态：{payload['state_status']}")
     print(
-        f"- Session: {session['status']} "
-        f"({session['completed_releases']}/{session['target_releases']} releases, "
-        f"{session['completed_iterations']} task iterations)"
+        f"- 会话：{session['status']} "
+        f"（{session['completed_releases']}/{session['target_releases']} 次发布，"
+        f"{session['completed_iterations']} 次任务迭代）"
         if session["target_releases"] is not None
-        else f"- Session: {session['status']}"
+        else f"- 会话：{session['status']}"
     )
     if release["number"] is not None:
         print(
-            f"- Active release: R{release['number']} {release['title']} "
-            f"({len(release['completed_goal_ids'])}/{len(release['goal_ids'])} tasks complete)"
+            f"- 当前发布：R{release['number']} {release['title']} "
+            f"（已完成 {len(release['completed_goal_ids'])}/{len(release['goal_ids'])} 个任务）"
         )
     else:
-        print("- Active release: none")
-    print(f"- Active goal: {goal_title(goal)}")
-    print(f"- Review state: {payload['review']['status']} (matches active goal: {review_matches})")
+        print("- 当前发布：无")
+    print(f"- 当前目标：{goal_title(goal)}")
+    print(f"- 评审状态：{payload['review']['status']}（匹配当前目标：{review_matches}）")
     gate = payload["implementation_gate"]
-    print(f"- Implementation gate: {gate['status']} ({gate['mode']}, evaluator {gate['evaluation_result']})")
+    print(f"- 实施门禁：{gate['status']}（{gate['mode']}，评审结果 {gate['evaluation_result']}）")
     experiment_payload = payload["experiment"]
     print(
-        f"- Experiment: {experiment_payload['status']}"
+        f"- 实验：{experiment_payload['status']}"
         + (
-            f" (base {experiment_payload['base_metric']}, candidate {experiment_payload['candidate_metric']}, decision {experiment_payload['promotion_decision'] or experiment_payload['comparison_result']})"
+            f"（基线 {experiment_payload['base_metric']}，候选 {experiment_payload['candidate_metric']}，决策 {experiment_payload['promotion_decision'] or experiment_payload['comparison_result']}）"
             if experiment_payload["base_metric"] is not None or experiment_payload["candidate_metric"] is not None
             else ""
         )
     )
     validation_payload = payload["validation"]
-    print(f"- Last validation: {validation_payload['status']} at {validation_payload['ran_at']}")
+    print(f"- 最近验证：{validation_payload['status']}，时间 {validation_payload['ran_at']}")
     drafts = payload["drafts"]
-    print(f"- Draft task report: {drafts['draft_report'] or 'none'}")
-    print(f"- Draft release report: {drafts['draft_release_report'] or 'none'}")
+    print(f"- 任务报告草稿：{drafts['draft_report'] or '无'}")
+    print(f"- 发布报告草稿：{drafts['draft_release_report'] or '无'}")
     return 0
 
 
