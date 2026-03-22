@@ -9,13 +9,16 @@ from common import (
     LoopError,
     current_branch,
     ensure_git_repo,
-    find_repo_root,
+    experiment_config,
+    experiment_status,
     git,
     git_remotes,
+    current_candidate_metric,
     goal_title,
     load_backlog,
     load_config,
     load_state,
+    latest_promoted_metric_value,
     require_goal_in_active_release,
     require_session_capacity,
     require_selected_goal,
@@ -30,6 +33,8 @@ from common import (
     session_summary,
     slugify,
     utc_now,
+    promote_candidate_decision,
+    resolve_execution_roots,
 )
 
 
@@ -53,11 +58,11 @@ def main() -> int:
     parser.add_argument("--message", help="Explicit Git commit message.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    ensure_git_repo(root)
-    config = load_config(root)
-    state = load_state(root)
-    backlog = load_backlog(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    ensure_git_repo(target_root)
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
+    backlog = load_backlog(workspace_root)
     require_green_validation(state)
     session = require_session_capacity(config, state)
 
@@ -65,12 +70,23 @@ def main() -> int:
     report_path = state.get("draft_report")
     if not iteration or not report_path:
         raise LoopError("No draft report exists. Run write-report.py before publishing.")
-    require_no_report_placeholders(root / report_path, "Task iteration report")
+    require_no_report_placeholders(workspace_root / report_path, "Task iteration report")
 
     goal = require_selected_goal({"current_goal": state.get("current_goal"), "draft_goal": state.get("draft_goal")})
     require_goal_in_active_release(config, state, goal)
-    require_review_state(config, state, goal)
     require_evaluator_pass(config, state, goal)
+    review_state = require_review_state(config, state, goal)
+    experiment_policy = experiment_config(config)
+    if experiment_policy.get("enabled", True):
+        promote, reason, baseline_value, candidate_value = promote_candidate_decision(
+            state,
+            allow_equal=bool(experiment_policy.get("allow_equal", False)),
+        )
+        if not promote:
+            raise LoopError(
+                "Candidate has not beaten the current base yet. "
+                + (reason or "Keep iterating before publishing.")
+            )
     goal_label = goal_title(goal)
     goal_slug = slugify(goal_label)
 
@@ -81,12 +97,12 @@ def main() -> int:
 
     remotes = {}
     if strategy in {"push-branch", "direct-push"}:
-        remotes = git_remotes(root)
+        remotes = git_remotes(target_root)
         if git_config.get("require_remote", True) and not remotes:
             raise LoopError(
                 "No Git remote is configured for this project. Each project must publish to its own GitHub repo. Confirm the correct remote with the user before publishing."
             )
-        if git_config.get("require_remote", True) and not remote_exists(root, remote):
+        if git_config.get("require_remote", True) and not remote_exists(target_root, remote):
             known = ", ".join(sorted(remotes)) or "none"
             raise LoopError(
                 f"Configured Git remote '{remote}' is not present in this project. Known remotes: {known}. Confirm the correct project GitHub remote with the user before publishing."
@@ -103,15 +119,23 @@ def main() -> int:
             )
 
     if strategy == "push-branch":
-        branch_name = ensure_branch(root, f"{branch_prefix}{int(iteration):03d}-{goal_slug}")
+        branch_name = ensure_branch(target_root, f"{branch_prefix}{int(iteration):03d}-{goal_slug}")
     else:
-        branch_name = current_branch(root)
+        branch_name = current_branch(target_root)
 
     published_at = utc_now()
     next_completed = session["completed_iterations"] + 1
     target = session["target_releases"]
     goal_id = goal.get("id") if isinstance(goal, dict) else None
     release = release_summary(state)
+    candidate_metric = current_candidate_metric(state)
+    baseline_metric = latest_promoted_metric_value(state)
+    experiment = experiment_status(state)
+    promotion = experiment.get("promotion", {}) if isinstance(experiment, dict) else {}
+    comparison = experiment.get("comparison", {}) if isinstance(experiment, dict) else {}
+    comparison_result = str(comparison.get("result", "")).strip() if isinstance(comparison, dict) else ""
+    if comparison_result not in {"promote", "revise", "discard"}:
+        comparison_result = "promote"
 
     state["iteration"] = int(iteration)
     state["last_report"] = report_path
@@ -127,6 +151,10 @@ def main() -> int:
             "release_number": release.get("number"),
             "release_title": release.get("title"),
             "evaluation_result": state.get("review_state", {}).get("evaluation", {}).get("result"),
+            "evaluation_weighted_score": state.get("review_state", {}).get("evaluation", {}).get("weighted_score"),
+            "candidate_metric_value": candidate_metric,
+            "baseline_metric_value": baseline_metric,
+            "experiment_decision": str(promotion.get("decision", comparison_result)).strip() or "promote",
             "validation_status": state.get("last_validation", {}).get("status"),
             "escalation_status": state.get("review_state", {}).get("escalation", {}).get("status"),
             "report": report_path,
@@ -150,6 +178,9 @@ def main() -> int:
                 "goal": goal_label,
                 "goal_id": goal_id,
                 "report": report_path,
+                "candidate_metric_value": candidate_metric,
+                "baseline_metric_value": baseline_metric,
+                "experiment_decision": str(promotion.get("decision", comparison_result)).strip() or "promote",
                 "published_at": published_at,
             }
         )
@@ -171,11 +202,11 @@ def main() -> int:
                 item["status"] = "completed"
                 break
 
-    save_state(root, state)
-    save_backlog(root, backlog)
+    save_state(workspace_root, state)
+    save_backlog(workspace_root, backlog)
 
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "iteration_published",
         {
@@ -186,25 +217,26 @@ def main() -> int:
             "report": report_path,
             "branch": branch_name,
         },
+        target_root=target_root,
     )
 
-    add_result = git(root, "add", "-A")
+    add_result = git(target_root, "add", "-A")
     if add_result.returncode != 0:
         raise LoopError(add_result.stderr.strip() or "git add -A failed")
 
     commit_message = args.message or f"feat(loop): v{int(iteration)} {goal_slug}"
-    commit_result = git(root, "commit", "-m", commit_message)
+    commit_result = git(target_root, "commit", "-m", commit_message)
     if commit_result.returncode != 0:
         raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit failed")
 
-    sha_result = git(root, "rev-parse", "HEAD")
+    sha_result = git(target_root, "rev-parse", "HEAD")
     if sha_result.returncode != 0:
         raise LoopError(sha_result.stderr.strip() or "Unable to resolve HEAD after commit")
     commit_sha = sha_result.stdout.strip()
 
     if strategy in {"push-branch", "direct-push"}:
-        push_target = branch_name if strategy == "push-branch" else current_branch(root)
-        push_result = git(root, "push", "-u", remote, push_target)
+        push_target = branch_name if strategy == "push-branch" else current_branch(target_root)
+        push_result = git(target_root, "push", "-u", remote, push_target)
         if push_result.returncode != 0:
             raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
 

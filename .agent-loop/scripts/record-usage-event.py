@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from common import append_usage_log, find_repo_root, load_config, LoopError
+from common import append_usage_log, kit_root, load_config, LoopError, project_root
 
 
 def parse_fields(items: list[str]) -> dict[str, str]:
@@ -25,18 +25,21 @@ def parse_fields(items: list[str]) -> dict[str, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Record a lightweight usage event for the current or target repo.")
     parser.add_argument("--event", required=True, help="Usage event type to record.")
-    parser.add_argument("--repo-root", help="Explicit target repo root. Defaults to the current repo root.")
+    parser.add_argument("--repo-root", help="Explicit workspace root. Defaults to the kit workspace root.")
+    parser.add_argument("--target-root", help="Explicit target project root to record in the usage payload.")
     parser.add_argument("--field", action="append", default=[], help="Additional payload field in key=value form.")
     parser.add_argument("--json", action="store_true", help="Print the recorded event path and payload as JSON.")
     args = parser.parse_args()
 
-    root = Path(args.repo_root).resolve() if args.repo_root else find_repo_root()
-    config = load_config(root)
+    workspace_root = Path(args.repo_root).resolve() if args.repo_root else kit_root()
+    target_root = Path(args.target_root).resolve() if args.target_root else project_root()
+    config = load_config(kit_root())
     payload = parse_fields(list(args.field))
-    log_path = append_usage_log(root, config, args.event, payload)
+    log_path = append_usage_log(workspace_root, config, args.event, payload, target_root=target_root)
     result = {
         "event": args.event,
-        "repo_root": str(root),
+        "repo_root": str(workspace_root),
+        "target_root": str(target_root),
         "log_path": str(log_path) if log_path else "",
         "payload": payload,
     }

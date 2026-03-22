@@ -59,6 +59,12 @@ Date: {date}
 - What rubric and evaluator result authorized this iteration?
 - What critique or minimum fixes remained?
 
+## Experiment
+
+- What was the current base?
+- What was the candidate?
+- Did the candidate beat base enough to promote?
+
 ## Stop And Escalation
 
 - What open gaps were still present?

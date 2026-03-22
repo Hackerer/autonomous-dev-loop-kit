@@ -10,7 +10,6 @@ from common import (
     active_release_goal_ids,
     active_release,
     LoopError,
-    find_repo_root,
     goal_selection_blockers,
     goal_title,
     load_backlog,
@@ -20,6 +19,7 @@ from common import (
     release_planning_config,
     release_summary,
     require_session_capacity,
+    resolve_execution_roots,
     save_state,
     session_summary,
     utc_now,
@@ -96,10 +96,10 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the full selected goal as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    backlog = load_backlog(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    backlog = load_backlog(workspace_root)
+    state = load_state(workspace_root)
     session = require_session_capacity(config, state)
     release_cfg = release_planning_config(config)
     release = release_summary(state)
@@ -113,7 +113,7 @@ def main() -> int:
             "`python3 .agent-loop/scripts/write-release-report.py` and `python3 .agent-loop/scripts/publish-release.py` "
             "before selecting a goal from the next release."
         )
-    quality_status, gaps = load_quality_context(root, state)
+    quality_status, gaps = load_quality_context(workspace_root, state)
     blockers = goal_selection_blockers(config, state, quality_status, gaps)
     if blockers:
         raise LoopError(
@@ -121,7 +121,7 @@ def main() -> int:
             + "\n- ".join(blockers)
             + "\nRefresh project data or capture updated research findings, then rerun `python3 .agent-loop/scripts/select-next-goal.py`."
         )
-    selected = pick_goal(root, backlog, state)
+    selected = pick_goal(workspace_root, backlog, state)
 
     state["current_goal"] = {
         "id": selected.get("id"),
@@ -131,7 +131,7 @@ def main() -> int:
         "source": ".agent-loop/backlog.json",
     }
     state["status"] = "goal_selected"
-    save_state(root, state)
+    save_state(workspace_root, state)
 
     if args.json:
         print(json.dumps(selected, ensure_ascii=True, indent=2))

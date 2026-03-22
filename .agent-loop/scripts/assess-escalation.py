@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 
-from common import assess_escalation, find_repo_root, load_config, load_state, save_state
+from common import assess_escalation, load_config, load_state, resolve_execution_roots, save_state
 
 
 def main() -> int:
@@ -14,9 +14,9 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the assessment as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     assessment = assess_escalation(config, state)
 
     if args.apply:
@@ -25,7 +25,7 @@ def main() -> int:
             review_state = {}
         review_state["escalation"] = assessment
         state["review_state"] = review_state
-        save_state(root, state)
+        save_state(workspace_root, state)
 
     if args.json:
         print(json.dumps(assessment, ensure_ascii=True, indent=2))

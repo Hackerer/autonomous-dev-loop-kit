@@ -9,14 +9,16 @@ import sys
 from common import (
     append_usage_log,
     goal_title,
-    find_repo_root,
     load_backlog,
     load_config,
     load_state,
     next_release_number,
+    latest_promoted_metric_value,
+    latest_promoted_release_record,
     release_planning_config,
     release_summary,
     require_session_capacity,
+    resolve_execution_roots,
     save_state,
     utc_now,
     LoopError,
@@ -189,7 +191,7 @@ def packaging_signals(goals: list[dict], theme: str, archetype: str, archetypes:
     return signals
 
 
-def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: list[dict], config: dict) -> dict:
+def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: list[dict], config: dict, state: dict) -> dict:
     titles = [goal_title(goal) for goal in goals]
     theme = common_theme(goals)
     archetypes = release_archetypes(config)
@@ -236,6 +238,22 @@ def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: li
         args.launch_story
         or launch_template.format(theme=theme)
     ).strip()
+    baseline_release = latest_promoted_release_record(state)
+    baseline_metric = latest_promoted_metric_value(state)
+    experiment = config.get("experiment", {})
+    if not isinstance(experiment, dict):
+        experiment = {}
+    metric_name = str(experiment.get("metric_path", "review_state.evaluation.weighted_score") or "review_state.evaluation.weighted_score")
+    baseline_label = ""
+    baseline_number = None
+    if isinstance(baseline_release, dict):
+        baseline_number = baseline_release.get("number")
+        baseline_label = str(baseline_release.get("title", "")).strip()
+        if not baseline_label:
+            iteration = baseline_release.get("iteration")
+            goal = str(baseline_release.get("goal", "")).strip()
+            if iteration is not None:
+                baseline_label = f"v{iteration} {goal}".strip()
     return {
         "archetype": archetype,
         "objective": objective,
@@ -243,6 +261,13 @@ def build_release_brief(args: argparse.Namespace, goals: list[dict], backlog: li
         "why_now": why_now,
         "packaging_rationale": packaging_rationale,
         "packaging_signals": packaging_signals(goals, theme, archetype, archetypes),
+        "baseline_release": {
+            "number": baseline_number,
+            "title": baseline_label,
+            "metric_name": metric_name,
+            "metric_value": baseline_metric,
+        },
+        "promotion_rule": "Candidate metric must beat the current base metric before publish.",
         "scope_in": scope_in,
         "scope_out": scope_out,
         "release_acceptance": release_acceptance,
@@ -270,10 +295,10 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the planned release as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
-    backlog = load_backlog(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
+    backlog = load_backlog(workspace_root)
     session = require_session_capacity(config, state)
     release_cfg = release_planning_config(config)
     current_release = release_summary(state)
@@ -297,7 +322,7 @@ def main() -> int:
 
     goals = resolve_goals(backlog, [str(goal_id) for goal_id in args.goal_id], count)
     release_number = next_release_number(state)
-    brief = build_release_brief(args, goals, backlog, config)
+    brief = build_release_brief(args, goals, backlog, config, state)
     release_payload = {
         "number": release_number,
         "title": str(args.title or auto_title(release_number, goals)).strip(),
@@ -319,10 +344,10 @@ def main() -> int:
     state["draft_report"] = None
     state["draft_release_report"] = None
     state["status"] = "release_planned"
-    save_state(root, state)
+    save_state(workspace_root, state)
 
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "release_planned",
         {
@@ -331,6 +356,7 @@ def main() -> int:
             "goal_ids": release_payload["goal_ids"],
             "objective": brief["objective"],
         },
+        target_root=target_root,
     )
 
     if args.json:

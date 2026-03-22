@@ -1,0 +1,67 @@
+[
+  {
+    "id": "pdf-trans-v1-pdf-extraction",
+    "title": "Implement robust PDF text extraction with page-by-page support",
+    "priority": "high",
+    "status": "completed",
+    "acceptance": [
+      "Extract text from PDF with preserved paragraph structure",
+      "Handle multi-column layouts",
+      "Support encrypted PDFs with password",
+      "Unit tests with >80% coverage"
+    ],
+    "notes": "Foundation for all translation work"
+  },
+  {
+    "id": "pdf-trans-v1-translation-backend",
+    "title": "Add Google Translate API integration as translation backend",
+    "priority": "high",
+    "status": "completed",
+    "acceptance": [
+      "Google Translate API integration works",
+      "Handles API rate limits gracefully",
+      "Supports batch translation mode",
+      "Unit tests for API interaction"
+    ],
+    "notes": "First translation backend implementation"
+  },
+  {
+    "id": "pdf-trans-v1-pdf-output",
+    "title": "Generate translated PDF output with proper formatting",
+    "priority": "high",
+    "status": "completed",
+    "acceptance": [
+      "Output PDF preserves original formatting",
+      "Text is properly translated and placed",
+      "Handles special characters and Unicode",
+      "Integration tests with sample PDFs"
+    ],
+    "notes": "Critical for user-facing functionality"
+  },
+  {
+    "id": "pdf-trans-v1-cli-interface",
+    "title": "Add command-line interface for batch processing",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "CLI accepts input/output paths",
+      "Supports language selection",
+      "Shows progress during processing",
+      "Help text is clear and complete"
+    ],
+    "notes": "Enables automated workflows"
+  },
+  {
+    "id": "pdf-trans-v1-error-handling",
+    "title": "Implement comprehensive error handling and logging",
+    "priority": "medium",
+    "status": "pending",
+    "acceptance": [
+      "All exceptions are caught and logged",
+      "User-friendly error messages",
+      "Graceful degradation on failures",
+      "Error recovery mechanisms in place"
+    ],
+    "notes": "Improves reliability for production use"
+  }
+]

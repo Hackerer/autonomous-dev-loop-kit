@@ -1,0 +1,12 @@
+{
+  "validation": {
+    "stop_on_first_failure": false,
+    "commands": [
+      {
+        "name": "pytest",
+        "command": "PYTHONPATH=src python3 -m pytest tests/ -v",
+        "required": true
+      }
+    ]
+  }
+}

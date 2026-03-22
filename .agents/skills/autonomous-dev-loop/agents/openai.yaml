@@ -1,4 +1,4 @@
 interface:
   display_name: "Autonomous Dev Loop"
-  short_description: "Iterate through tested Git versions with reports"
-  default_prompt: "Use the autonomous-dev-loop protocol to iterate through scoped versions, validate fully, publish to Git, write a report, reflect, and continue."
+  short_description: "Run repeated validated releases in Codex"
+  default_prompt: "Use the autonomous-dev-loop skill to run the repo through repeated, test-gated releases. Keep durable state in .agent-loop, follow the repo protocol, and publish only after validation passes."

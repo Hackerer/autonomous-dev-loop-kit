@@ -6,18 +6,18 @@ import sys
 from common import (
     implementation_gate_status,
     LoopError,
-    find_repo_root,
     load_config,
     load_state,
     require_evaluator_pass,
     require_review_state,
+    resolve_execution_roots,
 )
 
 
 def main() -> int:
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     goal = state.get("current_goal") or state.get("draft_goal")
 
     review_state = require_review_state(config, state, goal)

@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 
-from common import LoopError, default_state, find_repo_root, load_state, save_state, utc_now
+from common import LoopError, default_state, load_state, resolve_execution_roots, save_state, utc_now
 
 
 def merge_unique(existing: list[str], new_values: list[str]) -> list[str]:
@@ -96,6 +96,24 @@ def main() -> int:
     parser.add_argument("--evaluation-result", choices=["pass", "revise", "fail"], help="Evaluator final result.")
     parser.add_argument("--critique", action="append", default=[], help="Evaluator critique bullet.")
     parser.add_argument("--minimum-fix", action="append", default=[], help="Minimum fix required before implementation.")
+    parser.add_argument("--experiment-status", choices=["not_started", "captured"], help="Structured experiment status.")
+    parser.add_argument("--experiment-base-label", help="Experiment baseline label.")
+    parser.add_argument("--experiment-base-metric-name", help="Experiment baseline metric name.")
+    parser.add_argument("--experiment-base-metric-value", type=float, help="Experiment baseline metric value.")
+    parser.add_argument("--experiment-candidate-label", help="Experiment candidate label.")
+    parser.add_argument("--experiment-candidate-metric-name", help="Experiment candidate metric name.")
+    parser.add_argument("--experiment-candidate-metric-value", type=float, help="Experiment candidate metric value.")
+    parser.add_argument("--experiment-comparison-status", choices=["not_started", "captured"], help="Experiment comparison status.")
+    parser.add_argument(
+        "--experiment-comparison-direction",
+        choices=["higher", "lower"],
+        help="Whether higher or lower metric values are preferred.",
+    )
+    parser.add_argument("--experiment-comparison-delta", type=float, help="Experiment metric delta.")
+    parser.add_argument("--experiment-comparison-result", choices=["pending", "promote", "revise", "discard"], help="Experiment comparison result.")
+    parser.add_argument("--experiment-rationale", help="Experiment comparison rationale.")
+    parser.add_argument("--experiment-reason", help="Experiment promotion or discard reason.")
+    parser.add_argument("--experiment-next-action", help="Next action after the experiment comparison.")
     parser.add_argument(
         "--escalation-status",
         choices=["not_needed", "watch", "escalated"],
@@ -149,6 +167,20 @@ def main() -> int:
         and not args.evaluation_result
         and not args.critique
         and not args.minimum_fix
+        and not args.experiment_status
+        and not args.experiment_base_label
+        and not args.experiment_base_metric_name
+        and args.experiment_base_metric_value is None
+        and not args.experiment_candidate_label
+        and not args.experiment_candidate_metric_name
+        and args.experiment_candidate_metric_value is None
+        and not args.experiment_comparison_status
+        and not args.experiment_comparison_direction
+        and args.experiment_comparison_delta is None
+        and not args.experiment_comparison_result
+        and not args.experiment_rationale
+        and not args.experiment_reason
+        and not args.experiment_next_action
         and not args.escalation_status
         and not args.escalation_reason
         and not args.recommended_action
@@ -156,8 +188,8 @@ def main() -> int:
     ):
         raise LoopError("At least one review input is required.")
 
-    root = find_repo_root()
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    state = load_state(workspace_root)
     goal = state.get("current_goal")
     existing = state.get("review_state", {})
     if not isinstance(existing, dict):
@@ -336,6 +368,87 @@ def main() -> int:
     )
     payload["evaluation"] = evaluation
 
+    experiment = payload.get("experiment", {})
+    if not isinstance(experiment, dict):
+        experiment = {}
+    has_experiment_inputs = any(
+        [
+            args.experiment_status,
+            args.experiment_base_label,
+            args.experiment_base_metric_name,
+            args.experiment_base_metric_value is not None,
+            args.experiment_candidate_label,
+            args.experiment_candidate_metric_name,
+            args.experiment_candidate_metric_value is not None,
+            args.experiment_comparison_status,
+            args.experiment_comparison_direction,
+            args.experiment_comparison_delta is not None,
+            args.experiment_comparison_result,
+            args.experiment_rationale,
+            args.experiment_reason,
+            args.experiment_next_action,
+        ]
+    )
+    if has_experiment_inputs:
+        experiment["status"] = args.experiment_status or "captured"
+    else:
+        experiment["status"] = experiment.get("status", "not_started")
+    base = experiment.get("base", {})
+    if not isinstance(base, dict):
+        base = {}
+    if args.experiment_base_label:
+        base["label"] = args.experiment_base_label
+    if args.experiment_base_metric_name:
+        base["metric_name"] = args.experiment_base_metric_name
+    if args.experiment_base_metric_value is not None:
+        base["metric_value"] = args.experiment_base_metric_value
+    experiment["base"] = base
+
+    candidate = experiment.get("candidate", {})
+    if not isinstance(candidate, dict):
+        candidate = {}
+    if args.experiment_candidate_label:
+        candidate["label"] = args.experiment_candidate_label
+    if args.experiment_candidate_metric_name:
+        candidate["metric_name"] = args.experiment_candidate_metric_name
+    if args.experiment_candidate_metric_value is not None:
+        candidate["metric_value"] = args.experiment_candidate_metric_value
+    experiment["candidate"] = candidate
+
+    comparison = experiment.get("comparison", {})
+    if not isinstance(comparison, dict):
+        comparison = {}
+    if args.experiment_comparison_status:
+        comparison["status"] = args.experiment_comparison_status
+    elif has_experiment_inputs:
+        comparison["status"] = "captured"
+    else:
+        comparison["status"] = comparison.get("status", "not_started")
+    if args.experiment_comparison_direction:
+        comparison["direction"] = args.experiment_comparison_direction
+    if args.experiment_comparison_delta is not None:
+        comparison["delta"] = args.experiment_comparison_delta
+    if args.experiment_comparison_result:
+        comparison["result"] = args.experiment_comparison_result
+    if args.experiment_rationale:
+        comparison["rationale"] = args.experiment_rationale
+    experiment["comparison"] = comparison
+
+    promotion = experiment.get("promotion", {})
+    if not isinstance(promotion, dict):
+        promotion = {}
+    if args.experiment_comparison_result in {"promote", "revise", "discard"}:
+        promotion["decision"] = args.experiment_comparison_result
+        promotion["status"] = "captured"
+    elif has_experiment_inputs:
+        promotion["status"] = promotion.get("status", "not_started")
+    if args.experiment_reason:
+        promotion["reason"] = args.experiment_reason
+    if args.experiment_next_action:
+        promotion["next_action"] = args.experiment_next_action
+    experiment["promotion"] = promotion
+    payload["experiment"] = experiment
+
     escalation = payload.get("escalation", {})
     if not isinstance(escalation, dict):
         escalation = {}
@@ -350,7 +463,7 @@ def main() -> int:
     if not args.no_state:
         state["review_state"] = payload
         state["status"] = "review_captured"
-        save_state(root, state)
+        save_state(workspace_root, state)
 
     if args.json:
         print(json.dumps(payload, ensure_ascii=True, indent=2))

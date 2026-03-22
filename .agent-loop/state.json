@@ -1,20 +1,20 @@
 {
   "iteration": 65,
-  "status": "session_completed",
+  "status": "session_configured",
   "session": {
-    "id": "session-20260315-185911",
-    "status": "completed",
-    "target_releases": 4,
-    "completed_releases": 4,
+    "id": "session-20260322-065437",
+    "status": "active",
+    "target_releases": 3,
+    "completed_releases": 0,
     "target_iterations": null,
-    "completed_iterations": 4,
-    "started_at": "2026-03-15T18:59:11Z",
-    "ended_at": "2026-03-15T19:34:24Z"
+    "completed_iterations": 0,
+    "started_at": "2026-03-22T06:54:37Z",
+    "ended_at": null
   },
   "project_data": {
     "snapshot_path": ".agent-loop/data/project-data.json",
     "quality_path": ".agent-loop/data/data-quality.json",
-    "last_collected_at": "2026-03-15T15:29:16Z",
+    "last_collected_at": "2026-03-22T06:53:01Z",
     "last_quality_score": 100,
     "last_quality_status": "ready"
   },
@@ -50,126 +50,114 @@
   "draft_release_report": null,
   "draft_goal": null,
   "review_state": {
-    "status": "captured",
-    "captured_at": "2026-03-15T19:30:57Z",
-    "research_findings": [
-      "After the first three remediation releases, a fresh full review did not surface any remaining blocking, high, or medium code issues in the repaired paths."
-    ],
-    "committee_feedback": [
-      "The committee aligned on ending the repair wave with proof and documentation instead of another behavioral tweak."
-    ],
-    "committee_decision": [
-      "Approve the closeout release once validation stays green and the clean review report is durable."
-    ],
-    "reflection_notes": [
-      "A remediation loop is only complete when the repaired baseline is both tested and explicitly re-reviewed."
-    ],
+    "status": "not_started",
+    "captured_at": null,
+    "research_findings": [],
+    "committee_feedback": [],
+    "committee_decision": [],
+    "reflection_notes": [],
     "research_gate": {
-      "status": "captured",
-      "summary": "The remaining work is closeout work: prove the final reliability assumptions in validator coverage and publish a durable remediation review report.",
-      "evidence_refs": [
-        "docs/reviews/remediation-code-review-2026-03-16.md",
-        ".agent-loop/scripts/validate-kit.py",
-        ".agent-loop/references/protocol.md"
-      ],
-      "data_quality_score": 4.9,
+      "status": "not_started",
+      "summary": "",
+      "evidence_refs": [],
+      "data_quality_score": null,
       "open_gaps": []
     },
     "councils": {
       "product_council": {
-        "status": "captured",
-        "summary": "The repair wave should end with explicit proof and a clean review, otherwise operators still have to infer whether the fixes are complete.",
-        "decision": "approve",
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
         "dissent": []
       },
       "architecture_council": {
-        "status": "captured",
-        "summary": "A final closeout release should avoid new behavior changes and focus on validator hardening plus a durable review artifact.",
-        "decision": "approve",
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
         "dissent": []
       },
       "operator_council": {
-        "status": "captured",
-        "summary": "Operators benefit from a clear signal that the loop is clean again and from validator coverage that protects the repaired guarantees.",
-        "decision": "approve",
+        "status": "not_started",
+        "summary": "",
+        "decision": "",
         "dissent": []
       }
     },
     "secretariat": {
       "delivery_secretary": {
-        "status": "captured",
-        "summary": "Publish the final validator hardening and remediation review without changing loop semantics again.",
-        "next_action": "Run full validation and publish the closeout release if the repo stays green."
+        "status": "not_started",
+        "summary": "",
+        "next_action": ""
       },
       "audit_secretary": {
-        "status": "captured",
-        "summary": "The closeout is low risk because it packages only validator coverage, protocol notes, and an explicit remediation review report.",
-        "decision_record": "Approve the remediation closeout release with scope limited to final validation coverage and review documentation.",
-        "evidence_refs": [
-          "docs/reviews/remediation-code-review-2026-03-16.md"
-        ],
+        "status": "not_started",
+        "summary": "",
+        "decision_record": "",
+        "evidence_refs": [],
         "open_gaps": [],
         "dissent_record": []
       }
     },
     "cross_committee_tensions": [],
     "scope_decision": {
-      "status": "captured",
-      "selected_goal": "iteration-66-validator-and-review-closeout",
-      "why_selected": "This is the final step needed to turn the repair wave into a durable, review-backed baseline.",
-      "scope_in": [
-        "Cover the final successful iteration publish clean-worktree behavior in validator fixtures.",
-        "Document the repaired publish and fresh-session guarantees in protocol guidance.",
-        "Publish a durable remediation code review report."
-      ],
-      "scope_out": [
-        "Do not change publish semantics, committee semantics, or operator tooling behavior."
-      ],
-      "assumptions": [
-        "No additional material bugs remain in the remediated code paths after the fresh review."
-      ],
-      "risks": [
-        "The closeout could accidentally drift back into behavior change if validator or protocol edits go beyond the repaired guarantees."
-      ],
-      "required_validation": [
-        "validate-kit.py must remain fully green after the closeout artifacts are added.",
-        "run-full-validation.py must remain green after the final review report is added."
-      ],
-      "stop_conditions": [
-        "Stop if the closeout uncovers a new significant code issue that requires another repair wave."
-      ],
-      "dissent": [
-        "Keep the closeout factual; do not oversell the review beyond the paths that were actually re-checked."
-      ],
-      "next_action": "Publish the final remediation release if validation stays green and no new review findings emerge."
+      "status": "not_started",
+      "selected_goal": "",
+      "why_selected": "",
+      "scope_in": [],
+      "scope_out": [],
+      "assumptions": [],
+      "risks": [],
+      "required_validation": [],
+      "stop_conditions": [],
+      "dissent": [],
+      "next_action": ""
     },
     "evaluation": {
-      "status": "captured",
-      "rubric_version": "iteration-readiness-v1",
-      "scores": {
-        "goal_clarity": 4.9,
-        "scope_fitness": 4.9,
-        "repo_safety": 4.9,
-        "validation_readiness": 5.0,
-        "state_durability": 4.8,
-        "publish_safety": 4.9
+      "status": "not_started",
+      "rubric_version": "",
+      "scores": {},
+      "weighted_score": null,
+      "result": "pending",
+      "critique": [],
+      "minimum_fixes_required": []
+    },
+    "experiment": {
+      "status": "not_started",
+      "base": {
+        "label": "",
+        "source_release_number": null,
+        "source_iteration": null,
+        "metric_name": "",
+        "metric_value": null,
+        "source_report": ""
       },
-      "weighted_score": 4.9,
-      "result": "pass",
-      "critique": [
-        "The closeout scope is narrow, evidence-based, and appropriate for ending the remediation run."
-      ],
-      "minimum_fixes_required": [
-        "Keep the closeout limited to proof and review artifacts."
-      ]
+      "candidate": {
+        "label": "",
+        "source_goal_id": "",
+        "source_goal_title": "",
+        "metric_name": "",
+        "metric_value": null,
+        "source_report": ""
+      },
+      "comparison": {
+        "status": "not_started",
+        "direction": "higher",
+        "delta": null,
+        "result": "pending",
+        "rationale": ""
+      },
+      "promotion": {
+        "status": "not_started",
+        "decision": "pending",
+        "reason": "",
+        "next_action": ""
+      }
     },
     "escalation": {
       "status": "not_needed",
       "reason": "",
-      "recommended_action": "Proceed to publish if the full validator and fresh review stay clean."
-    },
-    "goal_id": "iteration-66-validator-and-review-closeout",
-    "goal_title": "Expand validator coverage for reliability fixes and publish a final remediation review"
+      "recommended_action": ""
+    }
   },
   "last_report": "docs/reports/v65.md",
   "last_validation": {

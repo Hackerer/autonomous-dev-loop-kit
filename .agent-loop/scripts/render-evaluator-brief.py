@@ -10,12 +10,12 @@ from common import (
     LoopError,
     committee_config,
     evaluator_summary,
-    find_repo_root,
     goal_title,
     load_config,
     load_json,
     load_state,
     require_review_state,
+    resolve_execution_roots,
 )
 
 
@@ -48,9 +48,9 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the evaluator brief as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     goal = state.get("current_goal")
     if not goal:
         raise LoopError("No active goal is selected. Run `python3 .agent-loop/scripts/select-next-goal.py` first.")
@@ -68,7 +68,7 @@ def main() -> int:
     if not rubric_ref:
         raise LoopError("Evaluator rubric is not configured in .agent-loop/config.json")
 
-    rubric = load_json(root / rubric_ref)
+    rubric = load_json(kit_root / rubric_ref)
     payload = {
         "goal": {
             "id": goal.get("id"),
@@ -84,7 +84,7 @@ def main() -> int:
             "required_validation": list(scope_decision.get("required_validation", [])),
             "stop_conditions": list(scope_decision.get("stop_conditions", [])),
         },
-        "project_context": build_project_context(root, state),
+        "project_context": build_project_context(workspace_root, state),
         "evaluator": evaluator_summary(config),
         "implementation_gate": implementation_gate_status(config, review_state.get("evaluation", {})),
         "rubric": rubric,

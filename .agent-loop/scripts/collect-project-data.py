@@ -10,7 +10,6 @@ from common import (
     committee_summary,
     discovery_config,
     current_branch,
-    find_repo_root,
     git,
     goal_title,
     load_config,
@@ -20,6 +19,7 @@ from common import (
     review_state_matches_goal,
     save_json,
     save_state,
+    resolve_execution_roots,
     utc_now,
 )
 
@@ -193,30 +193,30 @@ def main() -> int:
     parser.add_argument("--no-state", action="store_true", help="Do not persist snapshot metadata into .agent-loop/state.json.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    template = load_json(root / ".agent-loop/templates/project-data-template.json")
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    template = load_json(kit_root / ".agent-loop/templates/project-data-template.json")
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     current_goal = state.get("current_goal")
     review_state = state.get("review_state", {})
 
     snapshot = json.loads(json.dumps(template))
-    languages = detect_languages(root)
-    key_paths = detect_key_paths(root)
+    languages = detect_languages(target_root)
+    key_paths = detect_key_paths(target_root)
     snapshot["collected_at"] = utc_now()
     snapshot["repo"] = {
-        "root": str(root),
-        "name": root.name,
-        "current_branch": current_branch(root),
-        "worktree_clean": git(root, "status", "--short").stdout.strip() == "",
-        "remotes": git_remotes(root),
+        "root": str(target_root),
+        "name": target_root.name,
+        "current_branch": current_branch(target_root),
+        "worktree_clean": git(target_root, "status", "--short").stdout.strip() == "",
+        "remotes": git_remotes(target_root),
     }
     snapshot["project"] = {
         "languages": languages,
-        "framework_signals": detect_framework_signals(root),
-        "tooling_signals": detect_tooling_signals(root, languages, key_paths),
-        "package_managers": detect_package_managers(root),
-        "runtime_files": detect_runtime_files(root),
+        "framework_signals": detect_framework_signals(target_root),
+        "tooling_signals": detect_tooling_signals(target_root, languages, key_paths),
+        "package_managers": detect_package_managers(target_root),
+        "runtime_files": detect_runtime_files(target_root),
         "repo_archetype": detect_repo_archetype(key_paths),
         "archetype_profile": {},
         "key_paths": key_paths,
@@ -240,15 +240,16 @@ def main() -> int:
         "committee_roles": committee_summary(config),
     }
     snapshot["product_context"] = {
-        "target_outcome": parse_target_outcome(root),
-        "constraints": parse_constraints(root),
-        "open_risks": parse_open_risks(root),
+        "target_outcome": parse_target_outcome(target_root),
+        "constraints": parse_constraints(target_root),
+        "open_risks": parse_open_risks(target_root),
     }
     research_gate = review_state.get("research_gate", {})
     councils = review_state.get("councils", {})
     secretariat = review_state.get("secretariat", {})
     scope_decision = review_state.get("scope_decision", {})
     evaluation = review_state.get("evaluation", {})
+    experiment = review_state.get("experiment", {})
     escalation = review_state.get("escalation", {})
     snapshot["latest_review_state"] = {
         "status": review_state.get("status", "not_started"),
@@ -311,6 +312,32 @@ def main() -> int:
             "weighted_score": evaluation.get("weighted_score") if isinstance(evaluation, dict) else None,
             "result": evaluation.get("result", "pending") if isinstance(evaluation, dict) else "pending",
         },
+        "experiment": {
+            "status": experiment.get("status", "not_started") if isinstance(experiment, dict) else "not_started",
+            "base": {
+                "label": experiment.get("base", {}).get("label", "") if isinstance(experiment, dict) else "",
+                "metric_name": experiment.get("base", {}).get("metric_name", "") if isinstance(experiment, dict) else "",
+                "metric_value": experiment.get("base", {}).get("metric_value") if isinstance(experiment, dict) else None,
+            },
+            "candidate": {
+                "label": experiment.get("candidate", {}).get("label", "") if isinstance(experiment, dict) else "",
+                "metric_name": experiment.get("candidate", {}).get("metric_name", "") if isinstance(experiment, dict) else "",
+                "metric_value": experiment.get("candidate", {}).get("metric_value") if isinstance(experiment, dict) else None,
+            },
+            "comparison": {
+                "status": experiment.get("comparison", {}).get("status", "not_started") if isinstance(experiment, dict) else "not_started",
+                "direction": experiment.get("comparison", {}).get("direction", "higher") if isinstance(experiment, dict) else "higher",
+                "delta": experiment.get("comparison", {}).get("delta") if isinstance(experiment, dict) else None,
+                "result": experiment.get("comparison", {}).get("result", "pending") if isinstance(experiment, dict) else "pending",
+                "rationale": experiment.get("comparison", {}).get("rationale", "") if isinstance(experiment, dict) else "",
+            },
+            "promotion": {
+                "status": experiment.get("promotion", {}).get("status", "not_started") if isinstance(experiment, dict) else "not_started",
+                "decision": experiment.get("promotion", {}).get("decision", "pending") if isinstance(experiment, dict) else "pending",
+                "reason": experiment.get("promotion", {}).get("reason", "") if isinstance(experiment, dict) else "",
+                "next_action": experiment.get("promotion", {}).get("next_action", "") if isinstance(experiment, dict) else "",
+            },
+        },
         "escalation": {
             "status": escalation.get("status", "not_needed") if isinstance(escalation, dict) else "not_needed",
             "reason": escalation.get("reason", "") if isinstance(escalation, dict) else "",
@@ -332,13 +359,13 @@ def main() -> int:
         "This snapshot is a first-pass repo scan and should be refreshed after major structural changes."
     ]
 
-    output = Path(args.output) if args.output else root / ".agent-loop/data/project-data.json"
+    output = Path(args.output) if args.output else workspace_root / ".agent-loop/data/project-data.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     save_json(output, snapshot)
     if not args.no_state:
-        state["project_data"]["snapshot_path"] = relpath(output, root)
+        state["project_data"]["snapshot_path"] = relpath(output, workspace_root)
         state["project_data"]["last_collected_at"] = snapshot["collected_at"]
-        save_state(root, state)
+        save_state(workspace_root, state)
     print(output)
     return 0
 

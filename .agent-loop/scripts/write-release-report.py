@@ -10,7 +10,6 @@ from common import (
     append_usage_log,
     LoopError,
     active_release,
-    find_repo_root,
     is_placeholder_text,
     load_config,
     load_state,
@@ -18,6 +17,7 @@ from common import (
     release_reporting_path,
     release_summary,
     require_green_validation,
+    resolve_execution_roots,
     save_state,
     session_summary,
 )
@@ -71,9 +71,9 @@ def main() -> int:
     parser.add_argument("--next-release", action="append", default=[], help="Next-release recommendation bullet.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     release = release_summary(state)
     require_green_validation(state)
 
@@ -85,12 +85,13 @@ def main() -> int:
         )
 
     release_number = int(release["number"])
-    report_path = release_reporting_path(root, config, release_number)
+    report_path = release_reporting_path(workspace_root, config, release_number)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     today = datetime.now().date().isoformat()
     session = session_summary(state)
 
     brief = release.get("brief", {}) if isinstance(release.get("brief"), dict) else {}
+    baseline = brief.get("baseline_release", {}) if isinstance(brief.get("baseline_release"), dict) else {}
     task_iterations = []
     for item in release.get("task_iterations", []):
         if isinstance(item, dict):
@@ -105,7 +106,7 @@ def main() -> int:
         report_rel = str(item.get("report", "")).strip()
         task_trace_lines.append(f"- {task_label} -> `{report_rel}`")
         if report_rel:
-            sections = section_map(root / report_rel)
+            sections = section_map(workspace_root / report_rel)
             delivered_lines.extend(
                 [
                     f"{task_label}: {line[2:]}"
@@ -121,6 +122,15 @@ def main() -> int:
                     if line.startswith("- ") and not is_placeholder_text(line[2:])
                 ]
             )
+        metric_value = item.get("candidate_metric_value")
+        if metric_value is not None:
+            output_lines.append(f"{task_label}: candidate metric {metric_value}")
+        baseline_metric_value = item.get("baseline_metric_value")
+        if baseline_metric_value is not None:
+            output_lines.append(f"{task_label}: baseline metric {baseline_metric_value}")
+        experiment_decision = str(item.get("experiment_decision", "")).strip()
+        if experiment_decision:
+            output_lines.append(f"{task_label}: experiment decision {experiment_decision}")
 
     content = [
         f"# R{release_number} Release Report",
@@ -145,6 +155,21 @@ def main() -> int:
             "Record the PM release objective, user value, why-now logic, packaging rationale, and launch story.",
         ),
         *bulletize([f"Packaging signal: {item}" for item in brief.get("packaging_signals", [])], "Record the strongest signals that justify this release bundle."),
+        "",
+        "## Experiment Baseline",
+        *bulletize(
+            [
+                (
+                    f"Base release: R{baseline.get('number')}"
+                    if baseline.get("number") is not None
+                    else f"Base release: {baseline.get('title', '') or 'none recorded'}"
+                ),
+                f"Base title: {baseline.get('title', '')}",
+                f"Metric: {baseline.get('metric_name', '')} = {baseline.get('metric_value')}",
+                f"Promotion rule: {brief.get('promotion_rule', '')}",
+            ],
+            "Document the base version and metric used to judge whether this release should be promoted.",
+        ),
         "",
         "## Included Scope",
         *bulletize(release["goal_titles"], "List the bundled goals included in this release."),
@@ -183,18 +208,19 @@ def main() -> int:
     ]
 
     report_path.write_text("\n".join(content), encoding="utf-8")
-    state["draft_release_report"] = relpath(report_path, root)
+    state["draft_release_report"] = relpath(report_path, workspace_root)
     state["status"] = "release_report_written"
-    save_state(root, state)
+    save_state(workspace_root, state)
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "release_report_written",
         {
             "release_number": release_number,
-            "report": relpath(report_path, root),
+            "report": relpath(report_path, workspace_root),
             "task_iterations": len(task_iterations),
         },
+        target_root=target_root,
     )
     print(report_path)
     return 0

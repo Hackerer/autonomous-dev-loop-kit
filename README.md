@@ -58,9 +58,9 @@ For every bundled release, the loop requires:
 - deep analysis before execution
 - short reason -> act -> observe -> update cycles
 - full validation before publication
-- task reports in `docs/reports/`
-- a detailed release report in `docs/releases/`
-- Git publication for the current project at both task and release closeout
+- task reports in the active project workspace under `docs/projects/<project-id>/docs/reports/`
+- a detailed release report in `docs/projects/<project-id>/docs/releases/`
+- Git publication for the active target repository at both task and release closeout
 - reflection before the next release starts
 
 The session stops automatically when the requested bundled release count is reached or when a configured stop condition is hit.
@@ -78,17 +78,18 @@ The current lightweight committee V2 baseline includes:
 - a deterministic evaluator score helper driven by the committed rubric
 - configurable implementation readiness gate mode while keeping report and publish safety strict
 - evaluator-pass gating remains strict for reporting and publication
+- an opt-in experiment layer that treats each version as a candidate against a durable base and only promotes improvements
 - bundled release planning before task selection
 - PM-driven release briefs for bundled release planning
 - detailed release closeout reports that aggregate what the included task iterations delivered
-- repo-local usage logs for install, session start/extension, and published iterations
+- per-project usage logs, reports, and release records stored under `docs/projects/<project-id>/`
 - stop and escalation assessment plus report rendering
 - goal-bound review-state capture and non-destructive session continuation
 
 ## Safety Rules
 
 - Each project must publish to its own GitHub repository.
-- If the current project's GitHub remote is missing or unclear, the agent should stop and ask before publishing.
+- If the active target repository's GitHub remote is missing or unclear, the agent should stop and ask before publishing.
 - The loop should never push one project to another project's remote.
 
 ## Repository Layout
@@ -100,22 +101,18 @@ The current lightweight committee V2 baseline includes:
 AGENTS.md
 CLAUDE.md
 PLANS.md
-docs/reports/
-docs/releases/
+docs/projects/
 ```
 
 ## Install Into A Project
 
-Copy the following into the root of the target project:
+Register the target project without copying kit assets into it. The installer records project-specific state, logs, and reports inside the kit workspace under `docs/projects/<project-id>/`.
 
-- `.agents/`
-- `.claude/`
-- `.agent-loop/`
-- `AGENTS.md`
-- `CLAUDE.md`
-- `PLANS.md`
+```bash
+./scripts/install-into-project.sh --target /path/to/project
+```
 
-Then replace the placeholder validation command in `.agent-loop/config.json` with the real commands for that project, for example:
+After registration, replace the placeholder validation command in the kit workspace config for that project with the real commands, for example:
 
 - lint
 - typecheck
@@ -126,51 +123,17 @@ Then replace the placeholder validation command in `.agent-loop/config.json` wit
 
 Do not leave the placeholder validation step in place for real use.
 
-Also customize the committee members in `.agent-loop/config.json` if the default product-manager, technical-architect, and user personas do not match the target project.
+Also customize the committee members in the kit workspace config if the default product-manager, technical-architect, and user personas do not match the target project.
 
 ## Install Into A Target Project
 
-To install the committee-driven kit into a project root, run:
+To register a project as a target for the committee-driven kit, run:
 
 ```bash
 ./scripts/install-into-project.sh --target /path/to/project
 ```
 
-The installer syncs reusable kit assets such as:
-
-- `.agents/`
-- `.claude/`
-- `.agent-loop/scripts/`
-- `.agent-loop/references/`
-- `.agent-loop/templates/`
-
-It also seeds these files if they are missing:
-
-- `AGENTS.md`
-- `CLAUDE.md`
-- `PLANS.md`
-- `.agent-loop/config.json`
-- `.agent-loop/state.json`
-- `.agent-loop/backlog.json`
-
-By default, the installer preserves an existing target project's `.agent-loop/config.json`, `.agent-loop/state.json`, `.agent-loop/backlog.json`, `AGENTS.md`, `CLAUDE.md`, and `PLANS.md`.
-
-After installation, the target repo bootstrap should follow the same lightweight V2 flow:
-
-```bash
-# Review the defaults you want for this repo first:
-# - discovery.archetype_profiles
-# - committee.evaluator.implementation_gate_mode
-python3 .agent-loop/scripts/collect-project-data.py
-python3 .agent-loop/scripts/score-data-quality.py
-python3 .agent-loop/scripts/plan-release.py
-python3 .agent-loop/scripts/render-committee.py
-python3 .agent-loop/scripts/render-evaluator-brief.py
-python3 .agent-loop/scripts/score-evaluator-readiness.py --score goal_clarity=4.0 --score scope_fitness=4.0 --score repo_safety=4.0 --score validation_readiness=4.0 --score state_durability=4.0 --score publish_safety=4.0
-python3 .agent-loop/scripts/assert-implementation-readiness.py
-```
-
-`implementation_gate_mode=advisory` can allow implementation to start with a warning, but report and publish still require evaluator pass.
+The installer does not copy kit assets or scripts into the target project. It records the target path in the per-project workspace under `docs/projects/<project-id>/`.
 
 When all tasks in the active release are published, close out the bundled release with:
 
@@ -179,11 +142,20 @@ python3 .agent-loop/scripts/write-release-report.py
 python3 .agent-loop/scripts/publish-release.py
 ```
 
-The installed kit also records lightweight usage logs in:
+The kit records lightweight usage logs in the kit workspace, with one project folder per target under `docs/projects/`. The registry that maps targets to project folders lives at `docs/projects/index.json`:
 
 ```text
-.agent-loop/data/usage-log.jsonl
+docs/projects/<project-id>/.agent-loop/data/usage-log.jsonl
 ```
+
+If you are operating on an external repository from the kit workspace, set the target explicitly before running the scripts:
+
+```bash
+export AUTONOMOUS_DEV_LOOP_TARGET=/path/to/project
+python3 .agent-loop/scripts/loop-status.py
+```
+
+If you need to redirect the kit workspace itself for a test harness, set `AUTONOMOUS_DEV_LOOP_WORKSPACE=/path/to/workspace` as an explicit override. The default remains the kit repository's own `docs/projects/<project-id>/` tree.
 
 You can summarize one or more repos with:
 
@@ -204,13 +176,6 @@ If research is still insufficient before goal selection, record that explicitly 
 ```bash
 python3 .agent-loop/scripts/capture-review.py --research-status need_more_context --research-summary "..." --open-gap "..."
 ```
-
-Optional flags:
-
-- `--overwrite-config`
-- `--overwrite-state`
-- `--overwrite-backlog`
-- `--overwrite-top-level`
 
 ## Install Into Local CLI Skill Directories
 
@@ -241,12 +206,12 @@ Once installed in a project, the user can launch the loop with a count-only prom
 
 The wrappers interpret that as:
 
-- start the autonomous loop in the current project
+- start the autonomous loop for the active target repository
 - persist the session target as 3 iterations
 - run one version at a time
 - validate every version fully
-- write a report for every version
-- publish every version to the current project's own GitHub repo
+- write a report for every version in the kit workspace project folder
+- publish every version to the active target repository's own GitHub repo
 - stop after the third published version or earlier on stop conditions
 
 When committee review is required, the loop will now refuse to write a report or publish a version until `python3 .agent-loop/scripts/capture-review.py` has recorded matching review state for the active goal.
@@ -295,13 +260,13 @@ python3 .agent-loop/scripts/publish-iteration.py
 
 ## Under The Hood
 
-The loop persists state in repo files:
+The loop persists kit-controlled state in the per-project workspace:
 
 - `.agent-loop/config.json`
 - `.agent-loop/state.json`
 - `.agent-loop/backlog.json`
 - `PLANS.md`
-- `docs/reports/`
+- `docs/projects/<project-id>/`
 
 Key scripts:
 
@@ -319,6 +284,6 @@ Key scripts:
 
 ## Notes
 
-- This kit is intentionally repo-local. It is designed to live inside the project that is being developed.
+- This kit is intentionally workspace-local. It is designed to live in the kit repository and control one or more target projects through per-project folders under `docs/projects/`.
 - The Codex and Claude wrappers share the same core protocol but present it in different styles.
 - For public repositories, a project-specific README and real validation commands are still your responsibility.

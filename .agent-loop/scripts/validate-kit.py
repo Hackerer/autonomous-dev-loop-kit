@@ -2,14 +2,16 @@
 from __future__ import annotations
 
 import json
+import os
 import py_compile
 import re
 import subprocess
 import sys
 import tempfile
+from shutil import copy2, rmtree
 from pathlib import Path
 
-from common import load_state, validate_committee
+from common import load_state, project_workspace_root, validate_committee
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -58,14 +60,66 @@ def validate_skill(skill_md: Path, failures: list[str]) -> None:
     check(re.search(r"^description:\s+.+$", body, re.MULTILINE) is not None, f"Skill description present: {skill_md.relative_to(ROOT)}", failures)
 
 
-def install_target_project(target: Path, args: list[str] | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["bash", "scripts/install-into-project.sh", "--target", str(target), *(args or [])],
+def install_target_project(target: Path) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(
+        ["bash", "scripts/install-into-project.sh", "--target", str(target)],
         cwd=str(ROOT),
         text=True,
         capture_output=True,
         check=False,
     )
+    workspace = install_workspace_root(target)
+    (workspace / ".agent-loop").mkdir(parents=True, exist_ok=True)
+    (workspace / ".agent-loop" / "data").mkdir(parents=True, exist_ok=True)
+    (workspace / "docs" / "reports").mkdir(parents=True, exist_ok=True)
+    (workspace / "docs" / "releases").mkdir(parents=True, exist_ok=True)
+    copy2(ROOT / ".agent-loop" / "config.json", workspace / ".agent-loop" / "config.json")
+    copy2(ROOT / ".agent-loop" / "state.json", workspace / ".agent-loop" / "state.json")
+    copy2(ROOT / ".agent-loop" / "backlog.json", workspace / ".agent-loop" / "backlog.json")
+    for name in ("scripts", "references", "templates"):
+        link = workspace / ".agent-loop" / name
+        if link.exists() or link.is_symlink():
+            if link.is_dir() and not link.is_symlink():
+                rmtree(link)
+            else:
+                link.unlink()
+        link.symlink_to(ROOT / ".agent-loop" / name, target_is_directory=True)
+    target.mkdir(parents=True, exist_ok=True)
+    os.environ["AUTONOMOUS_DEV_LOOP_TARGET"] = str(target.resolve())
+    os.environ["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
+    for name in (".agent-loop", "docs"):
+        link = target / name
+        if link.exists() or link.is_symlink():
+            if link.is_dir() and not link.is_symlink():
+                rmtree(link)
+            else:
+                link.unlink()
+        link.symlink_to(workspace / name, target_is_directory=True)
+    return result
+
+
+def install_workspace_root(target: Path) -> Path:
+    snippet = """
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1]).resolve()
+target = Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(root / ".agent-loop" / "scripts"))
+from common import project_key
+
+print(root / "docs" / "projects" / project_key(target))
+"""
+    result = subprocess.run(
+        ["python3", "-", str(ROOT), str(target)],
+        input=snippet,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "Unable to resolve install workspace root")
+    return Path(result.stdout.strip()).resolve()
 
 
 def write_json(path: Path, payload: dict) -> None:
@@ -473,6 +527,7 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
         check("Seeded escalation reason" in report_content, "Structured-flow report renders escalation reasons", failures)
         check("Seeded delivery secretary summary" in report_content, "Structured-flow report renders delivery secretary output", failures)
         check("Seeded audit decision record" in report_content, "Structured-flow report renders audit secretary output", failures)
+        check("Experiment" in report_content, "Structured-flow report renders the experiment section", failures)
         check("Implementation gate:" in report_content, "Structured-flow report renders implementation gate outcome", failures)
 
         publish = subprocess.run(
@@ -483,6 +538,134 @@ def validate_structured_committee_flow(failures: list[str]) -> None:
             check=False,
         )
         check(publish.returncode == 0, "Structured-flow target publishes with commit-only", failures)
+
+
+def validate_experiment_promotion_gate(failures: list[str]) -> None:
+    goal_id = "experiment-promotion-gate"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        target = Path(tmp_dir) / "target-repo"
+        installer = install_target_project(target)
+        check(installer.returncode == 0, "Project installer can seed an experiment-promotion target", failures)
+
+        git_init = subprocess.run(["git", "init"], cwd=str(target), text=True, capture_output=True, check=False)
+        check(git_init.returncode == 0, "Experiment-promotion target initializes git", failures)
+        subprocess.run(["git", "config", "user.name", "Kit Validator"], cwd=str(target), text=True, capture_output=True, check=False)
+        subprocess.run(["git", "config", "user.email", "validator@example.com"], cwd=str(target), text=True, capture_output=True, check=False)
+
+        config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
+        config["git"]["strategy"] = "commit-only"
+        config["experiment"]["enabled"] = True
+        write_json(target / ".agent-loop/config.json", config)
+
+        state = seeded_state(goal_id, evaluator_result="pass")
+        state["current_goal"]["title"] = "Experiment promotion gate"
+        state["review_state"]["goal_title"] = "Experiment promotion gate"
+        state["review_state"]["experiment"] = {
+            "status": "captured",
+            "base": {
+                "label": "Baseline release",
+                "metric_name": "review_state.evaluation.weighted_score",
+                "metric_value": 4.8,
+            },
+            "candidate": {
+                "label": "Candidate release",
+                "metric_name": "review_state.evaluation.weighted_score",
+                "metric_value": 4.0,
+            },
+            "comparison": {
+                "status": "captured",
+                "direction": "higher",
+                "delta": -0.8,
+                "result": "revise",
+                "rationale": "Candidate is below the durable base score.",
+            },
+            "promotion": {
+                "status": "captured",
+                "decision": "revise",
+                "reason": "Candidate has not beaten the base yet.",
+                "next_action": "Continue iterating before promotion.",
+            },
+        }
+        state["history"] = [
+            {
+                "session_id": "session-20260315-000000",
+                "iteration": 0,
+                "goal": "Baseline release",
+                "goal_id": "baseline-release",
+                "evaluation_result": "pass",
+                "validation_status": "passed",
+                "candidate_metric_value": 4.8,
+                "experiment_decision": "promote",
+            }
+        ]
+        state["draft_goal"] = state["current_goal"]
+        state["draft_iteration"] = 1
+        state["draft_report"] = "docs/reports/v1.md"
+        state["release"] = {
+            "number": 1,
+            "title": "R1 seeded experiment release",
+            "summary": "Seeded release for experiment gate validation",
+            "status": "planned",
+            "brief": {
+                "objective": "Validate experiment promotion gating.",
+                "target_user_value": "Candidate versions should only promote when they beat base.",
+                "why_now": "This release exercises the candidate-versus-base contract.",
+                "packaging_rationale": "The release packages one experiment gate change.",
+                "scope_in": ["Experiment promotion gate"],
+                "scope_out": [],
+                "release_acceptance": ["Candidate promotion requires a better metric than base."],
+                "launch_story": "Prove the candidate can beat base before promotion.",
+                "deferred_items": [],
+                "baseline_release": {
+                    "number": 0,
+                    "title": "Baseline release",
+                    "metric_name": "review_state.evaluation.weighted_score",
+                    "metric_value": 4.8,
+                },
+                "promotion_rule": "Candidate metric must beat the current base metric before publish.",
+            },
+            "goal_ids": [goal_id],
+            "goal_titles": ["Experiment promotion gate"],
+            "completed_goal_ids": [],
+            "task_iterations": [],
+            "selected_at": "2026-03-15T00:00:00Z",
+            "published_at": None,
+            "report_path": None,
+        }
+        write_json(target / ".agent-loop/state.json", state)
+        (target / "docs/reports").mkdir(parents=True, exist_ok=True)
+        (target / "docs/reports/v1.md").write_text("# Task Iteration v1 Report\n", encoding="utf-8")
+
+        blocked = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(blocked.returncode != 0, "publish-iteration.py blocks candidates that do not beat base", failures)
+        check(
+            "base" in blocked.stderr.lower() or "candidate" in blocked.stderr.lower(),
+            "publish-iteration.py explains why the candidate is blocked by base comparison",
+            failures,
+        )
+
+        state = load_state(target)
+        state["review_state"]["experiment"]["candidate"]["metric_value"] = 5.3
+        state["review_state"]["experiment"]["comparison"]["delta"] = 0.5
+        state["review_state"]["experiment"]["comparison"]["result"] = "promote"
+        state["review_state"]["experiment"]["promotion"]["decision"] = "promote"
+        state["review_state"]["experiment"]["promotion"]["reason"] = "Candidate beats the base."
+        write_json(target / ".agent-loop/state.json", state)
+
+        promoted = subprocess.run(
+            ["python3", ".agent-loop/scripts/publish-iteration.py"],
+            cwd=str(target),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        check(promoted.returncode == 0, "publish-iteration.py promotes candidates that beat base", failures)
 
 
 def validate_release_flow(failures: list[str]) -> None:
@@ -594,6 +777,7 @@ def validate_release_flow(failures: list[str]) -> None:
         check(release_report.returncode == 0, "write-release-report.py aggregates the bundled release", failures)
         release_report_content = (target / "docs/releases/R1.md").read_text(encoding="utf-8")
         check("PM Release Brief" in release_report_content, "Bundled release report includes the PM release brief", failures)
+        check("Experiment Baseline" in release_report_content, "Bundled release report includes the experiment baseline", failures)
         check("Delivered A" in release_report_content and "Delivered B" in release_report_content, "Bundled release report aggregates delivered scope", failures)
         check("Technical Validation" in release_report_content, "Bundled release report includes validation status", failures)
 
@@ -1133,8 +1317,10 @@ def validate_usage_logging(failures: list[str]) -> None:
         installer = install_target_project(target)
         check(installer.returncode == 0, "Project installer can seed a usage-logging target", failures)
 
-        usage_log = target / ".agent-loop/data/usage-log.jsonl"
-        check(usage_log.exists(), "Project installer records an install usage event", failures)
+        install_workspace = install_workspace_root(target)
+        install_log = install_workspace / ".agent-loop/data/usage-log.jsonl"
+        session_log = target / ".agent-loop/data/usage-log.jsonl"
+        check(install_log.exists(), "Project installer records an install usage event in the kit workspace project folder", failures)
 
         started = subprocess.run(
             ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
@@ -1144,7 +1330,7 @@ def validate_usage_logging(failures: list[str]) -> None:
             check=False,
         )
         check(started.returncode == 0, "set-loop-session.py records a session start on a usage-logging target", failures)
-        usage_rows = read_jsonl(usage_log)
+        usage_rows = read_jsonl(session_log)
         session_started_row = next((row for row in usage_rows if row.get("event") == "session_started"), {})
         session_context = session_started_row.get("session", {}) if isinstance(session_started_row, dict) else {}
         check(bool(session_context.get("id")), "Usage-log events capture a stable session id", failures)
@@ -1216,8 +1402,16 @@ def validate_usage_logging(failures: list[str]) -> None:
         check(failed_validation.returncode != 0, "run-full-validation.py can emit a failing validation event", failures)
 
         analyzer = subprocess.run(
-            ["python3", ".agent-loop/scripts/analyze-usage-logs.py", "--json"],
-            cwd=str(target),
+            [
+                "python3",
+                ".agent-loop/scripts/analyze-usage-logs.py",
+                "--json",
+                "--log",
+                str(install_log),
+                "--log",
+                str(session_log),
+            ],
+            cwd=str(ROOT),
             text=True,
             capture_output=True,
             check=False,
@@ -1235,10 +1429,18 @@ def validate_usage_logging(failures: list[str]) -> None:
             sessions = payload.get("sessions", [])
             check(isinstance(sessions, list) and bool(sessions), "Usage-log analysis exposes session summaries", failures)
 
-        usage_log.write_text(usage_log.read_text(encoding="utf-8") + "{not-json}\n", encoding="utf-8")
+        session_log.write_text(session_log.read_text(encoding="utf-8") + "{not-json}\n", encoding="utf-8")
         analyzer_with_invalid_row = subprocess.run(
-            ["python3", ".agent-loop/scripts/analyze-usage-logs.py", "--json"],
-            cwd=str(target),
+            [
+                "python3",
+                ".agent-loop/scripts/analyze-usage-logs.py",
+                "--json",
+                "--log",
+                str(install_log),
+                "--log",
+                str(session_log),
+            ],
+            cwd=str(ROOT),
             text=True,
             capture_output=True,
             check=False,
@@ -1331,7 +1533,9 @@ def main() -> int:
         ROOT / ".agent-loop/scripts/score-evaluator-readiness.py",
         ROOT / ".agent-loop/scripts/write-release-report.py",
         ROOT / ".agents/skills/autonomous-dev-loop/SKILL.md",
+        ROOT / ".agents/skills/autonomous-dev-loop/agents/openai.yaml",
         ROOT / ".claude/skills/autonomous-dev-loop/SKILL.md",
+        ROOT / ".claude/skills/autonomous-dev-loop/agents/openai.yaml",
         ROOT / ".agent-loop/config.json",
         ROOT / ".agent-loop/state.json",
         ROOT / ".agent-loop/backlog.json",
@@ -1347,6 +1551,15 @@ def main() -> int:
     ]
     for path in required_files:
         check(path.exists(), f"Required file exists: {path.relative_to(ROOT)}", failures)
+
+    for skill_yaml, label in [
+        (ROOT / ".agents/skills/autonomous-dev-loop/agents/openai.yaml", "Codex"),
+        (ROOT / ".claude/skills/autonomous-dev-loop/agents/openai.yaml", "Claude"),
+    ]:
+        if skill_yaml.exists():
+            yaml_text = skill_yaml.read_text(encoding="utf-8")
+            check("display_name:" in yaml_text, f"{label} skill metadata includes a display name", failures)
+            check("default_prompt:" in yaml_text, f"{label} skill metadata includes a default prompt", failures)
 
     for json_file in [
         ROOT / ".agent-loop/config.json",
@@ -1419,6 +1632,14 @@ def main() -> int:
     rubric_ref = evaluator.get("rubric_ref")
     check(rubric_ref == ".agent-loop/references/iteration-readiness-rubric.json", "Config points to the committed evaluator rubric", failures)
     check(evaluator.get("implementation_gate_mode") == "blocking", "Evaluator defaults to blocking implementation gate mode", failures)
+    experiment_config = config.get("experiment", {})
+    check(isinstance(experiment_config, dict), "Experiment config is present", failures)
+    check(experiment_config.get("enabled") is False, "Experiment layer defaults to disabled for opt-in use", failures)
+    check(
+        experiment_config.get("baseline_strategy") == "last_promoted_release",
+        "Experiment layer uses the last promoted release as the baseline strategy",
+        failures,
+    )
     rubric = json.loads((ROOT / ".agent-loop/references/iteration-readiness-rubric.json").read_text(encoding="utf-8"))
     check(rubric.get("id") == "iteration-readiness-v1", "Evaluator rubric id is correct", failures)
     check(isinstance(rubric.get("criteria"), dict) and len(rubric.get("criteria", {})) >= 6, "Evaluator rubric exposes weighted criteria", failures)
@@ -1428,6 +1649,7 @@ def main() -> int:
     check(isinstance(review_state.get("secretariat"), dict), "State normalization exposes secretariat summaries", failures)
     check(isinstance(review_state.get("scope_decision"), dict), "State normalization exposes scope_decision", failures)
     check(isinstance(review_state.get("evaluation"), dict), "State normalization exposes evaluation", failures)
+    check(isinstance(review_state.get("experiment"), dict), "State normalization exposes experiment", failures)
     check(isinstance(review_state.get("escalation"), dict), "State normalization exposes escalation", failures)
 
     generated_project_data = ROOT / ".agent-loop/data/project-data.generated.json"
@@ -1447,6 +1669,7 @@ def main() -> int:
         check(isinstance(latest_review_state.get("evaluation"), dict), "Project data includes evaluation readiness summary", failures)
         check(isinstance(latest_review_state.get("scope_decision"), dict), "Project data includes scope decision summary", failures)
         check(isinstance(latest_review_state.get("secretariat"), dict), "Project data includes secretariat summary", failures)
+        check(isinstance(latest_review_state.get("experiment"), dict), "Project data includes experiment summary", failures)
         archetype_profile = project_data.get("project", {}).get("archetype_profile", {})
         check(isinstance(archetype_profile, dict), "Project data includes an archetype profile summary", failures)
         check(
@@ -1636,75 +1859,66 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         target = Path(tmp_dir) / "target-repo"
-        (target / ".agent-loop").mkdir(parents=True, exist_ok=True)
-        preserved_config = {
-            "validation": {
-                "commands": [
-                    {
-                        "name": "custom-validation",
-                        "command": "echo custom",
-                        "required": True,
-                    }
-                ]
-            }
-        }
-        (target / ".agent-loop/config.json").write_text(json.dumps(preserved_config), encoding="utf-8")
+        workspace = Path(tmp_dir) / "kit-workspace"
+        env = os.environ.copy()
+        env["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
+        target.mkdir(parents=True, exist_ok=True)
         installer = subprocess.run(
             ["bash", "scripts/install-into-project.sh", "--target", str(target)],
             cwd=str(ROOT),
+            env=env,
             text=True,
             capture_output=True,
             check=False,
         )
         check(installer.returncode == 0, "install-into-project.sh runs successfully", failures)
         check(
-            "render-committee.py" in installer.stdout
-            and "assert-implementation-readiness.py" in installer.stdout
-            and "discovery.archetype_profiles" in installer.stdout
-            and "implementation_gate_mode" in installer.stdout
-            and "score-evaluator-readiness.py" in installer.stdout,
-            "Project installer prints committee and readiness bootstrap guidance",
+            "does not write kit assets" in installer.stdout.lower() or "no-copy" in installer.stdout.lower(),
+            "Project installer clearly reports the non-invasive default",
             failures,
         )
-        check((target / ".agents/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .agents skill", failures)
-        check((target / ".claude/skills/autonomous-dev-loop/SKILL.md").exists(), "Project installer syncs .claude skill", failures)
-        check((target / ".agent-loop/scripts/collect-project-data.py").exists(), "Project installer syncs loop scripts", failures)
-        installed_config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
         check(
-            installed_config.get("validation", {}).get("commands", [{}])[0].get("command") == "echo custom",
-            "Project installer preserves existing config by default",
+            not any(target.iterdir()),
+            "Project installer leaves the target project untouched by default",
+            failures,
+        )
+        usage_log = workspace / ".agent-loop/data/usage-log.jsonl"
+        events = [item for item in read_jsonl(usage_log) if item.get("event") == "kit_installed"]
+        check(
+            any(
+                item.get("payload", {}).get("target_repo") == str(target.resolve())
+                and item.get("payload", {}).get("mode") == "no-copy"
+                for item in events
+            ),
+            "Project installer records a kit-local no-copy install event in the per-project workspace",
             failures,
         )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        target = Path(tmp_dir) / "target-repo"
-        (target / ".agent-loop").mkdir(parents=True, exist_ok=True)
-        preserved_config = {
-            "validation": {
-                "commands": [
-                    {
-                        "name": "custom-validation",
-                        "command": "echo custom",
-                        "required": True,
-                    }
-                ]
-            }
-        }
-        (target / ".agent-loop/config.json").write_text(json.dumps(preserved_config), encoding="utf-8")
-        installer = subprocess.run(
-            ["bash", "scripts/install-into-project.sh", "--target", str(target), "--overwrite-config"],
+        target = Path(tmp_dir) / "external-target"
+        workspace = Path(tmp_dir) / "kit-workspace"
+        env = os.environ.copy()
+        env["AUTONOMOUS_DEV_LOOP_TARGET"] = str(target)
+        env["AUTONOMOUS_DEV_LOOP_WORKSPACE"] = str(workspace)
+
+        started = subprocess.run(
+            ["python3", ".agent-loop/scripts/set-loop-session.py", "--iterations", "2"],
             cwd=str(ROOT),
+            env=env,
             text=True,
             capture_output=True,
             check=False,
         )
-        check(installer.returncode == 0, "Project installer supports --overwrite-config", failures)
-        installed_config = json.loads((target / ".agent-loop/config.json").read_text(encoding="utf-8"))
-        check(
-            any(".agent-loop/scripts/validate-kit.py" in item.get("command", "") for item in installed_config.get("validation", {}).get("commands", [])),
-            "Project installer can replace config when requested",
-            failures,
-        )
+        check(started.returncode == 0, "set-loop-session.py can operate on an external target from the kit workspace", failures)
+
+        usage_log = workspace / ".agent-loop/data/usage-log.jsonl"
+        check(usage_log.exists(), "External-target usage events are written into the kit workspace project folder", failures)
+        usage_rows = read_jsonl(usage_log)
+        session_started_row = next((row for row in usage_rows if row.get("event") == "session_started"), {})
+        workspace_info = session_started_row.get("workspace", {}) if isinstance(session_started_row, dict) else {}
+        repo_info = session_started_row.get("repo", {}) if isinstance(session_started_row, dict) else {}
+        check(str(workspace.resolve()) == workspace_info.get("root"), "Usage-log events record the kit workspace root", failures)
+        check(str(target.resolve()) == repo_info.get("root"), "Usage-log events record the external target root separately", failures)
 
     validate_review_gate(failures)
     validate_evaluator_gate(failures)
@@ -1717,6 +1931,7 @@ def main() -> int:
     validate_usage_logging(failures)
     validate_operator_recovery_tools(failures)
     validate_structured_committee_flow(failures)
+    validate_experiment_promotion_gate(failures)
     validate_release_flow(failures)
     helper = subprocess.run(
         [

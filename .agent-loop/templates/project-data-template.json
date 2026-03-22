@@ -91,6 +91,32 @@
       "weighted_score": null,
       "result": "pending"
     },
+    "experiment": {
+      "status": "not_started",
+      "base": {
+        "label": "",
+        "metric_name": "",
+        "metric_value": null
+      },
+      "candidate": {
+        "label": "",
+        "metric_name": "",
+        "metric_value": null
+      },
+      "comparison": {
+        "status": "not_started",
+        "direction": "higher",
+        "delta": null,
+        "result": "pending",
+        "rationale": ""
+      },
+      "promotion": {
+        "status": "not_started",
+        "decision": "pending",
+        "reason": "",
+        "next_action": ""
+      }
+    },
     "escalation": {
       "status": "not_needed",
       "reason": ""

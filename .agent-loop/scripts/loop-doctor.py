@@ -6,7 +6,6 @@ import json
 import sys
 
 from common import (
-    find_repo_root,
     goal_title,
     implementation_gate_status,
     load_config,
@@ -14,12 +13,13 @@ from common import (
     release_summary,
     review_state_matches_goal,
     session_summary,
+    resolve_execution_roots,
     LoopError,
     git_remotes,
 )
 
 
-def diagnose(config: dict, state: dict, root) -> list[dict[str, str]]:
+def diagnose(config: dict, state: dict, workspace_root, target_root) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     session = session_summary(state)
     release = release_summary(state)
@@ -121,7 +121,7 @@ def diagnose(config: dict, state: dict, root) -> list[dict[str, str]]:
             }
         )
 
-    remotes = git_remotes(root) if (root / ".git").exists() else {}
+    remotes = git_remotes(target_root) if (target_root / ".git").exists() else {}
     git_config = config.get("git", {}) if isinstance(config.get("git"), dict) else {}
     strategy = str(git_config.get("strategy", "push-branch")).strip() or "push-branch"
     remote_name = str(git_config.get("remote", "origin")).strip() or "origin"
@@ -169,13 +169,14 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the doctor payload as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
-    findings = diagnose(config, state, root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
+    findings = diagnose(config, state, workspace_root, target_root)
     status = "healthy" if not findings else "attention_needed"
     payload = {
-        "repo_root": str(root),
+        "kit_root": str(workspace_root),
+        "target_root": str(target_root),
         "status": status,
         "findings": findings,
     }

@@ -11,7 +11,6 @@ from common import (
     committee_summary,
     discovery_config,
     evaluator_summary,
-    find_repo_root,
     goal_title,
     load_config,
     load_json,
@@ -19,6 +18,7 @@ from common import (
     persona_catalog,
     release_summary,
     secretariat_summary,
+    resolve_execution_roots,
     validate_committee,
 )
 
@@ -100,9 +100,9 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the committee brief as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     errors = validate_committee(config)
     if errors:
         raise LoopError("Invalid committee config:\n- " + "\n- ".join(errors))
@@ -112,7 +112,7 @@ def main() -> int:
     councils = council_summary(config)
     secretariat = secretariat_summary(config)
     evaluator = evaluator_summary(config)
-    review_packet = build_review_packet(root, state)
+    review_packet = build_review_packet(workspace_root, state)
     payload = {
         "research_required": bool(discovery.get("require_research_before_goal_selection", False)),
         "minimum_research_inputs": int(discovery.get("minimum_research_inputs", 0) or 0),

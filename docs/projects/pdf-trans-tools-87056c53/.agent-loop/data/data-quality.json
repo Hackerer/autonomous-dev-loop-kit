@@ -1,0 +1,96 @@
+{
+  "snapshot_path": "/Users/max/Documents/Coding/autonomous-dev-loop-kit/autonomous-dev-loop-kit/docs/projects/pdf-trans-tools-87056c53/.agent-loop/data/project-data.json",
+  "archetype_profile": {
+    "id": "baseline",
+    "label": "Baseline Repo",
+    "required_signals": [
+      "collection_timestamp",
+      "repo_root",
+      "git_branch",
+      "git_remote",
+      "worktree_clean",
+      "languages",
+      "tooling_signals",
+      "validation_commands",
+      "target_outcome",
+      "constraints",
+      "direct_evidence"
+    ],
+    "committee_emphasis": [
+      "goal clarity",
+      "scope discipline",
+      "validation truthfulness"
+    ]
+  },
+  "overall_score": 91,
+  "status": "usable-with-gaps",
+  "evaluated_signals": [
+    {
+      "id": "collection_timestamp",
+      "passed": true,
+      "message": "missing collection timestamp"
+    },
+    {
+      "id": "repo_root",
+      "passed": true,
+      "message": "missing repo root"
+    },
+    {
+      "id": "git_branch",
+      "passed": true,
+      "message": "missing current branch"
+    },
+    {
+      "id": "git_remote",
+      "passed": true,
+      "message": "missing git remotes"
+    },
+    {
+      "id": "worktree_clean",
+      "passed": true,
+      "message": "missing worktree cleanliness signal"
+    },
+    {
+      "id": "languages",
+      "passed": true,
+      "message": "missing language detection"
+    },
+    {
+      "id": "tooling_signals",
+      "passed": true,
+      "message": "missing tooling or automation signals"
+    },
+    {
+      "id": "validation_commands",
+      "passed": true,
+      "message": "missing validation commands"
+    },
+    {
+      "id": "target_outcome",
+      "passed": true,
+      "message": "missing target outcome"
+    },
+    {
+      "id": "constraints",
+      "passed": false,
+      "message": "missing constraints"
+    },
+    {
+      "id": "direct_evidence",
+      "passed": true,
+      "message": "low confidence evidence"
+    }
+  ],
+  "missing_signals": [
+    "constraints"
+  ],
+  "blocking_gaps": [
+    "Baseline Repo: missing constraints"
+  ],
+  "recommendations": [
+    "Refresh missing repo or git signals before high-risk edits.",
+    "Refresh validation and remote signals before publishing.",
+    "Refresh collection and quality artifacts after material repo changes.",
+    "Use the active archetype profile to decide which missing signals matter before broad edits."
+  ]
+}

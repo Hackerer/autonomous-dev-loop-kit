@@ -1,0 +1,218 @@
+{
+  "snapshot_version": 1,
+  "collected_at": "2026-03-22T07:08:22Z",
+  "repo": {
+    "root": "/Users/max/Documents/pdf_trans_tools",
+    "name": "pdf_trans_tools",
+    "current_branch": "main",
+    "worktree_clean": true,
+    "remotes": [
+      {
+        "name": "origin",
+        "url": "https://github.com/Hackerer/pdf_trans_tools.git",
+        "scope": "fetch"
+      }
+    ]
+  },
+  "project": {
+    "languages": [
+      "python"
+    ],
+    "framework_signals": [],
+    "tooling_signals": [
+      "python-cli-scripts",
+      "autonomous-loop-config"
+    ],
+    "package_managers": [],
+    "runtime_files": [
+      "requirements.txt"
+    ],
+    "repo_archetype": "autonomous-loop-repo",
+    "archetype_profile": {
+      "id": "baseline",
+      "label": "Baseline Repo",
+      "repo_archetypes": [
+        "general-repo",
+        "autonomous-loop-repo"
+      ],
+      "required_signals": [
+        "collection_timestamp",
+        "repo_root",
+        "git_branch",
+        "git_remote",
+        "worktree_clean",
+        "languages",
+        "tooling_signals",
+        "validation_commands",
+        "target_outcome",
+        "constraints",
+        "direct_evidence"
+      ],
+      "committee_emphasis": [
+        "goal clarity",
+        "scope discipline",
+        "validation truthfulness"
+      ]
+    },
+    "key_paths": [
+      ".agent-loop",
+      "docs",
+      "src"
+    ]
+  },
+  "validation": {
+    "configured_commands": [
+      {
+        "name": "validate-kit",
+        "command": "python3 .agent-loop/scripts/validate-kit.py",
+        "required": true
+      }
+    ],
+    "blocking_gates": [
+      "validate-kit"
+    ],
+    "confidence": "direct"
+  },
+  "execution_model": {
+    "react_cycle_required": true,
+    "research_required": true,
+    "minimum_research_inputs": 3,
+    "committee_review_required": true,
+    "post_validation_reflection_required": true,
+    "committee_roles": [
+      {
+        "id": "product-manager",
+        "label": "Product Manager Committee",
+        "responsibility": "Challenge user value, scope discipline, sequencing, and acceptance criteria before implementation starts.",
+        "member_count": 3,
+        "members": [
+          "Maya Chen",
+          "Idris Kapoor",
+          "Elena Park"
+        ]
+      },
+      {
+        "id": "technical-architect",
+        "label": "Technical Architect Committee",
+        "responsibility": "Challenge architecture, interfaces, migration cost, validation strategy, and operational safety.",
+        "member_count": 3,
+        "members": [
+          "Victor Hale",
+          "Priya Raman",
+          "Jonas Meyer"
+        ]
+      },
+      {
+        "id": "user",
+        "label": "User Committee",
+        "responsibility": "Challenge the plan from concrete usage scenarios, day-to-day friction, trust, and clarity.",
+        "member_count": 3,
+        "members": [
+          "Leo Zhang",
+          "Sofia Martinez",
+          "Ben Carter"
+        ]
+      }
+    ]
+  },
+  "product_context": {
+    "target_outcome": "Extract text from PDF documents reliably Translate content using multiple backend providers Preserve PDF formatting and layout in translated output Support batch processing of multiple files",
+    "constraints": [],
+    "open_risks": []
+  },
+  "latest_review_state": {
+    "status": "captured",
+    "captured_at": "2026-03-22T07:06:06Z",
+    "goal_id": null,
+    "goal_title": null,
+    "matches_current_goal": true,
+    "current_goal_id": null,
+    "current_goal_title": null,
+    "research_gate": {
+      "status": "captured",
+      "summary": "PDF text extraction complete with PyPDF2. Next step is to implement PDF generation for translated output.",
+      "data_quality_score": null,
+      "open_gaps": []
+    },
+    "council_status": {
+      "product_council": "captured",
+      "architecture_council": "captured",
+      "operator_council": "captured"
+    },
+    "secretariat": {
+      "delivery_secretary": {
+        "status": "not_started",
+        "summary": "",
+        "next_action": ""
+      },
+      "audit_secretary": {
+        "status": "not_started",
+        "summary": "",
+        "decision_record": "",
+        "open_gaps": []
+      }
+    },
+    "scope_decision": {
+      "status": "captured",
+      "selected_goal": "pdf-trans-v1-pdf-output",
+      "scope_in_count": 2,
+      "scope_out_count": 2,
+      "required_validation": [
+        "pytest must pass"
+      ],
+      "stop_conditions": [],
+      "dissent_count": 0
+    },
+    "evaluation": {
+      "status": "captured",
+      "rubric_version": "iteration-readiness-v1",
+      "weighted_score": 4.3,
+      "result": "pass"
+    },
+    "experiment": {
+      "status": "not_started",
+      "base": {
+        "label": "",
+        "metric_name": "",
+        "metric_value": null
+      },
+      "candidate": {
+        "label": "",
+        "metric_name": "",
+        "metric_value": null
+      },
+      "comparison": {
+        "status": "not_started",
+        "direction": "higher",
+        "delta": null,
+        "result": "pending",
+        "rationale": ""
+      },
+      "promotion": {
+        "status": "not_started",
+        "decision": "pending",
+        "reason": "",
+        "next_action": ""
+      }
+    },
+    "escalation": {
+      "status": "not_needed",
+      "reason": ""
+    }
+  },
+  "evidence": {
+    "sources": [
+      "PLANS.md",
+      ".agent-loop/config.json",
+      ".agent-loop/state.json",
+      "git status",
+      "git remote -v"
+    ],
+    "freshness": "direct",
+    "confidence": "direct",
+    "gaps": []
+  },
+  "notes": [
+    "This snapshot is a first-pass repo scan and should be refreshed after major structural changes."
+  ]
+}

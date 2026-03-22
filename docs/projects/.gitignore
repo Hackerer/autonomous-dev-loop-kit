@@ -1,0 +1,2 @@
+# Ignore validator-created temporary project folders only.
+target-repo-*/

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autonomous Dev Loop"
+  short_description: "Run repeated validated releases in Claude Code"
+  default_prompt: "Use the autonomous-dev-loop skill to run the repo through repeated, test-gated releases. Keep durable state in .agent-loop, follow the repo protocol, and publish only after validation passes."

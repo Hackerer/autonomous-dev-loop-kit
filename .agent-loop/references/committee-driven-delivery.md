@@ -69,6 +69,8 @@ Default personas:
 
 In bundled-release mode, Product Council should not stop at reviewing one small task. It should first shape the release brief, then allow task selection to happen inside that release.
 
+When the experiment layer is enabled, the committee should also decide whether the candidate version is likely to beat the current promoted base before implementation is considered done.
+
 ### Architecture Council
 
 Focus:
@@ -171,12 +173,13 @@ The practical flow is:
 6. capture council summaries and dissent
 7. capture the scope decision
 8. capture evaluator result
-9. run `python3 .agent-loop/scripts/assert-implementation-readiness.py`
-10. implement
-11. validate
-12. report
-13. publish
-14. close out the bundled release with a release report
+9. capture experiment comparison against the current base
+10. run `python3 .agent-loop/scripts/assert-implementation-readiness.py`
+11. implement
+12. validate
+13. report
+14. publish only if the candidate beats base
+15. close out the bundled release with a release report
 
 ## Output Rules
 

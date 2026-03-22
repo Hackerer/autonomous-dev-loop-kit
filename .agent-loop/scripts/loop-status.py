@@ -6,14 +6,15 @@ import json
 import sys
 
 from common import (
-    find_repo_root,
     goal_title,
     implementation_gate_status,
+    experiment_status,
     load_config,
     load_state,
     release_summary,
     review_state_matches_goal,
     session_summary,
+    resolve_execution_roots,
     LoopError,
 )
 
@@ -23,19 +24,20 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="Print the status payload as JSON.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     session = session_summary(state)
     release = release_summary(state)
     goal = state.get("current_goal") or state.get("draft_goal")
     review_state = state.get("review_state", {})
     review_matches = review_state_matches_goal(review_state, goal)
     evaluation = review_state.get("evaluation", {}) if isinstance(review_state, dict) else {}
+    experiment = experiment_status(state)
     validation = state.get("last_validation", {})
 
     payload = {
-        "repo_root": str(root),
+        "repo_root": str(workspace_root),
         "state_status": state.get("status"),
         "session": session,
         "release": release,
@@ -52,6 +54,13 @@ def main() -> int:
             "goal_title": review_state.get("goal_title") if isinstance(review_state, dict) else None,
         },
         "implementation_gate": implementation_gate_status(config, evaluation if isinstance(evaluation, dict) else {}),
+        "experiment": {
+            "status": experiment.get("status"),
+            "base_metric": experiment.get("base", {}).get("metric_value") if isinstance(experiment.get("base"), dict) else None,
+            "candidate_metric": experiment.get("candidate", {}).get("metric_value") if isinstance(experiment.get("candidate"), dict) else None,
+            "comparison_result": experiment.get("comparison", {}).get("result") if isinstance(experiment.get("comparison"), dict) else None,
+            "promotion_decision": experiment.get("promotion", {}).get("decision") if isinstance(experiment.get("promotion"), dict) else None,
+        },
         "validation": {
             "status": validation.get("status"),
             "ran_at": validation.get("ran_at"),
@@ -89,6 +98,15 @@ def main() -> int:
     print(f"- Review state: {payload['review']['status']} (matches active goal: {review_matches})")
     gate = payload["implementation_gate"]
     print(f"- Implementation gate: {gate['status']} ({gate['mode']}, evaluator {gate['evaluation_result']})")
+    experiment_payload = payload["experiment"]
+    print(
+        f"- Experiment: {experiment_payload['status']}"
+        + (
+            f" (base {experiment_payload['base_metric']}, candidate {experiment_payload['candidate_metric']}, decision {experiment_payload['promotion_decision'] or experiment_payload['comparison_result']})"
+            if experiment_payload["base_metric"] is not None or experiment_payload["candidate_metric"] is not None
+            else ""
+        )
+    )
     validation_payload = payload["validation"]
     print(f"- Last validation: {validation_payload['status']} at {validation_payload['ran_at']}")
     drafts = payload["drafts"]

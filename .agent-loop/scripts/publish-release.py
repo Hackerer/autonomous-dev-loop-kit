@@ -8,9 +8,9 @@ from common import (
     append_usage_log,
     current_branch,
     ensure_git_repo,
-    find_repo_root,
     git,
     git_remotes,
+    experiment_config,
     load_config,
     load_state,
     remote_exists,
@@ -23,6 +23,7 @@ from common import (
     utc_now,
     LoopError,
     default_state,
+    resolve_execution_roots,
 )
 
 
@@ -31,10 +32,10 @@ def main() -> int:
     parser.add_argument("--message", help="Explicit Git commit message.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    ensure_git_repo(root)
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, _, workspace_root = resolve_execution_roots()
+    ensure_git_repo(workspace_root)
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     release = release_summary(state)
     require_green_validation(state)
 
@@ -46,24 +47,34 @@ def main() -> int:
     report_path = state.get("draft_release_report")
     if not report_path:
         raise LoopError("No draft release report exists. Run `python3 .agent-loop/scripts/write-release-report.py` first.")
-    require_no_report_placeholders(root / report_path, "Bundled release report")
+    require_no_report_placeholders(workspace_root / report_path, "Bundled release report")
     for item in release.get("task_iterations", []):
         if not isinstance(item, dict):
             continue
         task_report = str(item.get("report", "")).strip()
         if task_report:
-            require_no_report_placeholders(root / task_report, "Bundled task report")
+            require_no_report_placeholders(workspace_root / task_report, "Bundled task report")
 
     git_config = config.get("git", {})
     strategy = git_config.get("strategy", "push-branch")
     remote = git_config.get("remote", "origin")
 
+    experiment_policy = experiment_config(config)
+    metric_name = experiment_policy.get("metric_path", "review_state.evaluation.weighted_score")
+    task_iterations = release.get("task_iterations", [])
+    latest_task = task_iterations[-1] if isinstance(task_iterations, list) and task_iterations else {}
+    release_metric_value = None
+    if isinstance(latest_task, dict):
+        release_metric_value = latest_task.get("candidate_metric_value")
+        if release_metric_value is None:
+            release_metric_value = latest_task.get("evaluation_weighted_score")
+
     remotes = {}
     if strategy in {"push-branch", "direct-push"}:
-        remotes = git_remotes(root)
+        remotes = git_remotes(workspace_root)
         if git_config.get("require_remote", True) and not remotes:
             raise LoopError("No Git remote is configured for this project.")
-        if git_config.get("require_remote", True) and not remote_exists(root, remote):
+        if git_config.get("require_remote", True) and not remote_exists(workspace_root, remote):
             raise LoopError(f"Configured Git remote '{remote}' is not present in this project.")
         remote_urls = remotes.get(remote, [])
         if not remote_urls:
@@ -81,6 +92,8 @@ def main() -> int:
         "goal_titles": release["goal_titles"],
         "task_iterations": release["task_iterations"],
         "report": report_path,
+        "metric_name": metric_name,
+        "candidate_metric_value": release_metric_value,
         "published_at": published_at,
     }
     state["release_history"].append(release_record)
@@ -95,10 +108,10 @@ def main() -> int:
         state["status"] = "session_completed"
     else:
         state["session"]["status"] = "active"
-    save_state(root, state)
+    save_state(workspace_root, state)
 
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "release_published",
         {
@@ -106,36 +119,38 @@ def main() -> int:
             "title": release_record["title"],
             "report": report_path,
         },
+        target_root=workspace_root,
     )
     if state.get("session", {}).get("status") == "completed":
         append_usage_log(
-            root,
-            config,
-            "session_completed",
-            {
-                "session_id": state.get("session", {}).get("id"),
-                "completed_releases": state.get("session", {}).get("completed_releases"),
-                "target_releases": state.get("session", {}).get("target_releases"),
-            },
-        )
+        workspace_root,
+        config,
+        "session_completed",
+        {
+            "session_id": state.get("session", {}).get("id"),
+            "completed_releases": state.get("session", {}).get("completed_releases"),
+            "target_releases": state.get("session", {}).get("target_releases"),
+        },
+        target_root=workspace_root,
+    )
 
-    add_result = git(root, "add", "-A")
+    add_result = git(workspace_root, "add", "-A")
     if add_result.returncode != 0:
         raise LoopError(add_result.stderr.strip() or "git add -A failed")
 
     release_number = int(release["number"])
     commit_message = args.message or f"feat(release): r{release_number} {slugify(release['title'] or f'release-{release_number}')}"
-    commit_result = git(root, "commit", "-m", commit_message)
+    commit_result = git(workspace_root, "commit", "-m", commit_message)
     if commit_result.returncode != 0:
         raise LoopError(commit_result.stderr.strip() or commit_result.stdout.strip() or "git commit failed")
 
-    sha_result = git(root, "rev-parse", "HEAD")
+    sha_result = git(workspace_root, "rev-parse", "HEAD")
     if sha_result.returncode != 0:
         raise LoopError(sha_result.stderr.strip() or "Unable to resolve HEAD after commit")
     commit_sha = sha_result.stdout.strip()
 
     if strategy in {"push-branch", "direct-push"}:
-        push_result = git(root, "push", "-u", remote, current_branch(root))
+        push_result = git(workspace_root, "push", "-u", remote, current_branch(workspace_root))
         if push_result.returncode != 0:
             raise LoopError(push_result.stderr.strip() or push_result.stdout.strip() or "git push failed")
 

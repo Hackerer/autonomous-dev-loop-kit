@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 
-from common import committee_config, find_repo_root, load_config, load_json, LoopError
+from common import committee_config, load_config, load_json, resolve_execution_roots, LoopError
 
 
 def parse_scores(score_args: list[str]) -> dict[str, float]:
@@ -34,14 +34,14 @@ def main() -> int:
     if not args.score:
         raise LoopError("At least one --score criterion=value pair is required.")
 
-    root = find_repo_root()
-    config = load_config(root)
+    kit_root, _, _ = resolve_execution_roots()
+    config = load_config(kit_root)
     evaluator = committee_config(config).get("evaluator", {})
     rubric_ref = args.rubric or (evaluator.get("rubric_ref", "") if isinstance(evaluator, dict) else "")
     if not str(rubric_ref).strip():
         raise LoopError("No evaluator rubric is configured.")
 
-    rubric = load_json(root / str(rubric_ref))
+    rubric = load_json(kit_root / str(rubric_ref))
     criteria = rubric.get("criteria", {})
     thresholds = rubric.get("thresholds", {})
     if not isinstance(criteria, dict) or not criteria:

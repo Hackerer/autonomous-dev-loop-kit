@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import subprocess
@@ -16,6 +17,7 @@ STATE_FILE = "state.json"
 BACKLOG_FILE = "backlog.json"
 LAST_VALIDATION_FILE = "last-validation.json"
 DEFAULT_USAGE_LOG_PATH = ".agent-loop/data/usage-log.jsonl"
+PROJECTS_INDEX_FILE = "index.json"
 PLACEHOLDER_SNIPPETS = (
     "Summarize the current repo state before this version.",
     "Summarize the repo, product, user, and architecture research completed before selecting this version.",
@@ -69,6 +71,159 @@ def find_repo_root(start: str | None = None) -> Path:
         if (candidate / ROOT_MARKER).is_dir():
             return candidate
     raise LoopError(f"Unable to find repo root containing {ROOT_MARKER} from {path}")
+
+
+def kit_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def projects_index_path(kit: Path) -> Path:
+    return kit.resolve() / "docs" / "projects" / PROJECTS_INDEX_FILE
+
+
+def project_root(start: str | None = None) -> Path:
+    if start is not None:
+        return Path(start).resolve()
+    env_target = str(os.environ.get("AUTONOMOUS_DEV_LOOP_TARGET", "")).strip()
+    if env_target:
+        return Path(env_target).expanduser().resolve()
+    return Path(os.getcwd()).resolve()
+
+
+def project_key(root: Path) -> str:
+    resolved = root.resolve()
+    fingerprint = project_fingerprint(resolved)
+    digest = hashlib.sha1(fingerprint.encode("utf-8")).hexdigest()[:8]
+    slug = re.sub(r"[^a-z0-9]+", "-", project_label(resolved).lower()).strip("-") or "project"
+    slug = re.sub(r"-{2,}", "-", slug)
+    return f"{slug}-{digest}"
+
+
+def git_remote_url(root: Path) -> str:
+    if not (root / ".git").exists():
+        return ""
+    for command in (
+        ("remote", "get-url", "origin"),
+        ("remote", "-v"),
+    ):
+        result = git(root, *command)
+        if result.returncode != 0:
+            continue
+        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        if not lines:
+            continue
+        if command == ("remote", "-v"):
+            first = lines[0].split()
+            if len(first) >= 2:
+                return first[1].strip()
+        else:
+            return lines[0]
+    return ""
+
+
+def project_fingerprint(root: Path) -> str:
+    explicit = str(os.environ.get("AUTONOMOUS_DEV_LOOP_PROJECT_ID", "")).strip()
+    if explicit:
+        return f"explicit:{explicit}"
+    remote = git_remote_url(root)
+    if remote:
+        return f"git-remote:{remote}"
+    if (root / ".git").exists():
+        result = git(root, "rev-list", "--max-parents=0", "HEAD")
+        if result.returncode == 0:
+            roots = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+            if roots:
+                return f"git-root-commit:{','.join(roots)}"
+        result = git(root, "rev-parse", "--show-toplevel")
+        if result.returncode == 0:
+            toplevel = result.stdout.strip()
+            if toplevel:
+                return f"git-root:{toplevel}"
+    return f"path:{root.resolve()}"
+
+
+def project_label(root: Path) -> str:
+    remote = git_remote_url(root)
+    if remote:
+        cleaned = remote.rstrip("/")
+        if cleaned.endswith(".git"):
+            cleaned = cleaned[:-4]
+        parts = re.split(r"[/:]+", cleaned)
+        for part in reversed(parts):
+            part = part.strip()
+            if part:
+                return part
+    return root.name or "project"
+
+
+def load_projects_index(kit: Path) -> dict[str, Any]:
+    path = projects_index_path(kit)
+    index = load_json(path, default={"version": 1, "projects": []})
+    if not isinstance(index, dict):
+        return {"version": 1, "projects": []}
+    projects = index.get("projects")
+    if not isinstance(projects, list):
+        projects = []
+    return {"version": 1, "projects": projects}
+
+
+def save_projects_index(kit: Path, index: dict[str, Any]) -> None:
+    save_json(projects_index_path(kit), index)
+
+
+def project_workspace_root(kit: Path, target: Path) -> Path:
+    kit_resolved = kit.resolve()
+    target_resolved = target.resolve()
+    if target_resolved == kit_resolved:
+        return kit_resolved
+    workspace_override = str(os.environ.get("AUTONOMOUS_DEV_LOOP_WORKSPACE", "")).strip()
+    if workspace_override:
+        return Path(workspace_override).expanduser().resolve()
+    fingerprint = project_fingerprint(target_resolved)
+    label = project_label(target_resolved)
+    index = load_projects_index(kit_resolved)
+    projects = index["projects"]
+    target_key = str(target_resolved)
+    for entry in projects:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("target_root") == target_key or entry.get("fingerprint") == fingerprint:
+            workspace_value = str(entry.get("workspace", "")).strip()
+            if not workspace_value:
+                workspace_value = str(kit_resolved / "docs" / "projects" / project_key(target_resolved))
+                entry["workspace"] = workspace_value
+            entry["target_root"] = target_key
+            entry["fingerprint"] = fingerprint
+            entry["label"] = label
+            entry["last_seen_at"] = utc_now()
+            save_projects_index(kit_resolved, index)
+            return Path(workspace_value).expanduser().resolve()
+
+    workspace = kit_resolved / "docs" / "projects" / project_key(target_resolved)
+    projects.append(
+        {
+            "project_id": workspace.name,
+            "workspace": str(workspace),
+            "target_root": target_key,
+            "fingerprint": fingerprint,
+            "label": label,
+            "first_seen_at": utc_now(),
+            "last_seen_at": utc_now(),
+        }
+    )
+    save_projects_index(kit_resolved, index)
+    return workspace
+
+
+def resolve_execution_roots(target: str | None = None) -> tuple[Path, Path, Path]:
+    kit = kit_root()
+    project = project_root(target)
+    workspace_override = str(os.environ.get("AUTONOMOUS_DEV_LOOP_WORKSPACE", "")).strip()
+    if workspace_override:
+        workspace = Path(workspace_override).expanduser().resolve()
+    else:
+        workspace = project_workspace_root(kit, project)
+    return kit, project, workspace
 
 
 def load_json(path: Path, default: Any | None = None) -> Any:
@@ -249,6 +404,38 @@ def default_state() -> dict[str, Any]:
                 "critique": [],
                 "minimum_fixes_required": [],
             },
+            "experiment": {
+                "status": "not_started",
+                "base": {
+                    "label": "",
+                    "source_release_number": None,
+                    "source_iteration": None,
+                    "metric_name": "",
+                    "metric_value": None,
+                    "source_report": "",
+                },
+                "candidate": {
+                    "label": "",
+                    "source_goal_id": "",
+                    "source_goal_title": "",
+                    "metric_name": "",
+                    "metric_value": None,
+                    "source_report": "",
+                },
+                "comparison": {
+                    "status": "not_started",
+                    "direction": "higher",
+                    "delta": None,
+                    "result": "pending",
+                    "rationale": "",
+                },
+                "promotion": {
+                    "status": "not_started",
+                    "decision": "pending",
+                    "reason": "",
+                    "next_action": "",
+                },
+            },
             "escalation": {
                 "status": "not_needed",
                 "reason": "",
@@ -409,6 +596,22 @@ def load_state(root: Path) -> dict[str, Any]:
         normalized_evaluation["scores"] = {}
     normalized_review_state["evaluation"] = normalized_evaluation
 
+    experiment = normalized_review_state.get("experiment")
+    if not isinstance(experiment, dict):
+        experiment = {}
+    default_experiment = default_review_state["experiment"]
+    normalized_experiment = dict(default_experiment)
+    normalized_experiment.update(experiment)
+    for key in ("base", "candidate", "comparison", "promotion"):
+        value = normalized_experiment.get(key)
+        if not isinstance(value, dict):
+            value = {}
+        default_value = default_experiment.get(key, {})
+        normalized_value = dict(default_value)
+        normalized_value.update(value)
+        normalized_experiment[key] = normalized_value
+    normalized_review_state["experiment"] = normalized_experiment
+
     escalation = normalized_review_state.get("escalation")
     if not isinstance(escalation, dict):
         escalation = {}
@@ -455,6 +658,19 @@ def planning_config(config: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(planning, dict):
         return {}
     return planning
+
+
+def experiment_config(config: dict[str, Any]) -> dict[str, Any]:
+    experiment = config.get("experiment", {})
+    if not isinstance(experiment, dict):
+        experiment = {}
+    return {
+        "enabled": bool(experiment.get("enabled", True)),
+        "baseline_strategy": str(experiment.get("baseline_strategy", "last_promoted_release") or "last_promoted_release"),
+        "metric_path": str(experiment.get("metric_path", "review_state.evaluation.weighted_score") or "review_state.evaluation.weighted_score"),
+        "direction": str(experiment.get("direction", "higher") or "higher"),
+        "allow_equal": bool(experiment.get("allow_equal", False)),
+    }
 
 
 def release_planning_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -928,6 +1144,8 @@ def current_branch(root: Path) -> str:
 
 
 def safe_current_branch(root: Path) -> str:
+    if not root.exists():
+        return ""
     try:
         return current_branch(root)
     except LoopError:
@@ -1014,21 +1232,33 @@ def usage_log_context(root: Path) -> dict[str, Any]:
     return context
 
 
-def append_usage_log(root: Path, config: dict[str, Any], event_type: str, payload: dict[str, Any] | None = None) -> Path | None:
+def append_usage_log(
+    workspace_root: Path,
+    config: dict[str, Any],
+    event_type: str,
+    payload: dict[str, Any] | None = None,
+    *,
+    target_root: Path | None = None,
+) -> Path | None:
     usage_logging = usage_logging_config(config)
     if not usage_logging["enabled"]:
         return None
 
-    remotes = git_remotes(root) if (root / ".git").exists() else {}
-    context = usage_log_context(root)
+    repo_root = target_root or workspace_root
+    remotes = git_remotes(repo_root) if (repo_root / ".git").exists() else {}
+    context = usage_log_context(workspace_root)
     client = detected_usage_client()
     record = {
         "timestamp": utc_now(),
         "event": str(event_type),
+        "workspace": {
+            "root": str(workspace_root),
+            "name": workspace_root.name,
+        },
         "repo": {
-            "root": str(root),
-            "name": root.name,
-            "current_branch": safe_current_branch(root),
+            "root": str(repo_root),
+            "name": repo_root.name,
+            "current_branch": safe_current_branch(repo_root),
             "remotes": remotes,
         },
         "loop_mode": str(config.get("mode", "")),
@@ -1040,7 +1270,7 @@ def append_usage_log(root: Path, config: dict[str, Any], event_type: str, payloa
         "state_status": context.get("state_status"),
         "payload": payload if isinstance(payload, dict) else {},
     }
-    path = usage_log_path(root, config)
+    path = usage_log_path(workspace_root, config)
     append_jsonl(path, record)
     return path
 
@@ -1149,6 +1379,25 @@ def review_state_has_content(review_state: Any) -> bool:
         for key in ("scope_in", "scope_out", "assumptions", "risks", "required_validation", "stop_conditions", "dissent"):
             value = scope_decision.get(key)
             if isinstance(value, list) and any(str(item).strip() for item in value):
+                return True
+
+    experiment = review_state.get("experiment")
+    if isinstance(experiment, dict):
+        if str(experiment.get("status", "")).strip() not in {"", "not_started"}:
+            return True
+        for slot in ("base", "candidate", "comparison", "promotion"):
+            section = experiment.get(slot)
+            if not isinstance(section, dict):
+                continue
+            for key in ("label", "source_goal_id", "source_goal_title", "metric_name", "source_report", "reason", "next_action", "rationale"):
+                if str(section.get(key, "")).strip():
+                    return True
+            for key in ("metric_value", "delta"):
+                if section.get(key) is not None:
+                    return True
+            if slot == "comparison" and str(section.get("result", "")).strip() not in {"", "pending"}:
+                return True
+            if slot == "promotion" and str(section.get("decision", "")).strip() not in {"", "pending"}:
                 return True
 
     evaluation = review_state.get("evaluation")
@@ -1317,6 +1566,114 @@ def active_release_goal_ids(state: dict[str, Any]) -> list[str]:
     if str(release.get("status", "")).strip() in {"not_planned", "published"}:
         return []
     return [str(goal_id) for goal_id in release.get("goal_ids", []) if str(goal_id).strip()]
+
+
+def latest_promoted_release_record(state: dict[str, Any]) -> dict[str, Any] | None:
+    history = state.get("history", [])
+    if isinstance(history, list):
+        for item in reversed(history):
+            if not isinstance(item, dict):
+                continue
+            if item.get("candidate_metric_value") is not None or item.get("evaluation_weighted_score") is not None:
+                return item
+    history = state.get("release_history", [])
+    if not isinstance(history, list):
+        return None
+    for item in reversed(history):
+        if isinstance(item, dict):
+            return item
+    return None
+
+
+def latest_promoted_metric_value(state: dict[str, Any]) -> float | None:
+    record = latest_promoted_release_record(state)
+    if not isinstance(record, dict):
+        return None
+    metric_value = record.get("candidate_metric_value")
+    if metric_value is None:
+        metric_value = record.get("evaluation_weighted_score")
+    try:
+        return float(metric_value)
+    except (TypeError, ValueError):
+        return None
+
+
+def current_candidate_metric(state: dict[str, Any]) -> float | None:
+    review_state = state.get("review_state", {})
+    if not isinstance(review_state, dict):
+        return None
+    experiment = review_state.get("experiment", {})
+    if isinstance(experiment, dict):
+        candidate = experiment.get("candidate", {})
+        if isinstance(candidate, dict) and candidate.get("metric_value") is not None:
+            try:
+                return float(candidate.get("metric_value"))
+            except (TypeError, ValueError):
+                return None
+    evaluation = review_state.get("evaluation", {})
+    if not isinstance(evaluation, dict):
+        return None
+    metric_value = evaluation.get("weighted_score")
+    try:
+        return float(metric_value)
+    except (TypeError, ValueError):
+        return None
+
+
+def experiment_status(state: dict[str, Any]) -> dict[str, Any]:
+    review_state = state.get("review_state", {})
+    experiment = {}
+    if isinstance(review_state, dict):
+        experiment = review_state.get("experiment", {})
+    if not isinstance(experiment, dict) or not experiment:
+        experiment = state.get("experiment", {})
+    if not isinstance(experiment, dict):
+        experiment = {}
+    default_experiment = default_state()["review_state"]["experiment"]
+    normalized = dict(default_experiment)
+    normalized.update(experiment)
+    for key in ("base", "candidate", "comparison", "promotion"):
+        value = normalized.get(key)
+        if not isinstance(value, dict):
+            value = {}
+        default_value = default_experiment.get(key, {})
+        normalized_value = dict(default_value)
+        normalized_value.update(value)
+        normalized[key] = normalized_value
+    return normalized
+
+
+def promote_candidate_decision(state: dict[str, Any], allow_equal: bool = False) -> tuple[bool, str, float | None, float | None]:
+    experiment = experiment_status(state)
+    promotion = experiment.get("promotion", {})
+    comparison = experiment.get("comparison", {})
+    if not isinstance(promotion, dict):
+        promotion = {}
+    if not isinstance(comparison, dict):
+        comparison = {}
+
+    explicit_decision = str(promotion.get("decision", "")).strip()
+    explicit_reason = str(promotion.get("reason", "")).strip()
+    if explicit_decision in {"discard", "revise"}:
+        return False, explicit_reason or f"Experiment decision is {explicit_decision}.", None, None
+
+    baseline_value = latest_promoted_metric_value(state)
+    candidate_value = current_candidate_metric(state)
+    direction = str(comparison.get("direction", "higher")).strip() or "higher"
+
+    if baseline_value is None or candidate_value is None:
+        return True, "No comparable baseline metric exists yet, so the candidate becomes the first promoted base.", baseline_value, candidate_value
+
+    if direction == "lower":
+        better = candidate_value < baseline_value or (allow_equal and candidate_value == baseline_value)
+        if better:
+            return True, explicit_reason or f"Candidate metric {candidate_value} is lower than baseline {baseline_value}.", baseline_value, candidate_value
+        return False, f"Candidate metric {candidate_value} does not improve on baseline {baseline_value}.", baseline_value, candidate_value
+
+    better = candidate_value > baseline_value or (allow_equal and candidate_value == baseline_value)
+    if better:
+        return True, explicit_reason or f"Candidate metric {candidate_value} improves on baseline {baseline_value}.", baseline_value, candidate_value
+    return False, f"Candidate metric {candidate_value} does not improve on baseline {baseline_value}.", baseline_value, candidate_value
 
 
 def release_summary(state: dict[str, Any]) -> dict[str, Any]:

@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from common import find_repo_root, load_config, usage_log_path, LoopError
+from common import kit_root, load_config, project_workspace_root, usage_log_path, LoopError
 
 
 def load_jsonl(path: Path) -> tuple[list[dict[str, Any]], int]:
@@ -221,14 +221,19 @@ def main() -> int:
     log_paths: list[Path] = []
     for repo_root in args.repo:
         repo = Path(repo_root).resolve()
-        config = load_config(repo)
-        log_paths.append(usage_log_path(repo, config))
+        workspace = project_workspace_root(kit_root(), repo)
+        config = load_config(kit_root())
+        log_paths.append(usage_log_path(workspace, config))
     for log_path in args.log:
         log_paths.append(Path(log_path).resolve())
     if not log_paths:
-        root = find_repo_root()
+        root = kit_root()
         config = load_config(root)
         log_paths.append(usage_log_path(root, config))
+        projects_dir = root / "docs" / "projects"
+        if projects_dir.exists():
+            for project_log in sorted(projects_dir.glob("*/.agent-loop/data/usage-log.jsonl")):
+                log_paths.append(project_log.resolve())
 
     rows, invalid_rows_by_path = normalize_rows(log_paths)
     summary = summarize_usage(rows, log_paths, invalid_rows_by_path)

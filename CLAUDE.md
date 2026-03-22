@@ -21,8 +21,9 @@ Before the first iteration of a session, read:
 - `.agent-loop/references/committee-driven-delivery.md`
 
 If the user specifies or implies a loop count, persist it with `python3 .agent-loop/scripts/set-loop-session.py --iterations N` before planning the first release.
+If the active target repository is external to the kit workspace, set `AUTONOMOUS_DEV_LOOP_TARGET=/path/to/project` before invoking the scripts. Durable state, logs, and reports stay in the kit workspace under `docs/projects/<project-id>/`.
 
-Treat a count-only request as a full autonomous loop launch in the current repo. Do not ask the user to restate the loop requirements unless repo setup is missing.
+Treat a count-only request as a full autonomous loop launch for the active target repository. Do not ask the user to restate the loop requirements unless repo setup is missing.
 
 Interpret `ReAct` as the Shunyu Yao paper method, `Reason + Act`, not the frontend framework `React`.
 
@@ -42,6 +43,6 @@ Within each iteration, require:
 - key observations from research, committee review, and execution written into the task report
 - a detailed bundled release report when the active release is complete
 
-Git publication must target the current project's own GitHub repository. If the current project's remote or publication target is unclear, stop and ask the user before publishing.
+Git publication must target the active target repository's own GitHub repository. If the active target repository's remote or publication target is unclear, stop and ask the user before publishing.
 
 Do not skip the validation gate, report gate, or Git publication gate.

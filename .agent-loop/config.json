@@ -517,6 +517,13 @@
       }
     }
   },
+  "experiment": {
+    "enabled": false,
+    "baseline_strategy": "last_promoted_release",
+    "metric_path": "review_state.evaluation.weighted_score",
+    "direction": "higher",
+    "allow_equal": false
+  },
   "stop_conditions": [
     "requirements-conflict",
     "shared-system-risk",

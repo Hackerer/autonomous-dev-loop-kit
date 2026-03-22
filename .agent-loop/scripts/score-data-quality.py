@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from common import find_repo_root, load_json, save_json, load_state, save_state, relpath
+from common import load_json, save_json, load_state, save_state, relpath, resolve_execution_roots
 
 DEFAULT_REQUIRED_SIGNALS = [
     "collection_timestamp",
@@ -80,12 +80,12 @@ def main() -> int:
     parser.add_argument("--no-state", action="store_true", help="Do not persist quality metadata into .agent-loop/state.json.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    input_path = Path(args.input) if args.input else root / ".agent-loop/data/project-data.json"
-    output_path = Path(args.output) if args.output else root / ".agent-loop/data/data-quality.json"
+    _, _, workspace_root = resolve_execution_roots()
+    input_path = Path(args.input) if args.input else workspace_root / ".agent-loop/data/project-data.json"
+    output_path = Path(args.output) if args.output else workspace_root / ".agent-loop/data/data-quality.json"
 
     snapshot = load_json(input_path)
-    state = load_state(root)
+    state = load_state(workspace_root)
     profile = profile_summary(snapshot)
     checks = signal_checks(snapshot)
     gaps: list[str] = []
@@ -134,10 +134,10 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     save_json(output_path, quality)
     if not args.no_state:
-        state["project_data"]["quality_path"] = relpath(output_path, root)
+        state["project_data"]["quality_path"] = relpath(output_path, workspace_root)
         state["project_data"]["last_quality_score"] = overall_score
         state["project_data"]["last_quality_status"] = status
-        save_state(root, state)
+        save_state(workspace_root, state)
     print(output_path)
     return 0
 

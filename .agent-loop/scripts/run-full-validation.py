@@ -7,19 +7,19 @@ from common import (
     LAST_VALIDATION_FILE,
     append_usage_log,
     LoopError,
-    find_repo_root,
     load_config,
     load_state,
     run_shell,
     save_json,
     save_state,
+    resolve_execution_roots,
     utc_now,
 )
 
 
 def main() -> int:
-    root = find_repo_root()
-    config = load_config(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
     validation = config.get("validation", {})
     commands = validation.get("commands", [])
     if not commands:
@@ -33,7 +33,7 @@ def main() -> int:
         required = bool(item.get("required", True))
         if not command:
             raise LoopError(f"Validation step '{name}' is missing a command")
-        result = run_shell(command, root)
+        result = run_shell(command, target_root)
         result["name"] = name
         result["required"] = required
         result["passed"] = result["exit_code"] == 0
@@ -44,15 +44,15 @@ def main() -> int:
                 break
 
     summary = {"status": "passed" if passed else "failed", "ran_at": utc_now(), "results": results}
-    save_json(root / ".agent-loop" / LAST_VALIDATION_FILE, summary)
+    save_json(workspace_root / ".agent-loop" / LAST_VALIDATION_FILE, summary)
 
-    state = load_state(root)
+    state = load_state(workspace_root)
     state["last_validation"] = summary
     state["status"] = "validated" if passed else "validation_failed"
     state["consecutive_failures"] = 0 if passed else int(state.get("consecutive_failures", 0)) + 1
-    save_state(root, state)
+    save_state(workspace_root, state)
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "validation_passed" if passed else "validation_failed",
         {
@@ -61,6 +61,7 @@ def main() -> int:
             ],
             "result_count": len(results),
         },
+        target_root=target_root,
     )
 
     for result in results:

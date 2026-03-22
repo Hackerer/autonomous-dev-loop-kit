@@ -10,7 +10,6 @@ from common import (
     committee_summary,
     implementation_gate_status,
     LoopError,
-    find_repo_root,
     goal_title,
     load_config,
     load_json,
@@ -23,6 +22,7 @@ from common import (
     require_evaluator_pass,
     require_green_validation,
     require_review_state,
+    resolve_execution_roots,
     save_state,
     session_summary,
 )
@@ -65,15 +65,15 @@ def main() -> int:
     parser.add_argument("--next-goal", action="append", default=[], help="Next-goal proposal bullet.")
     args = parser.parse_args()
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     validation = require_green_validation(state)
     session = session_summary(state)
     release = release_summary(state)
 
     iteration = int(state.get("iteration", 0)) + 1
-    report_path = reporting_path(root, config, iteration)
+    report_path = reporting_path(workspace_root, config, iteration)
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
     goal = require_selected_goal(state)
@@ -92,6 +92,7 @@ def main() -> int:
     secretariat = review_state.get("secretariat", {})
     scope_decision = review_state.get("scope_decision", {})
     evaluation = review_state.get("evaluation", {})
+    experiment = review_state.get("experiment", {})
 
     research_lines = merge_unique(args.research, review_research)
     if isinstance(research_gate, dict):
@@ -207,6 +208,56 @@ def main() -> int:
         if isinstance(minimum_fixes, list):
             evaluation_lines.extend(prefixed_lines("Minimum fix required: ", [str(item) for item in minimum_fixes]))
 
+    experiment_lines: list[str] = []
+    if isinstance(experiment, dict) and str(experiment.get("status", "")).strip() != "not_started":
+        base = experiment.get("base", {})
+        candidate = experiment.get("candidate", {})
+        comparison = experiment.get("comparison", {})
+        promotion = experiment.get("promotion", {})
+        if isinstance(base, dict):
+            base_label = str(base.get("label", "")).strip()
+            base_metric_name = str(base.get("metric_name", "")).strip()
+            base_metric_value = base.get("metric_value")
+            if base_label or base_metric_name or base_metric_value is not None:
+                experiment_lines.append(
+                    f"Base: {base_label or 'unknown base'}"
+                    + (f", metric `{base_metric_name}`" if base_metric_name else "")
+                    + (f"={base_metric_value}" if base_metric_value is not None else "")
+                )
+        if isinstance(candidate, dict):
+            candidate_label = str(candidate.get("label", "")).strip()
+            candidate_metric_name = str(candidate.get("metric_name", "")).strip()
+            candidate_metric_value = candidate.get("metric_value")
+            if candidate_label or candidate_metric_name or candidate_metric_value is not None:
+                experiment_lines.append(
+                    f"Candidate: {candidate_label or 'current candidate'}"
+                    + (f", metric `{candidate_metric_name}`" if candidate_metric_name else "")
+                    + (f"={candidate_metric_value}" if candidate_metric_value is not None else "")
+                )
+        if isinstance(comparison, dict):
+            result = str(comparison.get("result", "")).strip()
+            direction = str(comparison.get("direction", "")).strip()
+            delta = comparison.get("delta")
+            rationale = str(comparison.get("rationale", "")).strip()
+            if result or direction or delta is not None or rationale:
+                experiment_lines.append(
+                    f"Comparison: {result or 'pending'}"
+                    + (f", direction `{direction}`" if direction else "")
+                    + (f", delta {delta}" if delta is not None else "")
+                )
+                if rationale:
+                    experiment_lines.append(f"Comparison rationale: {rationale}")
+        if isinstance(promotion, dict):
+            decision = str(promotion.get("decision", "")).strip()
+            reason = str(promotion.get("reason", "")).strip()
+            next_action = str(promotion.get("next_action", "")).strip()
+            if decision:
+                experiment_lines.append(f"Promotion decision: {decision}")
+            if reason:
+                experiment_lines.append(f"Promotion reason: {reason}")
+            if next_action:
+                experiment_lines.append(f"Promotion next action: {next_action}")
+
     stop_and_escalation_lines: list[str] = []
     if isinstance(research_gate, dict):
         open_gaps = research_gate.get("open_gaps", [])
@@ -248,7 +299,7 @@ def main() -> int:
 
     quality_lines = list(args.quality_note)
     if quality_path:
-        quality_report = load_json(root / quality_path)
+        quality_report = load_json(workspace_root / quality_path)
         quality_lines.append(
             f"Latest quality status: `{quality_report.get('status')}`, score `{quality_report.get('overall_score')}`"
         )
@@ -308,6 +359,12 @@ def main() -> int:
         "## Evaluation Readiness",
         *bullet_lines(evaluation_lines, "Record the evaluator outcome, weighted score, and minimum fixes when available."),
         "",
+        "## Experiment",
+        *bullet_lines(
+            experiment_lines,
+            "No experiment comparison was captured for this goal.",
+        ),
+        "",
         "## Stop And Escalation",
         *bullet_lines(
             stop_and_escalation_lines,
@@ -326,22 +383,23 @@ def main() -> int:
     ]
     report_path.write_text("\n".join(content), encoding="utf-8")
 
-    state = load_state(root)
+    state = load_state(workspace_root)
     state["draft_iteration"] = iteration
-    state["draft_report"] = relpath(report_path, root)
+    state["draft_report"] = relpath(report_path, workspace_root)
     state["draft_goal"] = goal
     state["status"] = "report_written"
-    save_state(root, state)
+    save_state(workspace_root, state)
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "report_written",
         {
             "iteration": iteration,
-            "report": relpath(report_path, root),
+            "report": relpath(report_path, workspace_root),
             "goal": goal_label,
             "goal_id": goal.get("id") if isinstance(goal, dict) else "",
         },
+        target_root=target_root,
     )
 
     print(report_path)

@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from common import append_usage_log, default_state, LoopError, find_repo_root, load_config, load_state, planning_config, save_state, utc_now
+from common import append_usage_log, default_state, LoopError, load_config, load_state, planning_config, resolve_execution_roots, save_state, utc_now
 
 
 def main() -> int:
@@ -15,9 +15,9 @@ def main() -> int:
     if args.iterations <= 0:
         raise LoopError("--iterations must be a positive integer")
 
-    root = find_repo_root()
-    config = load_config(root)
-    state = load_state(root)
+    kit_root, target_root, workspace_root = resolve_execution_roots()
+    config = load_config(kit_root)
+    state = load_state(workspace_root)
     planning = planning_config(config)
     max_allowed = planning.get("max_releases_per_session", planning.get("max_iterations_per_session"))
     if max_allowed is not None and args.iterations > int(max_allowed):
@@ -46,15 +46,16 @@ def main() -> int:
     state["draft_goal"] = None
     state["review_state"] = default_state()["review_state"]
     state["consecutive_failures"] = 0
-    save_state(root, state)
+    save_state(workspace_root, state)
     append_usage_log(
-        root,
+        workspace_root,
         config,
         "session_started",
         {
             "session_id": session_id,
             "target_releases": int(args.iterations),
         },
+        target_root=target_root,
     )
 
     print(f"Configured autonomous loop session for {args.iterations} release versions.")

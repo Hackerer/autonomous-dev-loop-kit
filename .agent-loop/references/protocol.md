@@ -84,6 +84,7 @@ Every bundled release is delivered through repeated task iterations plus one rel
      - update the next action
    - Make the minimum coherent code change.
    - Update or add tests for the real behavior.
+   - Treat the current work as a candidate against the latest promoted base, not as an automatic new base.
 8. `validate`
    - Run the full configured validation suite.
    - No publish step is allowed if validation is red.
@@ -125,6 +126,7 @@ A bundled release is publishable only if all of these are true:
 - The scoped goal is completed or explicitly narrowed and explained in the report.
 - A recorded `review_state` exists for the active goal when committee review is required.
 - A passing evaluator result exists for the active goal when evaluator pass is required.
+- The candidate version beats the current promoted base on the configured experiment metric, or this is the first promoted base.
 - The configured full-validation suite passes.
 - Task reports exist in `docs/reports/` for the included task iterations.
 - A bundled release report exists in `docs/releases/`.
